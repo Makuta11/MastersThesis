@@ -12,11 +12,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-<<<<<<< HEAD
 data
-=======
-data/
->>>>>>> e304fd1254f44374d5d8aa8ae90fd8606fb98d6c
 build/
 develop-eggs/
 dist/
