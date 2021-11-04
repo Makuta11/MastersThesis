@@ -74,7 +74,7 @@ def single_rest_frame(file1, file2, file3, file4):
 
     return pd.DataFrame(data).reset_index(drop=True, inplace=False)
 
-def gen_timestamp_frame(dataDir):
+def gen_timestamp_frame(dataDir: str) -> pd.DataFrame:
     rest_list_csv = sorted(fetch_rest_csv(dataDir))
     rest_list_npy = sorted(fetch_rest_npy(dataDir))
     nback_list_csv = sorted(fetch_nback_csv(dataDir))
