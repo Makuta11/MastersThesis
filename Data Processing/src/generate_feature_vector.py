@@ -271,15 +271,3 @@ if __name__ == "__main__":
     print("All done!...")
     time.sleep(1)
     print("Well done")
-
-"""
-    for i, file in enumerate(tqdm(sorted(os.listdir(dir_path)))):
-            if "DS" in file:
-                continue
-            key = file[-9:-4]
-            face_space[int(key)] = main(f'{dir_path}{file}')
-"""
-# %%
-
-#df = decompress_pickle("face_space_dict_test.pbz2")
-# %%
