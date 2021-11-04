@@ -87,7 +87,7 @@ def get_distances(contors, landmarks):
         distances.append(math.dist(l1,l2))
     return distances
 
-def calc_angle(A, B, C, /):
+def calc_angle(A, B, C):
     Ax, Ay, Az = A[0]-B[0], A[1]-B[1], A[2]-B[2]
     Cx, Cy, Cz = C[0]-B[0], C[1]-B[1], C[2]-B[2]
     a = [Ay, Ax, Az]

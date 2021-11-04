@@ -18,4 +18,5 @@
 
 echo "Runnin script..."
 
+module load python3/3.8.11
 python3 src/generate_feature_vector.py
