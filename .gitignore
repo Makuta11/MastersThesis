@@ -11,8 +11,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-EmotioNetData/
-EmotioNetTest/
 data/
 build/
 develop-eggs/
