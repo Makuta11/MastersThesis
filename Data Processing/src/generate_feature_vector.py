@@ -4,7 +4,6 @@ import os, sys, bz2, cv2, math, time, pickle, itertools
 import numpy as np
 import pandas as pd
 import mediapipe as mp
-#import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from PIL import Image
@@ -245,8 +244,12 @@ def main(img_dir):
 
 if __name__ == "__main__":
     os.environ["GLOG_minloglevel"] ="2"
-    dir_path = "/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
-    pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/Data Processing/pickles"
+    if sys.platform == "linux":
+        dir_path = "/zhome/08/3/117881/MastersThesis/EmotioNetTest/"
+        pickles_path = "/zhome/08/3/117881/MastersThesis/Data Processing/pickles"
+    else:
+        dir_path = "/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
+        pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/Data Processing/pickles"
     face_space = dict()
     misses = []
 
@@ -278,5 +281,5 @@ if __name__ == "__main__":
 """
 # %%
 
-df = decompress_pickle("face_space_dict_test.pbz2")
+#df = decompress_pickle("face_space_dict_test.pbz2")
 # %%
