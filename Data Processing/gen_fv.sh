@@ -1,13 +1,12 @@
 #!/bin/sh
-#BSUB -q hpc
+#BSUB -q epyc
 #BSUB -J My_Test
 ### number of core
 #BSUB -n 32
 ### specify that all cores should be on the same host
 #BSUB -R "span[hosts=1]"
-#BSUB -J My_Test_HPC
 ### specify the memory needed
-#BSUB -R "rusage[mem=32GB]"
+#BSUB -R "rusage[mem=2GB]"
 ### Number of hours needed
 #BSUB -W 23:59
 ### added outputs and errors to files
@@ -17,4 +16,5 @@
 echo "Runnin script..."
 
 module load python3/3.8.11
-python3 src/generate_feature_vector.py
+python3 src/generate_feature_vector.py > outputs/log_file
+
