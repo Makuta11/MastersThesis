@@ -11,7 +11,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-EmotioNetData//
+EmotioNetData/
 EmotioNetTest/
 data/
 build/
