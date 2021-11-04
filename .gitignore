@@ -12,6 +12,8 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.DS_store
+.vscode
 data/
 outputs/
 build/

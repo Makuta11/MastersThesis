@@ -241,7 +241,11 @@ def main(img_dir):
     except:
         print(f'Image {main_key} could not be handled')
         return {main_key: np.nan}
+<<<<<<< HEAD
 #%%
+=======
+
+>>>>>>> 6613e8a3016bb82c9d3ee3cfec687193699dc3dd
 if __name__ == "__main__":
     os.environ["GLOG_minloglevel"] ="2"
     if sys.platform == "linux":
