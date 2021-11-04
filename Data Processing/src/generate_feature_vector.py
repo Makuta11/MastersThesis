@@ -245,7 +245,7 @@ def main(img_dir):
 if __name__ == "__main__":
     os.environ["GLOG_minloglevel"] ="2"
     if sys.platform == "linux":
-        dir_path = "/zhome/08/3/117881/MastersThesis/EmotioNetTest/"
+        dir_path = "/zhome/08/3/117881/MastersThesis/data/EmotioNetData/"
         pickles_path = "/zhome/08/3/117881/MastersThesis/Data Processing/pickles"
     else:
         dir_path = "/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
