@@ -8,6 +8,7 @@ __pycache__/
 *.pbz2
 *.dat
 *.R
+*.jpg
 
 # Distribution / packaging
 .Python
