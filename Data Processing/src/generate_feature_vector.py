@@ -266,8 +266,8 @@ if __name__ == "__main__":
             misses.append(d)
 
     print("Compressin bz2 pickle files...")
-    compress_pickle(f"{pickles_path}/face_space_dict_test", face_space)
-    compress_pickle(f"{pickles_path}/misses_test", misses)
+    compress_pickle(f"{pickles_path}/face_space_dict", face_space)
+    compress_pickle(f"{pickles_path}/misses", misses)
     print("All done!...")
     time.sleep(1)
     print("Well done")

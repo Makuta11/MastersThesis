@@ -1,15 +1,13 @@
 #!/bin/sh
-#BSUB -q gpuv100
-#BSUB -gpu "num=1"
+#BSUB -q hpc
 #BSUB -J My_Test
 ### number of core
-#BSUB -n 1 
+#BSUB -n 32
 ### specify that all cores should be on the same host
 #BSUB -R "span[hosts=1]"
 #BSUB -J My_Test_HPC
 ### specify the memory needed
 #BSUB -R "rusage[mem=32GB]"
-#BSUB -R "select[gpu32gb]"
 ### Number of hours needed
 #BSUB -W 23:59
 ### added outputs and errors to files
