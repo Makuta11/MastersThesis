@@ -13,7 +13,6 @@ __pycache__/
 # Distribution / packaging
 .Python
 data/
-pickles
 outputs/
 build/
 develop-eggs/
