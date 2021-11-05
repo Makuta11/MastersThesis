@@ -204,12 +204,12 @@ def get_gb_fb():
 def get_plot_range(landmarks_norm):
     xmax, xmin, ymax, ymin = max(landmarks_norm[:,0]).astype(int), min(landmarks_norm[:,0]).astype(int), max(landmarks_norm[:,1]).astype(int), min(landmarks_norm[:,1]).astype(int)
 
-def main(img_dir):
+def main(i, img_dir):
     if "DS" in img_dir:
         return 
     
     # Extract key
-    main_key = int(img_dir[-9:-4])
+    main_key = i #int(img_dir[-9:-4])
 
     try:
         # Generate Shape Vector
@@ -235,7 +235,9 @@ def main(img_dir):
                 except:
                     # append nan if convolution is obscured
                     feat_g.append(np.nan)                                   
-                    
+        
+        
+
         return {main_key: np.append(feat_x,feat_g)}
     
     except:
@@ -245,17 +247,17 @@ def main(img_dir):
 if __name__ == "__main__":
     os.environ["GLOG_minloglevel"] ="2"
     if sys.platform == "linux":
-        dir_path = "/zhome/08/3/117881/MastersThesis/data/EmotioNetData/"
-        pickles_path = "/zhome/08/3/117881/MastersThesis/Data Processing/pickles"
+        dir_path = "/zhome/08/3/117881/MastersThesis/data/DISFA/ImageDir/"
+        pickles_path = "/zhome/08/3/117881/MastersThesis/DataProcessing/pickles"
     else:
-        dir_path = "/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
-        pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/Data Processing/pickles"
+        dir_path = ""#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
+        pickles_path = ""#"/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/DataProcessing/pickles"
     face_space = dict()
     misses = []
 
     print("Generation started....")
     # Parallel generation of face_space vectors
-    dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(f'{dir_path}{file}') for i, file in enumerate(sorted(os.listdir(dir_path))))
+    dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}') for i, file in enumerate(sorted(os.listdir(dir_path))))
     print("Generation done!!!")
 
     print("Dictionary combination started....")
@@ -266,8 +268,8 @@ if __name__ == "__main__":
             misses.append(d)
 
     print("Compressin bz2 pickle files...")
-    compress_pickle(f"{pickles_path}/face_space_dict", face_space)
-    compress_pickle(f"{pickles_path}/misses", misses)
+    compress_pickle(f"{pickles_path}/face_space_dict_disfa", face_space)
+    compress_pickle(f"{pickles_path}/misses_disfa", misses)
     print("All done!...")
     time.sleep(1)
     print("Well done")

@@ -1,8 +1,8 @@
 #!/bin/sh
-#BSUB -q epyc
+#BSUB -q hpc
 #BSUB -J My_Test
 ### number of core
-#BSUB -n 32
+#BSUB -n 24
 ### specify that all cores should be on the same host
 #BSUB -R "span[hosts=1]"
 ### specify the memory needed
