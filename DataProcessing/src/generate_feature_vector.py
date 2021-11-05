@@ -208,7 +208,7 @@ def main(i, img_dir):
     if "DS" in img_dir:
         return 
     
-    # Extract key
+    # Extract key - different for emotionet and disfa -
     main_key = i #int(img_dir[-9:-4])
 
     try:
