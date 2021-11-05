@@ -1,20 +1,22 @@
 #%%
-from joblib import Parallel, delayed
-import math
+from multiprocessing import Pool
+
 import time
 
-def sqrt_func(i):
-    time.sleep(1)
-    return {i: i**2} 
+work = (["A", 5], ["B", 2], ["C", 1], ["D", 3])
 
-r = Parallel(n_jobs=5, verbose=1)(delayed(sqrt_func)(i) for i in range(5))
 
-# %%
-print(type(r))
-print(r)
-# %%
-dictionary = dict()
-for d in r:
-    dictionary.update(d)
-dictionary
+def work_log(work_data):
+    print(" Process %s waiting %s seconds" % (work_data[0], work_data[1]))
+    time.sleep(int(work_data[1]))
+    print(" Process %s Finished." % work_data[0])
+
+
+def pool_handler():
+    p = Pool(2)
+    p.map(work_log, work)
+
+
+if __name__ == '__main__':
+    pool_handler()
 # %%
