@@ -49,9 +49,6 @@ if __name__ == '__main__':
         tmp = frame[1].iloc[::6,:]
         df = df.append(tmp)
     
-    import pdb; pdb.set_trace()
+    df = df.reset_index(drop=True)
 
     compress_pickle(f'{pickles_path}/disfa_labels', df)
-
-
-# %%
