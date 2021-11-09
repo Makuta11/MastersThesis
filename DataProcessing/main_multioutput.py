@@ -54,16 +54,45 @@ def main(bool):
     clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=-1).fit(X_train, y_train)
     print(f"Model fit in {time.time() - t1} seconds")
     
+    # Save the test model
+    if sys.platform == 'linux':
+        compress_pickle("/work3/s164272/KNearest", clf)
+    else:
+        compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
+
+    # Clear some memory space
+    del X_train, y_train, X, y, data, labels, data_list, data_arr
+    
     print("Starting prediction")
     t2 = time.time()
     y_pred = clf.predict(X_test)
     print(f'It took {t2 - time.time()} to make predictions')
 
-    f1_micro = f1_score(y_test, y_pred, average='micro')
-    f1_macro = f1_score(y_test, y_pred, average='macro')
-
-    print(f'F1-score (micro) of the classifier was: {f1_micro}')
-    print(f'F1-score (macro) of the classifier was: {f1_macro}')
+    try:
+        f1 = f1_score(y_test, y_pred)
+        print(f'F1-score (binary) of the classifier was: {f1}')
+    except:
+        pass
+    try:
+        f1_micro = f1_score(y_test, y_pred, average='micro')
+        print(f'F1-score (micro) of the classifier was: {f1_micro}')
+    except:
+        pass
+    try:
+        f1_macro = f1_score(y_test, y_pred, average='macro')
+        print(f'F1-score (macro) of the classifier was: {f1_macro}')
+    except:
+        pass
+    try:
+        f1_weighted = f1_score(y_test, y_pred, average='weighted')
+        print(f'F1-score (weighted) of the classifier was: {f1_macro}')
+    except:
+        pass
+    try:
+        f1_samples = f1_score(y_test, y_pred, average='samples')
+        print(f'F1-score (samples) of the classifier was: {f1_macro}')
+    except:
+        pass
 
     # Save the test model
     if sys.platform == 'linux':

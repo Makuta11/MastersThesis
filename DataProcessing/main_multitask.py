@@ -15,62 +15,67 @@ from sklearn.datasets import make_multilabel_classification
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-def main(bool):
-    print("Loading Dataset")
-    t = time.time()
+# users = np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
 
-    # subject split
-    # users = np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
-    user_train_val = np.array([2,3,4,6,7,8,10,11,16,17,18,21,23,24,25,26,27,28,30,32])
-    user_test = np.array([1,5,9,12,13,29,31])
-    
-    data, labels, train_idx, test_idx = load_data(user_train_val, user_test)
+print("Loading Dataset")
+t = time.time()
 
-    train_val_dataset = ImageTensorDatasetMultitask(data[train_idx], labels[train_idx])
-    test_dataset = ImageTensorDatasetMultitask(data[test_idx], labels[test_idx])
+# Data parameters
+BATCH_SIZE = 32
 
-    train_val_dataloader = torch.utils.data.DataLoader(train_val_dataset, batch_size=BATCH_SIZE, shuffle=True)
-    test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True)
+# Subject split
+user_train_val = np.array([2,3,4,6,7,8,10,11,16,17,18,21,23,24,25,26,27,28,30,32])
+user_test = np.array([1,5,9,12,13,29,31])
 
-    bad_idx = []
-    data_list = list(data.items())
-    data_arr = np.array(data_list)
-    
-    # Collect bad inputs
-    ln = data_arr[0,1].shape[0]
-    for i, arr in enumerate(data_arr[:,1]):
-        try:
-            if len(arr) != ln:
-                bad_idx.append(i)
-        else:
+# Data loading
+data, labels, train_idx, test_idx = load_data(user_train_val, user_test)
+
+train_val_dataset = ImageTensorDatasetMultitask(data[train_idx], labels[train_idx])
+test_dataset = ImageTensorDatasetMultitask(data[test_idx], labels[test_idx])
+
+train_val_dataloader = torch.utils.data.DataLoader(train_val_dataset, batch_size=BATCH_SIZE, shuffle=True)
+test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True)
+
+# Network Parameters
+FC_HIDDEN_DIM_1 = 2**12
+FC_HIDDEN_DIM_2 = 2**10
+
+
+
+bad_idx = []
+data_list = list(data.items())
+data_arr = np.array(data_list)
+
+# Collect bad inputs
+ln = data_arr[0,1].shape[0]
+for i, arr in enumerate(data_arr[:,1]):
+    try:
+        if len(arr) != ln:
             bad_idx.append(i)
+    else:
+        bad_idx.append(i)
 
-    # Delete bad inputs
-    data_arr = np.delete(data_arr, bad_idx, axis=0)
+# Delete bad inputs
+data_arr = np.delete(data_arr, bad_idx, axis=0)
 
-    # Construct final data arrays
-    X = np.vstack(data_arr[:,1])
-    y = labels.drop(columns="ID").to_numpy()
-    
-    print(f"Data loaded in {time.time() - t} seconds")
+# Construct final data arrays
+X = np.vstack(data_arr[:,1])
+y = labels.drop(columns="ID").to_numpy()
 
-    print("Starting fit")
-    t1 = time.time()
-    clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=-1).fit(X,y)
-    clf.predict(X[-2:])
-    print(f"Model fit in {time.time() - t1} seconds")
+print(f"Data loaded in {time.time() - t} seconds")
 
-    print("This is a prediction")
-    clf.predict(X[-5:])
-    print(y[-5:])
+print("Starting fit")
+t1 = time.time()
+clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=-1).fit(X,y)
+clf.predict(X[-2:])
+print(f"Model fit in {time.time() - t1} seconds")
 
-    print("Activate debugger for inspection of data")
+print("This is a prediction")
+clf.predict(X[-5:])
+print(y[-5:])
 
-    # Save the test model
-    compress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/knearest_test", clf)
+print("Activate debugger for inspection of data")
 
-
-if __name__ == "__main__":
-    print("starting script")
-    main(True)
+# Save the test model
+compress_pickle("/work3/s164272/", clf)
 
