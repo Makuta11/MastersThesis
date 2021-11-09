@@ -5,17 +5,18 @@ import time
 import numpy as np
 import pandas as pd
 
-from src.generate_feature_vector import decompress_pickle, compress_pickle
-from sklearn.datasets import make_multilabel_classification
-from sklearn.multioutput import MultiOutputClassifier
+from sklearn.metrics import f1_score
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.datasets import make_multilabel_classification
+from src.generate_feature_vector import decompress_pickle, compress_pickle
 
 def main(bool):
     print("Loading Dataset")
     t = time.time()
     if sys.platform == 'linux':
-        data = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2")
-        labels = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
+        data = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/face_space_dict_disfa.pbz2")
+        labels = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/disfa_labels.pbz2")
     else:
         data = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2")
         labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
@@ -40,24 +41,32 @@ def main(bool):
     X = np.vstack(data_arr[:,1])
     X = np.nan_to_num(X)
     y = labels.drop(columns="ID").to_numpy()
-    
+
     print(f"Data loaded in {time.time() - t} seconds")
 
     print("Starting fit")
     t1 = time.time()
-    clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=-1).fit(X,y)
-    clf.predict(X[-2:])
+    X_text, y_test = X[:1616], y[:1616]
+    X_train, y_train = X[1616:], y[1616:]
+    clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=-1).fit(X_train, y_train)
     print(f"Model fit in {time.time() - t1} seconds")
+    
+    print("Starting prediction")
+    t2 = time.time()
+    y_pred = clf.predict(X_test)
+    print(f'It took {t2 - time.time()} to make predictions')
 
-    print("This is a prediction")
-    clf.predict(X[-5:])
-    print(y[-5:])
+    f1_micro = f1_score(y_test, y_pred, average='micro')
+    f1_macro = f1_score(y_test, y_pred, average='macro')
 
-    print("Activate debugger for inspection of data")
+    print(f'F1-score (micro) of the classifier was: {f1_micro}')
+    print(f'F1-score (macro) of the classifier was: {f1_macro}')
 
     # Save the test model
-    compress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/knearest_test", clf)
-
+    if sys.platform == 'linux':
+        compress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/knearest_test", clf)
+    else:
+        compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
 
 if __name__ == "__main__":
     print("starting script")
