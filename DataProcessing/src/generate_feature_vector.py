@@ -247,7 +247,7 @@ def main(i, img_dir):
 if __name__ == "__main__":
     os.environ["GLOG_minloglevel"] ="2"
     if sys.platform == "linux":
-        dir_path = "/zhome/08/3/117881/MastersThesis/data/DISFA/ImageDir/"
+        dir_path = "/zhome/08/3/117881/MastersThesis/data/DISFA/ImageDirTest/"
         pickles_path = "/zhome/08/3/117881/MastersThesis/DataProcessing/pickles"
     else:
         dir_path = ""#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
@@ -268,8 +268,8 @@ if __name__ == "__main__":
             misses.append(d)
 
     print("Compressin bz2 pickle files...")
-    compress_pickle(f"{pickles_path}/face_space_dict_disfa", face_space)
-    compress_pickle(f"{pickles_path}/misses_disfa", misses)
+    compress_pickle(f"{pickles_path}/face_space_dict_disfa_test", face_space)
+    compress_pickle(f"{pickles_path}/misses_disfa_test", misses)
     print("All done!...")
     time.sleep(1)
     print("Well done")

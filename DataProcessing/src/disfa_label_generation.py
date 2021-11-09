@@ -44,11 +44,11 @@ if __name__ == '__main__':
     
     df = pd.DataFrame()
 
-    for frame in lab_array:
+    for i, frame in enumerate(lab_array):
         # use only evey 6th label
         tmp = frame[1].iloc[::6,:]
         df = df.append(tmp)
     
     df = df.reset_index(drop=True)
 
-    compress_pickle(f'{pickles_path}/disfa_labels', df)
+    compress_pickle(f'{pickles_path}/disfa_labels_test', df)
