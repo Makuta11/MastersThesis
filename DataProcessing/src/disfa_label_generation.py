@@ -48,11 +48,9 @@ if __name__ == '__main__':
         # use only evey 6th label
         tmp = frame[1].iloc[::6,:]
         df = df.append(tmp)
-        if i == 0:
-            break
     
     df = df.reset_index(drop=True)
 
-    compress_pickle(f'{pickles_path}/disfa_labels_test', df)
+    compress_pickle(f'{pickles_path}/disfa_labels', df)
 
 # %%

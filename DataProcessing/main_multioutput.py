@@ -34,6 +34,8 @@ def main(bool):
         except:
             bad_idx.append(i)
 
+    print(f'There were a total of {len(bad_idx)} bad indexes')
+
     # Delete bad inputs
     data_arr = np.delete(data_arr, bad_idx, axis=0)
 
@@ -41,6 +43,7 @@ def main(bool):
     X = np.vstack(data_arr[:,1])
     X = np.nan_to_num(X)
     y = labels.drop(columns="ID").to_numpy()
+    y = np.delete(y, bad_idx, axis = 0)
 
     print(f"Data loaded in {time.time() - t} seconds")
 
