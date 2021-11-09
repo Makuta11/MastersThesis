@@ -1,3 +1,4 @@
+#%%
 import os
 import sys
 import time
@@ -12,8 +13,12 @@ from sklearn.neighbors import KNeighborsClassifier
 def main(bool):
     print("Loading Dataset")
     t = time.time()
-    data = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2")
-    labels = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
+    if sys.platform == 'linux':
+        data = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2")
+        labels = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
+    else:
+        data = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2")
+        labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
 
     bad_idx = []
     data_list = list(data.items())
@@ -33,6 +38,7 @@ def main(bool):
 
     # Construct final data arrays
     X = np.vstack(data_arr[:,1])
+    X = np.nan_to_num(X)
     y = labels.drop(columns="ID").to_numpy()
     
     print(f"Data loaded in {time.time() - t} seconds")
@@ -57,3 +63,5 @@ if __name__ == "__main__":
     print("starting script")
     main(True)
 
+
+# %%
