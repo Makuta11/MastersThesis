@@ -6,7 +6,7 @@
 ### specify that all cores should be on the same host
 #BSUB -R "span[hosts=1]"
 ### specify the memory needed
-#BSUB -R "rusage[mem=10GB]"
+#BSUB -R "rusage[mem=5GB]"
 ### Number of hours needed
 #BSUB -W 23:59
 ### added outputs and errors to files
@@ -16,5 +16,5 @@
 echo "Runnin script..."
 
 module load python3/3.8.11
-python3 main_multioutput.py > outputs/log_file
+python3 src/disfa_data_generation.py > outputs/log_file_disfa_datagen
 
