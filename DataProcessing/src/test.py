@@ -1,22 +1,15 @@
 #%%
-from multiprocessing import Pool
+import numpy as np
 
-import time
+from sklearn.datasets import make_multilabel_classification
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
-work = (["A", 5], ["B", 2], ["C", 1], ["D", 3])
+X, y = make_multilabel_classification(n_classes=3, random_state=0)
 
+clf = MultiOutputClassifier(KNeighborsClassifier()).fit(X, y)
 
-def work_log(work_data):
-    print(" Process %s waiting %s seconds" % (work_data[0], work_data[1]))
-    time.sleep(int(work_data[1]))
-    print(" Process %s Finished." % work_data[0])
-
-
-def pool_handler():
-    p = Pool(2)
-    p.map(work_log, work)
+clf.predict(X[-2:])
 
 
-if __name__ == '__main__':
-    pool_handler()
 # %%
