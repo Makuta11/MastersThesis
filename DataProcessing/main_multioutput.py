@@ -49,7 +49,7 @@ def main(bool):
 
     print("Starting fit")
     t1 = time.time()
-    X_text, y_test = X[:1616], y[:1616]
+    X_test, y_test = X[:1616], y[:1616]
     X_train, y_train = X[1616:], y[1616:]
     clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=-1).fit(X_train, y_train)
     print(f"Model fit in {time.time() - t1} seconds")
