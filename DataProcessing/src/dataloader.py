@@ -95,5 +95,5 @@ class ImageTensorDatasetMultitask(data.Dataset):
         for i, lab in enumerate(self.labels.iloc[key]):
             AU_int[i][lab] = 1
 
-        return self.data[key], AUs.values, [AU_int[0],AU_int[1],AU_int[2],AU_int[3],AU_int[4],AU_int[5],AU_int[6],AU_int[7],AU_int[8],AU_int[9],AU_int[10],AU_int[11]]
+        return self.data[key], AUs.values, torch.Tensor([AU_int[0],AU_int[1],AU_int[2],AU_int[3],AU_int[4],AU_int[5],AU_int[6],AU_int[7],AU_int[8],AU_int[9],AU_int[10],AU_int[11]])
         
