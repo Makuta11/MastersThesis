@@ -64,6 +64,5 @@ class ImageTensorDatasetMultitask(data.Dataset):
     
     def __getitem__(self, key):
         data = self.data[key]
-        label = self.label[key]
         return slef.data[key], self.label[key]
         
