@@ -6,9 +6,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from src.model import *
+#from src.models import *
 from src.dataloader import *
-from sklearn.model_selectiom import KFold
+from sklearn.model_selection import KFold
 from src.generate_feature_vector import decompress_pickle, compress_pickle
 
 from sklearn.datasets import make_multilabel_classification
@@ -28,54 +28,63 @@ user_train_val = np.array([2,3,4,6,7,8,10,11,16,17,18,21,23,24,25,26,27,28,30,32
 user_test = np.array([1,5,9,12,13,29,31])
 
 # Data loading
-data, labels, train_idx, test_idx = load_data(user_train_val, user_test)
+data_test, data_train, labels_test, labels_train = load_data(user_train_val, user_test)
 
-train_val_dataset = ImageTensorDatasetMultitask(data[train_idx], labels[train_idx])
-test_dataset = ImageTensorDatasetMultitask(data[test_idx], labels[test_idx])
+train_val_dataset = ImageTensorDatasetMultitask(data_train, labels_train)
+test_dataset = ImageTensorDatasetMultitask(data_test, labels_test)
 
-train_val_dataloader = torch.utils.data.DataLoader(train_val_dataset, batch_size=BATCH_SIZE, shuffle=True)
-test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True)
+train_val_dataloader = torch.utils.data.DataLoader(train_val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=-1)
+test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=-1)
 
 # Network Parameters
-FC_HIDDEN_DIM_1 = 2**12
-FC_HIDDEN_DIM_2 = 2**10
+FC_HIDDEN_DIM_1 = 2**10
+FC_HIDDEN_DIM_2 = 2**12
+FC_HIDDEN_DIM_3 = 2**12
+FC_HIDDEN_DIM_4 = 2**10
+FC_HIDDEN_DIM_5 = 2**8
+
+# Training Parameters
+EPOCHS = 100
+LEARNING_RATE = 1e-3
+SAVE_FREQ = 10
+
+save_path = "checkpoints/"
+logdir = 'logs/'
 
 
+# Train setup
+model.train()
+model = model.to(device)
 
-bad_idx = []
-data_list = list(data.items())
-data_arr = np.array(data_list)
+optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+criterion = nn.BCELoss()
 
-# Collect bad inputs
-ln = data_arr[0,1].shape[0]
-for i, arr in enumerate(data_arr[:,1]):
-    try:
-        if len(arr) != ln:
-            bad_idx.append(i)
-    else:
-        bad_idx.append(i)
+if torch.cuda.device_count() > 1:
+    model = nn.DataParallel(model)
 
-# Delete bad inputs
-data_arr = np.delete(data_arr, bad_idx, axis=0)
+os.makedirs(save_path, exist_ok=True)
+logger = SummaryWriter(logdir)
 
-# Construct final data arrays
-X = np.vstack(data_arr[:,1])
-y = labels.drop(columns="ID").to_numpy()
+# Run training
+epoch = 0
+iteration = 0
+while True:
+    batch_losses = []
+    for imgs, targets, _ in train_val_dataloader:
+        imgs, targets = imgs.to(device), targets.to(device)
 
-print(f"Data loaded in {time.time() - t} seconds")
+        optimizer.zero_grad()
 
-print("Starting fit")
-t1 = time.time()
-clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=-1).fit(X,y)
-clf.predict(X[-2:])
-print(f"Model fit in {time.time() - t1} seconds")
+        model_result = model(imgs)
+        loss = criterion(model_result, targets.type(torch.float))
 
-print("This is a prediction")
-clf.predict(X[-5:])
-print(y[-5:])
+        batch_loss_value = loss.item()
+        loss.backward()
+        optimizer.step()
 
-print("Activate debugger for inspection of data")
-
-# Save the test model
-compress_pickle("/work3/s164272/", clf)
-
+        logger.add_scalar('train_loss', batch_loss_value, iteration)
+        batch_losses.append(batch_loss_value)
+        with torch.no_grad():
+            result = calculate_metrics(model_result.cpu().numpy(), targets.cpu().numpy())
+            for metric in result:
+                logger.add_scalar('train/' + metric, result[metric], iteration)
