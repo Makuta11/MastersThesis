@@ -1,12 +1,12 @@
 #!/bin/sh
-#BSUB -q hpc
+#BSUB -q gpuv100
 #BSUB -J My_Test
 ### number of core
-#BSUB -n 24
+#BSUB -n 1
 ### specify that all cores should be on the same host
-#BSUB -R "span[hosts=1]"
+#BSUB -gpu "num=1:mode=exclusive_process"
 ### specify the memory needed
-#BSUB -R "rusage[mem=16GB]"
+#BSUB -R "rusage[mem=32GB]"
 ### Number of hours needed
 #BSUB -W 23:59
 ### added outputs and errors to files
@@ -17,4 +17,4 @@ echo "Runnin script..."
 
 module load cuda/10.2
 module load python3/3.8.11
-python3 main_multioutput.py > outputs/log_file $(date '+%d%-%m-%y')(date '+%H:%M:%S')
+python3 main_multitask.py > outputs/log_multitask_$(date +"%d-%m-%y")_$(date +'%H:%M:%S')

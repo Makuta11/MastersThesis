@@ -28,8 +28,8 @@ num_intensities = 5 # 4 levels and an inactive level
 batch_size = 32
 
 # Subject split
-user_train = np.array([2,3,4,6,7,8,10,11,16,17,18,21,23,24,25,26,27,28,30,32])
-user_val = np.array([3,7,11,9,31])
+user_train = np.array([2,4,6,8,10,16,17,18,21,23,24,25,26,27,28,30,32])
+user_val = np.array([3,7,9,11,31])
 user_test = np.array([1,5,12,13,29])
 
 # Data loading
@@ -41,7 +41,7 @@ test_dataset = ImageTensorDatasetMultitask(data_test, labels_test)
 
 train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
-test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
 # Network Parameters
 FC_HIDDEN_DIM_1 = 2**10

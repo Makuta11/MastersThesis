@@ -18,8 +18,8 @@ def compress_pickle(title: str, data):
 
 def load_data(user_train, user_val, user_test):
     if sys.platform == "linux":
-        dataset = decompress_pickle(f'/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2')
-        labels = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
+        dataset = decompress_pickle(f'/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/face_space_dict_disfa.pbz2')
+        labels = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/disfa_labels.pbz2")
     else:
         dataset = decompress_pickle(f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2')
         labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
@@ -29,6 +29,8 @@ def load_data(user_train, user_val, user_test):
     data_list = list(dataset.items())
     data_arr = np.array(data_list)
     
+    print(f'data: {data_arr.shape} - labels: {labels.shape}')
+
     # Collect bad inputs
     ln = data_arr[0,1].shape[0]
     for i, arr in enumerate(data_arr[:,1]):
@@ -38,9 +40,10 @@ def load_data(user_train, user_val, user_test):
         except:
             bad_idx.append(i)
 
-    # Delete bad inputs
-    data_arr = np.delete(data_arr, bad_idx, axis=0)
+    # Delete bad inputs from labels. Since indexes are pulled from labels, we do not have to remove it from the data list
     labels = labels.drop(bad_idx)
+
+    print(f'data: {data_arr.shape} - labels: {labels.shape}')
 
     # Construct final data arrays
     data_arr = np.vstack(data_arr[:,1])
@@ -58,6 +61,11 @@ def load_data(user_train, user_val, user_test):
     test_idx = list(labels_test.index)
     val_idx = list(labels_val.index)
     train_idx = list(labels_train.index)
+
+    print(f'data_arr shape: {data_arr.shape}')
+    print(f'test: {test_idx}')
+    print(f'val: {val_idx}')
+    print(f'train: {train_idx}')
 
     data_test = data_arr[test_idx, :]
     data_val = data_arr[val_idx, :]
