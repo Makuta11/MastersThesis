@@ -90,7 +90,6 @@ class ImageTensorDatasetMultitask(data.Dataset):
         AUs = self.labels.iloc[key]
         AUs[AUs != 0] = 1
         
-        import pdb; pdb.set_trace()
         # One hot encode AU_intensities
         AU_int = np.zeros((12,5))
         for i, lab in enumerate(self.labels.iloc[key]):
