@@ -12,4 +12,5 @@ clf = MultiOutputClassifier(KNeighborsClassifier()).fit(X, y)
 clf.predict(X[-2:])
 
 
+
 # %%

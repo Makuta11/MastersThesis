@@ -40,7 +40,7 @@ from math import pi, cos, sin, exp, sqrt
             for i, txt in enumerate(np.arange(len(landmarks))):
                 ax.annotate(str(i), (x[i]+5, y[i]-5))
             for i, txt in enumerate(landmarks[tri.simplices]):
-                x, y = zip(*txt)
+            x, y = zip(*txt)
                 ax.annotate(str(i), (np.mean(x),np.mean(y)))
 
     def inter_eye_normalization(landmarks):
