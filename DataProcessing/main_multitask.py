@@ -3,11 +3,13 @@ import os, sys, time, torch, pickle
 import numpy as np
 import pandas as pd
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
+import torch.nn.functional as F
+from torch.utils.tensorboard import SummaryWriter
 
-#from src.models import *
+from src.models import *
 from src.dataloader import *
+from src.train_functions import *
 from sklearn.model_selection import KFold
 from src.generate_feature_vector import decompress_pickle, compress_pickle
 
@@ -21,7 +23,9 @@ print("Loading Dataset")
 t = time.time()
 
 # Data parameters
-BATCH_SIZE = 32
+num_AU = 12
+num_intensities = 5 # 4 levels and an inactive level
+batch_size = 32
 
 # Subject split
 user_train_val = np.array([2,3,4,6,7,8,10,11,16,17,18,21,23,24,25,26,27,28,30,32])
@@ -33,8 +37,8 @@ data_test, data_train, labels_test, labels_train = load_data(user_train_val, use
 train_val_dataset = ImageTensorDatasetMultitask(data_train, labels_train)
 test_dataset = ImageTensorDatasetMultitask(data_test, labels_test)
 
-train_val_dataloader = torch.utils.data.DataLoader(train_val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=-1)
-test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=-1)
+train_val_dataloader = torch.utils.data.DataLoader(train_val_dataset, batch_size=batch_size, shuffle=True)
+test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
 # Network Parameters
 FC_HIDDEN_DIM_1 = 2**10
@@ -45,46 +49,31 @@ FC_HIDDEN_DIM_5 = 2**8
 
 # Training Parameters
 EPOCHS = 100
-LEARNING_RATE = 1e-3
 SAVE_FREQ = 10
+DROPOUT_RATE = 0
+LEARNING_RATE = 1e-3
+DATA_SHAPE = train_val_dataset.__nf__()
 
+# Logging Parameters
 save_path = "checkpoints/"
 logdir = 'logs/'
 
+# Model initialization
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = Multitask(DATA_SHAPE, num_AU, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
+                FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
 
-# Train setup
-model.train()
-model = model.to(device)
-
-optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-criterion = nn.BCELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE) #TODO weight decay
+criterion = MultiTaskLossWrapper(model, task_num= 12 + 1)
 
 if torch.cuda.device_count() > 1:
     model = nn.DataParallel(model)
 
 os.makedirs(save_path, exist_ok=True)
-logger = SummaryWriter(logdir)
+#logger = SummaryWriter(logdir)
 
 # Run training
-epoch = 0
-iteration = 0
-while True:
-    batch_losses = []
-    for imgs, targets, _ in train_val_dataloader:
-        imgs, targets = imgs.to(device), targets.to(device)
+loss_collect, model = train_model(model, optimizer, criterion, EPOCHS, train_val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ)
 
-        optimizer.zero_grad()
-
-        model_result = model(imgs)
-        loss = criterion(model_result, targets.type(torch.float))
-
-        batch_loss_value = loss.item()
-        loss.backward()
-        optimizer.step()
-
-        logger.add_scalar('train_loss', batch_loss_value, iteration)
-        batch_losses.append(batch_loss_value)
-        with torch.no_grad():
-            result = calculate_metrics(model_result.cpu().numpy(), targets.cpu().numpy())
-            for metric in result:
-                logger.add_scalar('train/' + metric, result[metric], iteration)
+# Save text files with loss
+np.savetxt('loss_collect_test.txt', loss_collect)

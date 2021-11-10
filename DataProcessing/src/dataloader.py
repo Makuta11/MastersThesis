@@ -17,7 +17,7 @@ def compress_pickle(title: str, data):
         pickle.dump(data, f)
 
 def checkpoint_save(model, save_path, epoch):
-    f = os.path.join(save_path, 'checkpoint-{:06d}.pth'.format(epoch))
+    f = os.path.join(save_path, 'checkpoint_test-{:06d}.pth'.format(epoch))
     if 'module' in dir(model):
         torch.save(model.module.state_dict(), f)
     else:
@@ -52,6 +52,7 @@ def load_data(user_train_val, user_test):
 
     # Construct final data arrays
     data_arr = np.vstack(data_arr[:,1])
+    data_arr = np.nan_to_num(data_arr)
 
     if sys.platform == "linux":
         labels_test = pd.concat([labels[(labels.ID==te)] for te in user_test])
@@ -76,7 +77,10 @@ class ImageTensorDatasetMultitask(data.Dataset):
         self.labels = labels.drop(columns = "ID")
         
     def __len__(self):
-        return self.labels.shape[0]
+        return len(self.labels)
+
+    def __nf__(self):
+        return len(self.data[0])
     
     def __getitem__(self, key):
         data = self.data[key]
@@ -88,9 +92,12 @@ class ImageTensorDatasetMultitask(data.Dataset):
             AUs = 0
         """
         AUs = self.labels.iloc[key]
-        AUs[AUs =! 0] = 1
+        AUs[AUs != 0] = 1
+        
+        # One hot encode AU_intensities
+        AU_int = np.zeros((12,5))
+        for i, lab in enumerate(self.labels.iloc[key]):
+            AU_int[i][lab] = 1
 
-        AU_intensity = self.labels.iloc[key]
-
-        return slef.data[key], AUs.values, AU_intensity.values
+        return self.data[key], AUs.values, [AU_int[0],AU_int[1],AU_int[2],AU_int[3],AU_int[4],AU_int[5],AU_int[6],AU_int[7],AU_int[8],AU_int[9],AU_int[10],AU_int[11]]
         
