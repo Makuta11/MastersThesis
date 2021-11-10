@@ -1,9 +1,18 @@
+import os
+from tqdm import tqdm
+import torch
 import numpy as np
 import pandas as pd
-import os
-import torch
 
-def train_model(model, optimizer, criterion, num_epochs, train_dataloader, device,
+def checkpoint_save(model, save_path, epoch):
+    f = os.path.join(save_path, 'checkpoint_test-{:06d}.pth'.format(epoch))
+    if 'module' in dir(model):
+        torch.save(model.module.state_dict(), f)
+    else:
+        torch.save(model.state_dict(), f)
+    print('saved checkpoint:', f)
+
+def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_dataloader, device,
                 save_path, save_freq, scheduler = None):
     
     loss_collect = []
@@ -13,6 +22,7 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, devic
         
         # Initialilze loss and set model to train mode
         running_loss = 0
+        val_loss = 0
         model.train()
         
         for i, x in enumerate(train_dataloader):
@@ -38,9 +48,44 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, devic
         
         loss_collect = np.append(loss_collect, running_loss/(i+1))
 
+        # get validation loss
+        model.eval()
+        for i, x in enumerate(val_dataloader):
+            data = x[0].float().to(device)
+            AUs = x[1].float().to(device)
+            AU_intensities = x[2]
+            for elm in AU_intensities:
+                elm.float().to(device)
+
+            out = model(data)
+            loss,_ = criterion(out, AUs, AU_intensities, device)
+            val_loss += loss.detach().cpu().item()
+        
+        if scheduler:
+           scheduler.step()
+
+        val_loss_collect = np.append(val_loss_collect, val_loss/(i+1))
+
         print(str(epoch + 1) + ' out of ' + str(num_epochs))
         print(loss_collect[epoch])
-        if epoch % save_freq == 0:
+        print(val_loss_collect[epoch])
+        if (epoch + 1) % save_freq == 0:
             checkpoint_save(model, save_path, epoch)
 
-    return loss_collect, model
+    return model, loss_collect, val_loss_collect
+
+def get_predictions(model, val_dataloader):
+        collect = dict()
+        df = pd.DataFrame()
+
+        for i, x in enumerate(val_dataloader):
+            model.eval()
+            out = model(x[0].float().to(device))
+
+            AUs_true = x[1]
+            AU_intensities = x[2]
+
+
+
+
+

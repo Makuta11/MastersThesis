@@ -16,15 +16,7 @@ def compress_pickle(title: str, data):
     with bz2.BZ2File(title + '.pbz2', 'w') as f: 
         pickle.dump(data, f)
 
-def checkpoint_save(model, save_path, epoch):
-    f = os.path.join(save_path, 'checkpoint_test-{:06d}.pth'.format(epoch))
-    if 'module' in dir(model):
-        torch.save(model.module.state_dict(), f)
-    else:
-        torch.save(model.state_dict(), f)
-    print('saved checkpoint:', f)
-
-def load_data(user_train_val, user_test):
+def load_data(user_train, user_val, user_test):
     if sys.platform == "linux":
         dataset = decompress_pickle(f'/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2')
         labels = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
@@ -56,18 +48,22 @@ def load_data(user_train_val, user_test):
 
     if sys.platform == "linux":
         labels_test = pd.concat([labels[(labels.ID==te)] for te in user_test])
-        labels_train_val = pd.concat([labels[(labels.ID==tr)] for tr in user_train_val])
+        labels_val = pd.concat([labels[(labels.ID==va)] for va in user_val])
+        labels_train = pd.concat([labels[(labels.ID==tr)] for tr in user_train])
     else:
-        labels_test = labels.iloc[:100]
-        labels_train_val = labels.iloc[100:]
+        labels_test = labels.iloc[:75]
+        labels_val = labels.iloc[75:200]
+        labels_train = labels.iloc[200:]
 
     test_idx = list(labels_test.index)
-    train_idx = list(labels_train_val.index)
+    val_idx = list(labels_val.index)
+    train_idx = list(labels_train.index)
 
     data_test = data_arr[test_idx, :]
+    data_val = data_arr[val_idx, :]
     data_train = data_arr[train_idx, :]
 
-    return data_test, data_train, labels_test.reset_index(drop=True), labels_train_val.reset_index(drop=True)
+    return data_test, data_val, data_train, labels_test.reset_index(drop=True), labels_val.reset_index(drop=True), labels_train.reset_index(drop=True)
 
 class ImageTensorDatasetMultitask(data.Dataset):
     
