@@ -18,9 +18,11 @@ def compress_pickle(title: str, data):
 
 def load_data(user_train, user_val, user_test):
     if sys.platform == "linux":
+        # Big dataload on hpc
         dataset = decompress_pickle(f'/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/face_space_dict_disfa.pbz2')
         labels = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/disfa_labels.pbz2")
     else:
+        # Small testing dataload on local mac
         dataset = decompress_pickle(f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2')
         labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
 
@@ -28,8 +30,6 @@ def load_data(user_train, user_val, user_test):
     bad_idx = []
     data_list = list(dataset.items())
     data_arr = np.array(data_list)
-    
-    print(f'data: {data_arr.shape} - labels: {labels.shape}')
 
     # Collect bad inputs
     ln = data_arr[0,1].shape[0]
@@ -40,15 +40,15 @@ def load_data(user_train, user_val, user_test):
         except:
             bad_idx.append(i)
 
-    # Delete bad inputs from labels. Since indexes are pulled from labels, we do not have to remove it from the data list
-    labels = labels.drop(bad_idx)
-
-    print(f'data: {data_arr.shape} - labels: {labels.shape}')
+    # Delete bad inputs from labels and array
+    labels = labels.drop(bad_idx).reset_index(drop=True)
+    data_arr = np.delete(data_arr, bad_idx, axis=0)
 
     # Construct final data arrays
     data_arr = np.vstack(data_arr[:,1])
     data_arr = np.nan_to_num(data_arr)
 
+    # Check for small dataload on local system
     if sys.platform == "linux":
         labels_test = pd.concat([labels[(labels.ID==te)] for te in user_test])
         labels_val = pd.concat([labels[(labels.ID==va)] for va in user_val])
@@ -58,15 +58,12 @@ def load_data(user_train, user_val, user_test):
         labels_val = labels.iloc[75:200]
         labels_train = labels.iloc[200:]
 
+    # Extract test-val-train indexes
     test_idx = list(labels_test.index)
     val_idx = list(labels_val.index)
     train_idx = list(labels_train.index)
 
-    print(f'data_arr shape: {data_arr.shape}')
-    print(f'test: {test_idx}')
-    print(f'val: {val_idx}')
-    print(f'train: {train_idx}')
-
+    # Slice data
     data_test = data_arr[test_idx, :]
     data_val = data_arr[val_idx, :]
     data_train = data_arr[train_idx, :]
@@ -90,14 +87,10 @@ class ImageTensorDatasetMultitask(data.Dataset):
         data = self.data[key]
         
         # Multi-label classification labels
-        """ Think this is a mistake. I might try later
-        AUs = list(self.labels.iloc[key][self.labels.iloc[key] != 0].index)
-        if len(AUs) == 0:
-            AUs = 0
-        """
         AUs = self.labels.iloc[key]
         AUs[AUs != 0] = 1
         
+        import pdb; pdb.set_trace()
         # One hot encode AU_intensities
         AU_int = np.zeros((12,5))
         for i, lab in enumerate(self.labels.iloc[key]):
