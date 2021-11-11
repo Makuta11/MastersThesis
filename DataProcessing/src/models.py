@@ -179,8 +179,6 @@ class MultiTaskLossWrapper(nn.Module):
     def forward(self, data, AUs, AU_intensities, device):
 
         out_AU, out_AU_intensities = data[0], data[1]
-        
-        #TODO: something is wrong here. Precision and loss needs to be figured out!!!
 
         # Calculate loss for the multi-label classification of identifying if AU is present in image
         AU_loss = F.binary_cross_entropy(out_AU, AUs)#, weight= self.model.stop_weights) #TODO: add class weight

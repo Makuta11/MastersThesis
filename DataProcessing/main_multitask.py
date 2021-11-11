@@ -64,14 +64,14 @@ DATA_SHAPE = train_dataset.__nf__()
 
 today = str(datetime.datetime.now())
 
- # Logging Parameters
-        if sys.platform == "linux":
-            save_path = "/work3/s164272/"
-            os.makedirs(f"/zhome/08/3/117881/MastersThesis/DataProcessing/logs/{today[:19]}")
-        else:
-            save_path = "localOnly"
-            logdir = 'logs/'
-            os.makedirs(f'{save_path}/{today[:19]}')
+# Logging Parameters
+if sys.platform == "linux":
+    save_path = "/work3/s164272/"
+    os.makedirs(f"/zhome/08/3/117881/MastersThesis/DataProcessing/logs/{today[:19]}")
+else:
+    save_path = "localOnly"
+    logdir = 'logs'
+    os.makedirs(f'{save_path}/{today[:19]}')
 
 fig_tot, ax_tot = plt.subplots()
 
@@ -92,9 +92,6 @@ for i, LEARNING_RATE in enumerate([1e-2, 1e-3, 1e-4]):
 
         if torch.cuda.device_count() > 1:
             model = nn.DataParallel(model)
-
-        os.makedirs(save_path, exist_ok=True)
-        #logger = SummaryWriter(logdir)
 
         # Run training
         model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name)
