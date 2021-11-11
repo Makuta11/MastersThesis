@@ -109,7 +109,7 @@ for i, LEARNING_RATE in enumerate([1e-2, 1e-3, 1e-4]):
         ax_tot.plot(np.arange(EPOCHS), val_loss_collect, linewidth="3", label = f"val_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")
         ax_tot.set_title(f"LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
         ax_tot.set_xlabel("Epochs")
-        ax_tot.legend(loc='center left', bbox_to_anchor=(1,0.5))
+        ax_tot.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         
         # Make output dir for images
         if sys.platform == 'linux':
