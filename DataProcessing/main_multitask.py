@@ -64,17 +64,23 @@ DATA_SHAPE = train_dataset.__nf__()
 
 today = str(datetime.datetime.now())
 
-# Cross-validation for hyperparameters LR and DR
-for LEARNING_RATE in [1e-2, 1e-3, 1e-4]:
-    for DROPOUT_RATE in [0, 0.25, 0.5]:
-
-        name = f'Batch{batch_size}_Epoch{EPOCHS}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
-        # Logging Parameters
+ # Logging Parameters
         if sys.platform == "linux":
             save_path = "/work3/s164272/"
+            os.makedirs(f"/zhome/08/3/117881/MastersThesis/DataProcessing/logs/{today[:19]}")
         else:
             save_path = "localOnly"
-        logdir = 'logs/'
+            logdir = 'logs/'
+            os.makedirs(f'{save_path}/{today[:19]}')
+
+fig_tot, ax_tot = plt.subplots()
+
+# Cross-validation for hyperparameters LR and DR
+for i, LEARNING_RATE in enumerate([1e-2, 1e-3, 1e-4]):
+    for j, DROPOUT_RATE in enumerate([0, 0.25, 0.5]):
+
+        # Name for saving the model
+        name = f'Batch{batch_size}_Epoch{EPOCHS}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
 
         # Model initialization
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -96,25 +102,31 @@ for LEARNING_RATE in [1e-2, 1e-3, 1e-4]:
         # Save train, val loss
         plt.style.use('fivethirtyeight')
         fig, ax = plt.subplots()
-        ax.plot(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3")
-        ax.plot(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3")
-        ax.set_title("LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
+        ax.plot(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3", label="train_loss")
+        ax.plot(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label="val_loss")
+        ax.set_title(f"LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
         ax.set_xlabel("Epochs")
+
+        ax_tot.plot(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3", label = f"E:{EPOCHS}_L:{LEARNING_RATE}")
+        ax_tot.plot(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label = f"E:{EPOCHS}_L:{LEARNING_RATE}")
+        ax_tot.set_title(f"LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
+        ax_tot.set_xlabel("Epochs")
         
         # Make output dir for images
         if sys.platform == 'linux':
-            os.makedirs(f"/zhome/08/3/117881/MastersThesis/DataProcessing/logs/{today[:19]}")
-            try:
-                plt.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
-            except:
-                pass
+            fig.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
         else:
-            try:
-                os.makedirs(f'{save_path}/{today[:19]}')
-            except:
-                pass
-            plt.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+            fig.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
 
-        # Save text files with loss
-        np.savetxt('loss_collect_test_{name}.txt', loss_collect)
-        np.savetxt('val_collect_test_{name}.txt', val_loss_collect)
+        del model, loss_collect, val_loss_collect, fig, ax
+
+        ## Save text files with loss
+        #np.savetxt(f'loss_collect_test_{name}.txt', loss_collect)
+        #np.savetxt(f'val_collect_test_{name}.txt', val_loss_collect)
+
+# Save collective plot
+        if sys.platform == 'linux':
+            fig_tot.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+        else:
+            fig_tot.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+

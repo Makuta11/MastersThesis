@@ -10,14 +10,17 @@ __pycache__/
 *.pbz2
 *.jpg
 
+# Folders
+localOnly
+data
+checkpoints
+outputs
+logs
+
 # Distribution / packaging
 .Python
 .DS_Store
 .vscode
-localOnly
-data/
-checkpoints
-outputs/
 build/
 develop-eggs/
 dist/
