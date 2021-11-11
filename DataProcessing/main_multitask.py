@@ -103,11 +103,13 @@ for i, LEARNING_RATE in enumerate([1e-2, 1e-3, 1e-4]):
         ax.plot(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label="val_loss")
         ax.set_title(f"LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
         ax.set_xlabel("Epochs")
+        ax.legend()
 
         ax_tot.plot(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3", label = f"E:{EPOCHS}_L:{LEARNING_RATE}")
         ax_tot.plot(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label = f"E:{EPOCHS}_L:{LEARNING_RATE}")
         ax_tot.set_title(f"LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
         ax_tot.set_xlabel("Epochs")
+        ax_tot.legend()
         
         # Make output dir for images
         if sys.platform == 'linux':
