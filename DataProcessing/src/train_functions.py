@@ -4,8 +4,8 @@ import torch
 import numpy as np
 import pandas as pd
 
-def checkpoint_save(model, save_path, epoch):
-    f = os.path.join(save_path, 'checkpoint_test-{:06d}.pth'.format(epoch))
+def checkpoint_save(model, save_path, epoch, name):
+    f = os.path.join(save_path, 'checkpoint_test-{:06d}-{}.pth'.format(epoch,name))
     if 'module' in dir(model):
         torch.save(model.module.state_dict(), f)
     else:
@@ -13,7 +13,7 @@ def checkpoint_save(model, save_path, epoch):
     print('saved checkpoint:', f)
 
 def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_dataloader, device,
-                save_path, save_freq, scheduler = None):
+                save_path, save_freq, scheduler = None, name = None):
     
     loss_collect = []
     val_loss_collect = []
@@ -28,9 +28,9 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
         for i, x in enumerate(train_dataloader):
             data = x[0].float().to(device)
             AUs = x[1].float().to(device)
-            AU_intensities = x[2]
-            for elm in AU_intensities:
-                elm.float().to(device)
+            AU_intensities = x[2].to(device)
+            #for elm in AU_intensities:
+            #    elm.float().to(device)
                 #AU_intensities = torch.cat((AU_intensities, elm.to(device)), axis=0)
             
             optimizer.zero_grad()
@@ -53,9 +53,9 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
         for i, x in enumerate(val_dataloader):
             data = x[0].float().to(device)
             AUs = x[1].float().to(device)
-            AU_intensities = x[2]
-            for elm in AU_intensities:
-                elm.float().to(device)
+            AU_intensities = x[2].to(device)
+            #for elm in AU_intensities:
+            #    elm.float().to(device)
 
             out = model(data)
             del data
@@ -75,7 +75,7 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
         print(loss_collect[epoch])
         print(val_loss_collect[epoch])
         if (epoch + 1) % save_freq == 0:
-            checkpoint_save(model, save_path, epoch)
+            checkpoint_save(model, save_path, epoch, name)
 
     return model, loss_collect, val_loss_collect
 

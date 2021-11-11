@@ -28,11 +28,11 @@ class Multitask(nn.Module):
             nn.BatchNorm1d(fc_hidden_dim_3),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
-            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
-            nn.BatchNorm1d(fc_hidden_dim_4),
-            nn.ReLU(),
-            nn.Dropout(p = dropout_prop),
-            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5)
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_5),
+            #nn.BatchNorm1d(fc_hidden_dim_4),
+            # nn.ReLU(),
+            # nn.Dropout(p = dropout_prop),
+            # nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5)
         )
         
         self.fc_layer_AU = nn.Sequential(
@@ -142,7 +142,6 @@ class Multitask(nn.Module):
           )
         """
 
-        
     def forward(self, data):
         batch_size = data.shape[0]
 
@@ -153,20 +152,23 @@ class Multitask(nn.Module):
         X = self.fc_layer_AU(X_shared)
         
         #fully connecetd layers for multi-class classification (level 2: 12 groups, 4 targets)
-        AU1 = self.fc_layer_AU1(X_shared)
-        AU2 = self.fc_layer_AU2(X_shared)
-        AU4 = self.fc_layer_AU4(X_shared)
-        AU5 = self.fc_layer_AU5(X_shared)
-        AU6 = self.fc_layer_AU6(X_shared)
-        AU9 = self.fc_layer_AU9(X_shared)
-        AU12 = self.fc_layer_AU12(X_shared)
-        AU15 = self.fc_layer_AU15(X_shared)
-        AU17 = self.fc_layer_AU17(X_shared)
-        AU20 = self.fc_layer_AU20(X_shared)
-        AU25 = self.fc_layer_AU25(X_shared)
-        AU26 = self.fc_layer_AU26(X_shared)
+        AU_intensities= [self.fc_layer_AU1(X_shared),
+                            self.fc_layer_AU2(X_shared),
+                            self.fc_layer_AU4(X_shared),
+                            self.fc_layer_AU5(X_shared),
+                            self.fc_layer_AU6(X_shared),
+                            self.fc_layer_AU9(X_shared),
+                            self.fc_layer_AU12(X_shared),
+                            self.fc_layer_AU15(X_shared),
+                            self.fc_layer_AU17(X_shared),
+                            self.fc_layer_AU20(X_shared),
+                            self.fc_layer_AU25(X_shared),
+                            self.fc_layer_AU26(X_shared)]
 
-        return [self.sigm(X),[AU1, AU2, AU4, AU5, AU6, AU9, AU12, AU15, AU17, AU20, AU25, AU26]]
+        
+
+        #return [self.sigm(X),[F.softmax(AU1), F.softmax(AU2), F.softmax(AU4), F.softmax(AU5), F.softmax(AU6), F.softmax(AU9), F.softmax(AU12), F.softmax(AU15), F.softmax(AU17), F.softmax(AU20), F.softmax(AU25), F.softmax(AU26)]]
+        return [self.sigm(X), AU_intensities]
 
 class MultiTaskLossWrapper(nn.Module):
     def __init__(self, model, task_num = 1 + 12):
@@ -177,14 +179,16 @@ class MultiTaskLossWrapper(nn.Module):
     def forward(self, data, AUs, AU_intensities, device):
 
         out_AU, out_AU_intensities = data[0], data[1]
-            
+        
+        #TODO: something is wrong here. Precision and loss needs to be figured out!!!
+
         # Calculate loss for the multi-label classification of identifying if AU is present in image
-        AU_loss = F.binary_cross_entropy(out_AU, AUs)#, weight= self.model.stop_weights) #TODO: add class weight
+        AU_loss = nn.BCELoss(out_AU, AUs)#, weight= self.model.stop_weights) #TODO: add class weight
         loss_collect = torch.exp(-self.log_sigmas[0])*AU_loss + self.log_sigmas[0] #TODO: add uncertainty weights
 
         # Calculate loss for the intensity of the AUs present in the image
         for i, lab in enumerate(AU_intensities.permute(1,0,2)):
-            au_tmp_loss = F.cross_entropy(out_AU_intensities[i], lab) 
+            au_tmp_loss = nn.CrossEntropyLoss(out_AU_intensities[i], lab) 
             loss_collect += torch.exp(-self.log_sigmas[i])*au_tmp_loss + self.log_sigmas[i] #TODO: add uncertainty weights
         """ 
             This needs to be added for monitoring the progression all individual losses

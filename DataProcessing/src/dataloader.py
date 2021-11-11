@@ -90,10 +90,13 @@ class ImageTensorDatasetMultitask(data.Dataset):
         AUs = self.labels.iloc[key]
         AUs[AUs != 0] = 1
         
-        # One hot encode AU_intensities
-        AU_int = np.zeros((12,5))
-        for i, lab in enumerate(self.labels.iloc[key]):
-            AU_int[i][lab] = 1
-
-        return self.data[key], AUs.values, torch.Tensor(np.array([AU_int[0],AU_int[1],AU_int[2],AU_int[3],AU_int[4],AU_int[5],AU_int[6],AU_int[7],AU_int[8],AU_int[9],AU_int[10],AU_int[11]]))
+        """CrossEntropyLoss does not take one-hot-encoded labels
+            # One hot encode AU_intensities
+            AU_int = np.zeros((12,5))
+            for i, lab in enumerate(self.labels.iloc[key]):
+                AU_int[i][lab] = 1
+        """
+        
+        return self.data[key], AUs.values, self.labels.iloc[key].values
+        #return self.data[key], AUs.values, torch.Tensor(np.array([AU_int[0],AU_int[1],AU_int[2],AU_int[3],AU_int[4],AU_int[5],AU_int[6],AU_int[7],AU_int[8],AU_int[9],AU_int[10],AU_int[11]]))
         

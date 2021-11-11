@@ -1,4 +1,4 @@
-import os, sys, time, torch, pickle, tqdm
+import os, sys, time, torch, pickle, tqdm, datetime
 
 import numpy as np
 import pandas as pd
@@ -19,21 +19,21 @@ from sklearn.datasets import make_multilabel_classification
 
 # users = np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
 
-print("Loading Dataset")
-t = time.time()
-
 # Data parameters
 num_AU = 12
 num_intensities = 5 # 4 levels and an inactive level
-batch_size = 32
+batch_size = 128
 
 # Subject split
-user_train = np.array([2,4,6,8,10,16,17,18,21,23,24,25,26,27,28,30,32])
-user_val = np.array([3,7,9,11,31])
-user_test = np.array([1,5,12,13,29])
+user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
+user_val = np.array([3,5,7,9,12,13])
+user_test = np.array([5])
 
 # Data loading
+print("Loading Dataset")
+t = time.time()
 data_test, data_val, data_train, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test)
+print(f"It took {time.time() - t} seconds to load the data")
 
 train_dataset = ImageTensorDatasetMultitask(data_train, labels_train)
 val_dataset = ImageTensorDatasetMultitask(data_val, labels_val)
@@ -43,49 +43,61 @@ train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_s
 val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
+del data_test, data_train, data_val
+
 # Network Parameters
-FC_HIDDEN_DIM_1 = 2**10
+FC_HIDDEN_DIM_1 = 2**9
 FC_HIDDEN_DIM_2 = 2**12
-FC_HIDDEN_DIM_3 = 2**12
-FC_HIDDEN_DIM_4 = 2**10
-FC_HIDDEN_DIM_5 = 2**8
+FC_HIDDEN_DIM_3 = 2**10
+FC_HIDDEN_DIM_4 = 2**12
+FC_HIDDEN_DIM_5 = 2**9
 
 # Training Parameters
-EPOCHS = 10
-SAVE_FREQ = 10
-DROPOUT_RATE = 0
-LEARNING_RATE = 1e-3
+EPOCHS = 50
+SAVE_FREQ = 50
+DROPOUT_RATE = 0.50
+LEARNING_RATE = 1e-2
 DATA_SHAPE = train_dataset.__nf__()
 
-# Logging Parameters
-save_path = "checkpoints/"
-logdir = 'logs/'
+# Cross-validation for hyperparameters LR and DR
+for LEARNING_RATE in [1e-2, 1e-3, 1e-4]:
+    for DROPOUT_RATE in [0, 0.25, 0.5]:
 
-# Model initialization
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = Multitask(DATA_SHAPE, num_AU, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
-                FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
+        today = str(datetime.datetime.now())
+        name = f'Batch{batch_size}_Epoch{EPOCHS}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}_T:{today[:19]}'
+        # Logging Parameters
+        save_path = "/work3/s164272/"
+        logdir = 'logs/'
 
-optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE) #TODO weight decay
-criterion = MultiTaskLossWrapper(model, task_num= 12 + 1)
+        # Model initialization
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model = Multitask(DATA_SHAPE, num_AU, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
+                        FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
 
-if torch.cuda.device_count() > 1:
-    model = nn.DataParallel(model)
+        optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-2) #TODO weight decay
+        criterion = MultiTaskLossWrapper(model, task_num= 12 + 1)
 
-os.makedirs(save_path, exist_ok=True)
-#logger = SummaryWriter(logdir)
+        if torch.cuda.device_count() > 1:
+            model = nn.DataParallel(model)
 
-# Run training
-model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ)
+        os.makedirs(save_path, exist_ok=True)
+        #logger = SummaryWriter(logdir)
 
-# Save train, val loss
-plt.style.use('fivethirtyeight')
-fig, ax = plt.subplots()
-ax.semilogy(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3")
-ax.semilogy(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3")
-ax.set_title("Training & Validation loss")
-ax.set_xlabel("Epochs")
-plt.savefig("logs/train_val_loss.png", dpi=300)
+        # Run training
+        model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name)
 
-# Save text files with loss
-np.savetxt('loss_collect_test.txt', loss_collect)
+        # Save train, val loss
+        plt.style.use('fivethirtyeight')
+        fig, ax = plt.subplots()
+        ax.plot(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3")
+        ax.plot(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3")
+        ax.set_title("LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
+        ax.set_xlabel("Epochs")
+        
+        # Make output dir for images
+        os.makedirs(f"/zhome/08/3/117881/MastersThesis/DataProcessing/logs/{today[:19]}")
+        plt.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+
+        # Save text files with loss
+        np.savetxt('loss_collect_test_{name}.txt', loss_collect)
+        np.savetxt('val_collect_test_{name}.txt', val_loss_collect)
