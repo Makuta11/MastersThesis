@@ -53,20 +53,27 @@ FC_HIDDEN_DIM_4 = 2**12
 FC_HIDDEN_DIM_5 = 2**9
 
 # Training Parameters
-EPOCHS = 50
+if sys.platform == "linux":
+    EPOCHS = 50
+else:
+    EPOCHS = 10
 SAVE_FREQ = 50
 DROPOUT_RATE = 0.50
 LEARNING_RATE = 1e-2
 DATA_SHAPE = train_dataset.__nf__()
 
+today = str(datetime.datetime.now())
+
 # Cross-validation for hyperparameters LR and DR
 for LEARNING_RATE in [1e-2, 1e-3, 1e-4]:
     for DROPOUT_RATE in [0, 0.25, 0.5]:
 
-        today = str(datetime.datetime.now())
-        name = f'Batch{batch_size}_Epoch{EPOCHS}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}_T:{today[:19]}'
+        name = f'Batch{batch_size}_Epoch{EPOCHS}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
         # Logging Parameters
-        save_path = "/work3/s164272/"
+        if sys.platform == "linux":
+            save_path = "/work3/s164272/"
+        else:
+            save_path = "localOnly"
         logdir = 'logs/'
 
         # Model initialization
@@ -95,8 +102,18 @@ for LEARNING_RATE in [1e-2, 1e-3, 1e-4]:
         ax.set_xlabel("Epochs")
         
         # Make output dir for images
-        os.makedirs(f"/zhome/08/3/117881/MastersThesis/DataProcessing/logs/{today[:19]}")
-        plt.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+        if sys.platform == 'linux':
+            os.makedirs(f"/zhome/08/3/117881/MastersThesis/DataProcessing/logs/{today[:19]}")
+            try:
+                plt.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+            except:
+                pass
+        else:
+            try:
+                os.makedirs(f'{save_path}/{today[:19]}')
+            except:
+                pass
+            plt.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
 
         # Save text files with loss
         np.savetxt('loss_collect_test_{name}.txt', loss_collect)
