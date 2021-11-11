@@ -72,8 +72,8 @@ else:
     save_path = "localOnly"
     logdir = 'logs'
     os.makedirs(f'{save_path}/{today[:19]}')
-
-fig_tot, ax_tot = plt.subplots()
+ 
+fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
 # Cross-validation for hyperparameters LR and DR
 for i, LEARNING_RATE in enumerate([1e-2, 1e-3, 1e-4]):
@@ -98,18 +98,18 @@ for i, LEARNING_RATE in enumerate([1e-2, 1e-3, 1e-4]):
 
         # Save train, val loss
         plt.style.use('fivethirtyeight')
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(10,12))
         ax.plot(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3", label="train_loss")
         ax.plot(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label="val_loss")
         ax.set_title(f"LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
         ax.set_xlabel("Epochs")
-        ax.legend()
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
-        ax_tot.plot(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3", label = f"E:{EPOCHS}_L:{LEARNING_RATE}")
-        ax_tot.plot(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label = f"E:{EPOCHS}_L:{LEARNING_RATE}")
+        ax_tot.plot(np.arange(EPOCHS), loss_collect, linewidth="3", label = f"train_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")
+        ax_tot.plot(np.arange(EPOCHS), val_loss_collect, linewidth="3", label = f"val_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")
         ax_tot.set_title(f"LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
         ax_tot.set_xlabel("Epochs")
-        ax_tot.legend()
+        ax_tot.legend(loc='center left', bbox_to_anchor=(1,0.5))
         
         # Make output dir for images
         if sys.platform == 'linux':
@@ -124,8 +124,8 @@ for i, LEARNING_RATE in enumerate([1e-2, 1e-3, 1e-4]):
         #np.savetxt(f'val_collect_test_{name}.txt', val_loss_collect)
 
 # Save collective plot
-        if sys.platform == 'linux':
-            fig_tot.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
-        else:
-            fig_tot.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+if sys.platform == 'linux':
+    fig_tot.savefig(f"logs/{today[:19]}/TrVal_fig_tot_{name}.png", dpi=128, bbox_inches='tight')
+else:
+    fig_tot.savefig(f"{save_path}/{today[:19]}/TrVal_fig_tot_{name}.png", dpi=128, bbox_inches='tight')
 
