@@ -76,7 +76,7 @@ else:
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
 # Cross-validation for hyperparameters LR and DR
-for i, LEARNING_RATE in enumerate([1e-2, 1e-3, 1e-4]):
+for i, LEARNING_RATE in enumerate([1e-4, 1e-5, 1e-6]):
     for j, DROPOUT_RATE in enumerate([0, 0.25, 0.5]):
 
         # Name for saving the model

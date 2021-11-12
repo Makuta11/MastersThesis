@@ -186,7 +186,9 @@ class MultiTaskLossWrapper(nn.Module):
 
         # Calculate loss for the intensity of the AUs present in the image
         for i, lab in enumerate(AU_intensities.permute(1,0)):
-            au_tmp_loss = F.cross_entropy(out_AU_intensities[i], lab) 
+            # Find indexes that contain the AU and train individual networks for AU intensity
+            AU_idx = (lab >= 1).nonzero(as_tuple=True)[0]
+            au_tmp_loss = F.cross_entropy(out_AU_intensities[i][AU_idx], lab[AU_idx]) 
             loss_collect += torch.exp(-self.log_sigmas[i])*au_tmp_loss + self.log_sigmas[i] #TODO: add uncertainty weights
         """ 
             This needs to be added for monitoring the progression all individual losses
