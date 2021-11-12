@@ -22,7 +22,7 @@ from sklearn.datasets import make_multilabel_classification
 # Data parameters
 num_AU = 12
 num_intensities = 5 # 4 levels and an inactive level
-batch_size = 128
+batch_size = 32
 
 # Subject split
 user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
@@ -54,7 +54,7 @@ FC_HIDDEN_DIM_5 = 2**9
 
 # Training Parameters
 if sys.platform == "linux":
-    EPOCHS = 50
+    EPOCHS = 150
 else:
     EPOCHS = 10
 SAVE_FREQ = 50
@@ -76,8 +76,8 @@ else:
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
 # Cross-validation for hyperparameters LR and DR
-for i, LEARNING_RATE in enumerate([1e-2, 1e-3, 1e-4]):
-    for j, DROPOUT_RATE in enumerate([0, 0.25, 0.5]):
+for i, LEARNING_RATE in enumerate([1e-1, 1e-3, 1e-5]):
+    for j, DROPOUT_RATE in enumerate([0.2, 0.35, 0.5]):
 
         # Name for saving the model
         name = f'Batch{batch_size}_Epoch{EPOCHS}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
