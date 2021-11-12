@@ -165,10 +165,8 @@ class Multitask(nn.Module):
                             self.fc_layer_AU25(X_shared),
                             self.fc_layer_AU26(X_shared)]
 
-        
-
-        #return [self.sigm(X),[F.softmax(AU1), F.softmax(AU2), F.softmax(AU4), F.softmax(AU5), F.softmax(AU6), F.softmax(AU9), F.softmax(AU12), F.softmax(AU15), F.softmax(AU17), F.softmax(AU20), F.softmax(AU25), F.softmax(AU26)]]
         return [self.sigm(X), AU_intensities]
+        #return [self.sigm(X),[F.softmax(AU1), F.softmax(AU2), F.softmax(AU4), F.softmax(AU5), F.softmax(AU6), F.softmax(AU9), F.softmax(AU12), F.softmax(AU15), F.softmax(AU17), F.softmax(AU20), F.softmax(AU25), F.softmax(AU26)]]
 
 class MultiTaskLossWrapper(nn.Module):
     def __init__(self, model, task_num = 1 + 12):

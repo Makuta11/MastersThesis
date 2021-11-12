@@ -54,7 +54,7 @@ FC_HIDDEN_DIM_5 = 2**9
 
 # Training Parameters
 if sys.platform == "linux":
-    EPOCHS = 150
+    EPOCHS = 130
 else:
     EPOCHS = 10
 SAVE_FREQ = 50
@@ -77,7 +77,7 @@ fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
 # Cross-validation for hyperparameters LR and DR
 for i, LEARNING_RATE in enumerate([1e-4, 1e-5, 1e-6]):
-    for j, DROPOUT_RATE in enumerate([0, 0.25, 0.5]):
+    for j, DROPOUT_RATE in enumerate([0.2, 0.35, 0.5]):
 
         # Name for saving the model
         name = f'Batch{batch_size}_Epoch{EPOCHS}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
