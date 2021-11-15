@@ -165,8 +165,10 @@ class Multitask(nn.Module):
                             self.fc_layer_AU25(X_shared),
                             self.fc_layer_AU26(X_shared)]
 
-        return [self.sigm(X), AU_intensities]
+        
+
         #return [self.sigm(X),[F.softmax(AU1), F.softmax(AU2), F.softmax(AU4), F.softmax(AU5), F.softmax(AU6), F.softmax(AU9), F.softmax(AU12), F.softmax(AU15), F.softmax(AU17), F.softmax(AU20), F.softmax(AU25), F.softmax(AU26)]]
+        return [self.sigm(X), AU_intensities]
 
 class MultiTaskLossWrapper(nn.Module):
     def __init__(self, model, task_num = 1 + 12):
@@ -181,7 +183,7 @@ class MultiTaskLossWrapper(nn.Module):
         # Calculate loss for the multi-label classification of identifying if AU is present in image
         AU_loss = F.binary_cross_entropy(out_AU, AUs)#, weight= self.model.stop_weights) #TODO: add class weight
         loss_collect = torch.exp(-self.log_sigmas[0])*AU_loss + self.log_sigmas[0] #TODO: add uncertainty weights
-
+        
         # Calculate loss for the intensity of the AUs present in the image
         for i, lab in enumerate(AU_intensities.permute(1,0)):
             # Find indexes that contain the AU and train individual networks for AU intensity
