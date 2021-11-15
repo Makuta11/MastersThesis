@@ -16,5 +16,5 @@
 echo "Runnin script..."
 
 module load python3/3.8.11
-python3 src/disfa_label_generation.py > outputs/log_file_disfa_datagen
+python3 src/disfa_data_generation.py > outputs/log_file_disfa_datagen
 
