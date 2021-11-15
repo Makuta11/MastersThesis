@@ -141,6 +141,7 @@ for k, BATCH_SIZE in enumerate([16, 128]):
             else:
                 fig.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
 
+            # Clear up memory and reset individual figures
             del model, loss_collect, val_loss_collect, fig, ax
 
             ## Save text files with loss
