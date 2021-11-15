@@ -52,7 +52,7 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
         model.eval()
         for i, x in enumerate(val_dataloader):
             data = x[0].float().to(device)
-            AUs = x[1].float().to(device)
+            AUs = x[1].int().to(device)
             AU_intensities = x[2].to(device)
             #for elm in AU_intensities:
             #    elm.float().to(device)

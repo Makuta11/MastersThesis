@@ -87,7 +87,7 @@ for i, LEARNING_RATE in enumerate([1e-4, 1e-5, 1e-6]):
         model = Multitask(DATA_SHAPE, num_AU, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
                         FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
 
-        optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-2) #TODO weight decay
+        optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-2)
         criterion = MultiTaskLossWrapper(model, task_num= 12 + 1)
 
         if torch.cuda.device_count() > 1:
