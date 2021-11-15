@@ -21,7 +21,7 @@ from sklearn.datasets import make_multilabel_classification
 
 # Data parameters
 num_AU = 12
-num_intensities = 5 # 4 levels and an inactive level
+num_intensities = 4 # 4 levels and an inactive level
 batch_size = 32
 
 # Subject split
@@ -54,7 +54,7 @@ FC_HIDDEN_DIM_5 = 2**9
 
 # Training Parameters
 if sys.platform == "linux":
-    EPOCHS = 130
+    EPOCHS = 250
 else:
     EPOCHS = 10
 SAVE_FREQ = 50
