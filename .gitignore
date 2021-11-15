@@ -18,6 +18,7 @@ outputs
 logs
 
 # Distribution / packaging
+scratch.code-workspace
 .Python
 .DS_Store
 .vscode
