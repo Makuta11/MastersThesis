@@ -64,9 +64,7 @@ for col in labels_train.drop(columns="ID").columns:
 class_weights_int = np.array(class_weights_int)
 class_weights_int  = torch.tensor(class_weights_int, dtype=torch.float)
 
-
-
-
+# Clear up some memory space
 del data_test, data_train, data_val, labels_test, labels_val, labels_train
 
 # Network Parameters
@@ -83,7 +81,7 @@ else:
     EPOCHS = 10
 SAVE_FREQ = 50
 DROPOUT_RATE = 0.50
-LEARNING_RATE = 1e-2
+LEARNING_RATE = 1e-5
 DATA_SHAPE = train_dataset.__nf__()
 
 today = str(datetime.datetime.now())
@@ -100,53 +98,54 @@ else:
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
 # Cross-validation for hyperparameters LR and DR
-for i, LEARNING_RATE in enumerate([1e-4, 1e-5, 1e-6]):
-    for j, DROPOUT_RATE in enumerate([0.2, 0.35, 0.5]):
+for k, batch_size in enumerate([16, 128])
+    for i, LEARNING_RATE in enumerate([1e-4, 1e-5, 1e-6]):
+        for j, DROPOUT_RATE in enumerate([0.2, 0.35, 0.5]):
 
-        # Name for saving the model
-        name = f'Batch{batch_size}_Epoch{EPOCHS}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
+            # Name for saving the model
+            name = f'Batch{batch_size}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
 
-        # Model initialization
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model = Multitask(DATA_SHAPE, num_AU, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
-                        FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
+            # Model initialization
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model = Multitask(DATA_SHAPE, num_AU, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
+                            FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
 
-        optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-2)
-        criterion = MultiTaskLossWrapper(model, task_num= 12 + 1)
+            optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-2)
+            criterion = MultiTaskLossWrapper(model, task_num= 12 + 1)
 
-        if torch.cuda.device_count() > 1:
-            model = nn.DataParallel(model)
+            if torch.cuda.device_count() > 1:
+                model = nn.DataParallel(model)
 
-        # Run training
-        model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, 
-                save_path=save_path, save_freq=SAVE_FREQ, name=name, class_weights_AU = class_weights_AU, class_weights_int = class_weights_int)
+            # Run training
+            model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, 
+                    save_path=save_path, save_freq=SAVE_FREQ, name=name, class_weights_AU = class_weights_AU, class_weights_int = class_weights_int)
 
-        # Save train, val loss
-        plt.style.use('fivethirtyeight')
-        fig, ax = plt.subplots(figsize=(10,12))
-        ax.plot(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3", label="train_loss")
-        ax.plot(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label="val_loss")
-        ax.set_title(f"LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
-        ax.set_xlabel("Epochs")
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+            # Save train, val loss
+            plt.style.use('fivethirtyeight')
+            fig, ax = plt.subplots(figsize=(10,12))
+            ax.plot(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3", label="train_loss")
+            ax.plot(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label="val_loss")
+            ax.set_title(f"LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
+            ax.set_xlabel("Epochs")
+            ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
-        ax_tot.plot(np.arange(EPOCHS), loss_collect, linewidth="3", label = f"train_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")
-        ax_tot.plot(np.arange(EPOCHS), val_loss_collect, linewidth="3", label = f"val_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")
-        ax_tot.set_title(f"LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
-        ax_tot.set_xlabel("Epochs")
-        ax_tot.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-        
-        # Make output dir for images
-        if sys.platform == 'linux':
-            fig.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
-        else:
-            fig.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+            ax_tot.plot(np.arange(EPOCHS), loss_collect, linewidth="3", label = f"train_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")
+            ax_tot.plot(np.arange(EPOCHS), val_loss_collect, linewidth="3", label = f"val_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")
+            ax_tot.set_title(f"LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
+            ax_tot.set_xlabel("Epochs")
+            ax_tot.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+            
+            # Make output dir for images
+            if sys.platform == 'linux':
+                fig.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+            else:
+                fig.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
 
-        del model, loss_collect, val_loss_collect, fig, ax
+            del model, loss_collect, val_loss_collect, fig, ax
 
-        ## Save text files with loss
-        #np.savetxt(f'loss_collect_test_{name}.txt', loss_collect)
-        #np.savetxt(f'val_collect_test_{name}.txt', val_loss_collect)
+            ## Save text files with loss
+            #np.savetxt(f'loss_collect_test_{name}.txt', loss_collect)
+            #np.savetxt(f'val_collect_test_{name}.txt', val_loss_collect)
 
 # Save collective plot
 if sys.platform == 'linux':
