@@ -43,7 +43,9 @@ train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_s
 val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
-del data_test, data_train, data_val
+class_weights = np.sum(labsl_train, dim = 1)*(min(np.sum(labsl_train, dim = 1)))
+
+del data_test, data_train, data_val, labels_test, labels_val, labels_train
 
 # Network Parameters
 FC_HIDDEN_DIM_1 = 2**9
@@ -86,8 +88,6 @@ for i, LEARNING_RATE in enumerate([1e-4, 1e-5, 1e-6]):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = Multitask(DATA_SHAPE, num_AU, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
                         FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
-
-        #TODO classweighting
 
         optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-2)
         criterion = MultiTaskLossWrapper(model, task_num= 12 + 1)
