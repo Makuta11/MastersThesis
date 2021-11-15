@@ -13,7 +13,7 @@ def checkpoint_save(model, save_path, epoch, name):
     print('saved checkpoint:', f)
 
 def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_dataloader, device,
-                save_path, save_freq, scheduler = None, name = None):
+                save_path, save_freq, scheduler = None, name = None, class_weights_AU = None, class_weights_int = None):
     
     loss_collect = []
     val_loss_collect = []
@@ -28,7 +28,7 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
         for i, x in enumerate(train_dataloader):
             data = x[0].float().to(device)
             AUs = x[1].float().to(device)
-            AU_intensities = x[2].to(device)
+            AU_intensities = x[2].type(torch.LongTensor).to(device)
             #for elm in AU_intensities:
             #    elm.float().to(device)
                 #AU_intensities = torch.cat((AU_intensities, elm.to(device)), axis=0)
@@ -38,7 +38,7 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
             del data
             torch.cuda.empty_cache()
 
-            loss,_ = criterion(out, AUs, AU_intensities, device)
+            loss,_ = criterion(out, AUs, AU_intensities, device, class_weights_AU, class_weights_int)
             loss.backward()
             optimizer.step()
             running_loss += loss.detach().cpu().item()
@@ -52,8 +52,8 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
         model.eval()
         for i, x in enumerate(val_dataloader):
             data = x[0].float().to(device)
-            AUs = x[1].int().to(device)
-            AU_intensities = x[2].to(device)
+            AUs = x[1].float().to(device)
+            AU_intensities = x[2].type(torch.LongTensor).to(device)
             #for elm in AU_intensities:
             #    elm.float().to(device)
 

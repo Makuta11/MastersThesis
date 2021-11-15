@@ -13,6 +13,7 @@ from src.generate_feature_vector import decompress_pickle, compress_pickle
 
 from matplotlib import pyplot as plt
 from sklearn.model_selection import KFold
+from sklearn.utils.class_weight import compute_class_weight
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.datasets import make_multilabel_classification
@@ -43,7 +44,28 @@ train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_s
 val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
-class_weights = np.sum(labsl_train, dim = 1)*(min(np.sum(labsl_train, dim = 1)))
+#Calculate class weights across AUs - for binary cross entropy
+min_non_zero = min(labels_train.sum()[:-1][labels_train.sum()[:-1] != 0])
+class_weights_AU = torch.FloatTensor([min_non_zero/x if x != 0 else 10**5 for x in labels_train.sum()[:-1]])
+
+#Calcualte class weights within AUs - for cross entropy loss
+class_weights_int = []
+for col in labels_train.drop(columns="ID").columns:
+    tmp = compute_class_weight('balanced', np.unique(labels_train[col]), np.array(labels_train[col]))
+    tmpd = {}
+    for i, key in enumerate(np.array(labels_train[col].value_counts().axes)[0]):
+            tmpd[key] = tmp[i]
+    for k in [1,2,3,4]:
+        if k not in tmpd.keys():
+            tmpd[k] = 10**5
+    class_weights_int.append([tmpd[1], tmpd[2], tmpd[3], tmpd[4]])
+            
+
+class_weights_int = np.array(class_weights_int)
+class_weights_int  = torch.tensor(class_weights_int, dtype=torch.float)
+
+
+
 
 del data_test, data_train, data_val, labels_test, labels_val, labels_train
 
@@ -96,7 +118,8 @@ for i, LEARNING_RATE in enumerate([1e-4, 1e-5, 1e-6]):
             model = nn.DataParallel(model)
 
         # Run training
-        model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name)
+        model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, 
+                save_path=save_path, save_freq=SAVE_FREQ, name=name, class_weights_AU = class_weights_AU, class_weights_int = class_weights_int)
 
         # Save train, val loss
         plt.style.use('fivethirtyeight')
