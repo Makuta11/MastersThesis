@@ -16,6 +16,7 @@ data
 checkpoints
 outputs
 logs
+pickles
 
 # Distribution / packaging
 scratch.code-workspace
