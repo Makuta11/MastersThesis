@@ -44,7 +44,7 @@ test_dataset = ImageTensorDatasetMultitask(data_test, labels_test)
 plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
-for k, BATCH_SIZE in enumerate([16, 128]):
+for k, BATCH_SIZE in enumerate([64, 256]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -90,8 +90,9 @@ for k, BATCH_SIZE in enumerate([16, 128]):
     # Logging Parameters
     today = str(datetime.datetime.now())
     if sys.platform == "linux":
-        save_path = "/work3/s164272/"
         os.makedirs(f"/zhome/08/3/117881/MastersThesis/DataProcessing/logs/{today[:19]}")
+        os.makedirs(f"/work3/s164272/{today[:19]}")
+        save_path = f"/work3/s164272/{today[:19]}"
     else:
         save_path = "localOnly"
         logdir = 'logs'
@@ -117,7 +118,7 @@ for k, BATCH_SIZE in enumerate([16, 128]):
 
             # Run training
             model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, 
-                    save_path=save_path, save_freq=SAVE_FREQ, name=name, class_weights_AU = class_weights_AU, class_weights_int = class_weights_int)
+                    save_path=save_path, save_freq=SAVE_FREQ, name=name, class_weights_AU = class_weights_AU.to(device), class_weights_int = class_weights_int.to(device))
 
             # Plot each individual figure
             plt.style.use('fivethirtyeight')

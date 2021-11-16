@@ -58,11 +58,13 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
             #    elm.float().to(device)
 
             out = model(data)
+            
             del data
             torch.cuda.empty_cache()
 
             loss,_ = criterion(out, AUs, AU_intensities, device)
             val_loss += loss.detach().cpu().item()
+            
             del AUs, AU_intensities, loss
             torch.cuda.empty_cache()
         
