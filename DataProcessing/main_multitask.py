@@ -44,7 +44,7 @@ test_dataset = ImageTensorDatasetMultitask(data_test, labels_test)
 plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
-for k, BATCH_SIZE in enumerate([16, 128]):
+for k, BATCH_SIZE in enumerate([64, 256]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -70,7 +70,7 @@ for k, BATCH_SIZE in enumerate([16, 128]):
     class_weights_int  = torch.tensor(class_weights_int, dtype=torch.float)
 
     # Clear up memory space
-    del data_test, data_train, data_val, labels_test, labels_val, labels_train
+    del data_test, data_train, data_val, labels_test
 
     # Network Parameters
     FC_HIDDEN_DIM_1 = 2**9
@@ -84,7 +84,7 @@ for k, BATCH_SIZE in enumerate([16, 128]):
         EPOCHS = 250
     else:
         EPOCHS = 10
-    SAVE_FREQ = 50
+    SAVE_FREQ = EPOCHS
     DATA_SHAPE = train_dataset.__nf__()
 
     # Logging Parameters

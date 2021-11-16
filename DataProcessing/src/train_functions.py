@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 def checkpoint_save(model, save_path, epoch, name):
-    f = os.path.join(save_path, 'checkpoint_test-{:06d}-{}.pth'.format(epoch + 1,name))
+    f = os.path.join(save_path, 'checkpoint_test-{:03d}-{}.pth'.format(epoch + 1, name))
     if 'module' in dir(model):
         torch.save(model.module.state_dict(), f)
     else:
