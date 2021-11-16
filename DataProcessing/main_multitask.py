@@ -44,7 +44,7 @@ test_dataset = ImageTensorDatasetMultitask(data_test, labels_test)
 plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
-for k, BATCH_SIZE in enumerate([64, 256]):
+for k, BATCH_SIZE in enumerate([16, 128]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -98,8 +98,8 @@ for k, BATCH_SIZE in enumerate([64, 256]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # Cross-validation for hyperparameters LR and DR
-    for i, LEARNING_RATE in enumerate([1e-4, 1e-5, 1e-6]):
-        for j, DROPOUT_RATE in enumerate([0.2, 0.35, 0.5]):
+    for i, LEARNING_RATE in enumerate([1e-3, 1e-4, 1e-5]):
+        for j, DROPOUT_RATE in enumerate([0.25, 0.35, 0.5]):
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
