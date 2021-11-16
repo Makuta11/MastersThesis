@@ -58,7 +58,7 @@ for k, BATCH_SIZE in enumerate([64, 256]):
     #Calcualte class weights within AUs - for cross entropy loss
     class_weights_int = []
     for col in labels_train.drop(columns="ID").columns:
-        tmp = compute_class_weight('balanced', np.unique(labels_train[col]), np.array(labels_train[col]))
+        tmp = compute_class_weight(class_weight='balanced', classes=np.unique(labels_train[col]), y=labels_train[col].to_numpy())
         tmpd = {}
         for i, key in enumerate(np.array(labels_train[col].value_counts().axes)[0]):
                 tmpd[key] = tmp[i]
