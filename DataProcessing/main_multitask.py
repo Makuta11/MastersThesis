@@ -144,10 +144,6 @@ for k, BATCH_SIZE in enumerate([256]):
             # Clear up memory and reset individual figures
             del model, loss_collect, val_loss_collect, fig, ax
 
-            ## Save text files with loss
-            #np.savetxt(f'loss_collect_test_{name}.txt', loss_collect)
-            #np.savetxt(f'val_collect_test_{name}.txt', val_loss_collect)
-
 # Save collective plot
 if sys.platform == 'linux':
     fig_tot.savefig(f"logs/{today[:19]}/TrVal_fig_tot_{name}.png", dpi=128, bbox_inches='tight')
