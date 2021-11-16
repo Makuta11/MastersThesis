@@ -44,7 +44,7 @@ test_dataset = ImageTensorDatasetMultitask(data_test, labels_test)
 plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
-for k, BATCH_SIZE in enumerate([64, 256]):
+for k, BATCH_SIZE in enumerate([256]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -81,7 +81,7 @@ for k, BATCH_SIZE in enumerate([64, 256]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 250
+        EPOCHS = 100
     else:
         EPOCHS = 10
     SAVE_FREQ = EPOCHS
@@ -153,4 +153,3 @@ if sys.platform == 'linux':
     fig_tot.savefig(f"logs/{today[:19]}/TrVal_fig_tot_{name}.png", dpi=128, bbox_inches='tight')
 else:
     fig_tot.savefig(f"{save_path}/{today[:19]}/TrVal_fig_tot_{name}.png", dpi=128, bbox_inches='tight')
-
