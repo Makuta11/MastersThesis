@@ -44,7 +44,7 @@ test_dataset = ImageTensorDatasetMultitask(data_test, labels_test)
 plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
-for k, BATCH_SIZE in enumerate([64, 256]):
+for k, BATCH_SIZE in enumerate([16, 128]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -111,20 +111,19 @@ for k, BATCH_SIZE in enumerate([64, 256]):
                             FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
 
             optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-2)
-            criterion = MultiTaskLossWrapper(model, task_num= 12 + 1)
+            criterion = MultiTaskLossWrapper(model, task_num= 12 + 1, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
 
             if torch.cuda.device_count() > 1:
                 model = nn.DataParallel(model)
 
             # Run training
-            model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, 
-                    save_path=save_path, save_freq=SAVE_FREQ, name=name, class_weights_AU = class_weights_AU.to(device), class_weights_int = class_weights_int.to(device))
+            model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name)
 
             # Plot each individual figure
             plt.style.use('fivethirtyeight')
             fig, ax = plt.subplots(figsize=(10,12))
-            ax.plot(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3", label="train_loss")
-            ax.plot(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label="val_loss")
+            ax.semilogy(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3", label="train_loss")
+            ax.semilogy(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label="val_loss")
             ax.set_title(f"BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
             ax.set_xlabel("Epochs")
             ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))

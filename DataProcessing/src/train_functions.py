@@ -13,7 +13,7 @@ def checkpoint_save(model, save_path, epoch, name):
     print('saved checkpoint:', f)
 
 def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_dataloader, device,
-                save_path, save_freq, scheduler = None, name = None, class_weights_AU = None, class_weights_int = None):
+                save_path, save_freq, scheduler = None, name = None):
     
     loss_collect = []
     val_loss_collect = []
@@ -38,7 +38,7 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
             del data
             torch.cuda.empty_cache()
 
-            loss,_ = criterion(out, AUs, AU_intensities, device, class_weights_AU, class_weights_int)
+            loss,_ = criterion(out, AUs, AU_intensities, device)
             loss.backward()
             optimizer.step()
             running_loss += loss.detach().cpu().item()
@@ -81,18 +81,13 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
 
     return model, loss_collect, val_loss_collect
 
-def get_predictions(model, val_dataloader):
+def get_predictions(model, test_dataloader):
         collect = dict()
         df = pd.DataFrame()
 
-        for i, x in enumerate(val_dataloader):
+        for i, x in enumerate(test_dataloader):
             model.eval()
             out = model(x[0].float().to(device))
 
             AUs_true = x[1]
             AU_intensities = x[2]
-
-
-
-
-

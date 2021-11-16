@@ -56,7 +56,7 @@ def load_data(user_train, user_val, user_test):
     else:
         labels_test = labels.iloc[:75]
         labels_val = labels.iloc[75:200]
-        labels_train = labels.iloc[200:]
+        labels_train = labels.iloc[200:800]
 
     # Extract test-val-train indexes
     test_idx = list(labels_test.index)
