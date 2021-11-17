@@ -44,7 +44,8 @@ test_dataset = ImageTensorDatasetMultitask(data_test, labels_test)
 plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
-for k, BATCH_SIZE in enumerate([256]):
+# CV test on bactch size
+for k, BATCH_SIZE in enumerate([16]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -72,7 +73,7 @@ for k, BATCH_SIZE in enumerate([256]):
     # Clear up memory space
     del data_test, data_train, data_val, labels_test
 
-    # Network Parameters
+    # Network Parameters (subject to change)
     FC_HIDDEN_DIM_1 = 2**9
     FC_HIDDEN_DIM_2 = 2**12
     FC_HIDDEN_DIM_3 = 2**10
@@ -84,7 +85,7 @@ for k, BATCH_SIZE in enumerate([256]):
         EPOCHS = 100
     else:
         EPOCHS = 10
-    SAVE_FREQ = EPOCHS
+    SAVE_FREQ = 10
     DATA_SHAPE = train_dataset.__nf__()
 
     # Logging Parameters
@@ -98,9 +99,9 @@ for k, BATCH_SIZE in enumerate([256]):
         logdir = 'logs'
         os.makedirs(f'{save_path}/{today[:19]}')
 
-    # Cross-validation for hyperparameters LR and DR
-    for i, LEARNING_RATE in enumerate([1e-3, 1e-4, 1e-5]):
-        for j, DROPOUT_RATE in enumerate([0.25, 0.35, 0.5]):
+    # CV testing for LR and DR
+    for i, LEARNING_RATE in enumerate([5e-5]):
+        for j, DROPOUT_RATE in enumerate([.5]):
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
@@ -112,25 +113,26 @@ for k, BATCH_SIZE in enumerate([256]):
 
             optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-2)
             criterion = MultiTaskLossWrapper(model, task_num= 12 + 1, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [5,16], gamma=0.1)
 
             if torch.cuda.device_count() > 1:
                 model = nn.DataParallel(model)
 
             # Run training
-            model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name)
+            model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=scheduler)
 
             # Plot each individual figure
             plt.style.use('fivethirtyeight')
             fig, ax = plt.subplots(figsize=(10,12))
             ax.semilogy(np.arange(EPOCHS), loss_collect, color="blue", linewidth="3", label="train_loss")
-            ax.semilogy(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label="val_loss")
+            ax.semilogy(np.arange(EPOCHS), val_loss_collect, color="orange", linewidth="3", label="val_loss", linestyle="dashed")
             ax.set_title(f"BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
             ax.set_xlabel("Epochs")
             ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
             # Plot on collective figure
             ax_tot.semilogy(np.arange(EPOCHS), loss_collect, linewidth="3", label = f"train_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")
-            ax_tot.semilogy(np.arange(EPOCHS), val_loss_collect, linewidth="3", label = f"val_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")
+            ax_tot.semilogy(np.arange(EPOCHS), val_loss_collect, linewidth="3", label = f"val_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}", linestyle="dashed")
             ax_tot.set_title(f"BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
             ax_tot.set_xlabel("Epochs")
             ax_tot.legend(loc='center left', bbox_to_anchor=(1, 0.5))

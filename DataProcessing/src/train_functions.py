@@ -46,6 +46,9 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
             del AUs, AU_intensities, loss
             torch.cuda.empty_cache()
         
+        if scheduler:
+           scheduler.step()
+
         loss_collect = np.append(loss_collect, running_loss/(i+1))
 
         # get validation loss
