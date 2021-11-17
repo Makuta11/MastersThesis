@@ -19,3 +19,18 @@ def val_scores(pred, label):
         collect = collect.append(temp)
     
     return collect
+
+def get_predictions(model, val_data_loader):
+    collect = dict()
+    df = pd.DataFrame()
+
+    model.eval()
+    for i, x in enumerate(val_dataloader):
+        data = x[0].float().to(device)
+        AUs = x[1].float().to(device)
+        AU_intensities = x[2].type(torch.LongTensor).to(device)
+
+        out = model(data)
+
+        AU_pred
+        AU_int_pred
