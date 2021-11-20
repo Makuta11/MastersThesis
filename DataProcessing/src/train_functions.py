@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 def checkpoint_save(model, save_path, epoch, name):
-    f = os.path.join(save_path, 'checkpoint_test-{:03d}-{}.pth'.format(epoch + 1, name))
+    f = os.path.join(save_path, 'checkpoint_test-{:03d}-{}.pt'.format(epoch + 1, name))
     if 'module' in dir(model):
         torch.save(model.module.state_dict(), f)
     else:
@@ -84,13 +84,45 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
 
     return model, loss_collect, val_loss_collect
 
-def get_predictions(model, test_dataloader):
-        collect = dict()
-        df = pd.DataFrame()
+def get_predictions(model, test_dataloader, device):
+    model.eval()
+    with torch.no_grad():
+        predAU = []
+        trueAU = []
+    
+        aus = [1,2,4,5,6,9,12,15,17,20,25,26]
+        intensities_dict = dict()
+        
+        for j, au in enumerate(aus):
+            intensities_dict[f'AU{au}'] = dict()
+            intensities_dict[f'AU{au}']["pred"] = []
+            intensities_dict[f'AU{au}']["true"] = []
 
         for i, x in enumerate(test_dataloader):
-            model.eval()
+    
             out = model(x[0].float().to(device))
 
-            AUs_true = x[1]
-            AU_intensities = x[2]
+            # Append logic bool array for predicted and true labels
+            predAU.append(list(out[0].cpu().numpy().ravel() > 0)) 
+            trueAU.append(list(x[1].cpu().numpy().ravel() > 0))
+
+            # Append intensity prediction to dictionary organized for each AU
+
+            for j, au in enumerate(aus):
+                AU_idx = (x[2] >= 1).nonzero(as_tuple=True)
+                if (j - 1) in list(AU_idx[1]):
+                    idx = list(AU_idx[1]).index(j - 1)
+                    if len(AU_idx) > 0:
+                        intensities_dict[f'AU{au}']["pred"].append(np.argmax(out[1][AU_idx[1][idx]][AU_idx[0][idx]]).cpu().numpy() + 1)
+                        intensities_dict[f'AU{au}']["true"].append(x[2][AU_idx[0][idx]][AU_idx[1][idx]].cpu().numpy())
+
+        predAU = np.concatenate(predAU).ravel()
+        trueAU = np.concatenate(trueAU).ravel()
+        predAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(predAU)]
+        trueAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(trueAU)]
+
+        for j, au in enumerate(aus):
+            intensities_dict[f'AU{au}']["pred"] = np.array(intensities_dict[f'AU{au}']["pred"]).ravel()
+            intensities_dict[f'AU{au}']["true"] = np.array(intensities_dict[f'AU{au}']["true"]).ravel()
+        
+    return [predAU, trueAU], intensities_dict

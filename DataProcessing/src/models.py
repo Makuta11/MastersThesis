@@ -166,7 +166,7 @@ class Multitask(nn.Module):
                             self.fc_layer_AU26(X_shared)]
 
         #return [self.sigm(X),[F.softmax(AU1), F.softmax(AU2), F.softmax(AU4), F.softmax(AU5), F.softmax(AU6), F.softmax(AU9), F.softmax(AU12), F.softmax(AU15), F.softmax(AU17), F.softmax(AU20), F.softmax(AU25), F.softmax(AU26)]]
-        return [self.sigm(X), AU_intensities]
+        return [X, AU_intensities]
 
 class MultiTaskLossWrapper(nn.Module):
     def __init__(self, model, task_num, cw_AU, cw_int):
@@ -179,18 +179,21 @@ class MultiTaskLossWrapper(nn.Module):
     def forward(self, data, AUs, AU_intensities, device):
 
         out_AU, out_AU_intensities = data[0], data[1]
+        loss = nn.BCEWithLogitsLoss(pos_weight=self.cw_AU)
+
+        #TODO is pos_weight trainable as uncertainty weight?
 
         # Calculate loss for the multi-label classification of identifying if AU is present in image
-        AU_loss = F.binary_cross_entropy(out_AU, AUs, weight = self.cw_AU)#, weight = self.model.stop_weights) #TODO: add class weight
-        loss_collect = torch.exp(-self.log_sigmas[0])*AU_loss + self.log_sigmas[0] #TODO: add uncertainty weights
+        AU_loss = loss(out_AU, AUs)
+        loss_collect = torch.exp(-self.log_sigmas[0])*AU_loss + self.log_sigmas[0]
         
         # Calculate loss for the intensity of the AUs present in the image
         for i, lab in enumerate(AU_intensities.permute(1,0)):
             # Find indexes that contain the AU and train individual networks for AU intensity
             AU_idx = (lab >= 1).nonzero(as_tuple=True)[0]
-            if len(AU_idx > 0):
-                au_tmp_loss = F.cross_entropy(out_AU_intensities[i][AU_idx], lab[AU_idx], weight = self.cw_int[i]) 
-                loss_collect += torch.exp(-self.log_sigmas[i])*au_tmp_loss + self.log_sigmas[i] #TODO: add uncertainty weights
+            if len(AU_idx) > 0:
+                au_tmp_loss = F.cross_entropy(out_AU_intensities[i][AU_idx], lab[AU_idx] - 1, weight = self.cw_int[i]) #Subtract one from label to end up with 4 classes [0,1,2,3]
+                loss_collect += torch.exp(-self.log_sigmas[i])*au_tmp_loss + self.log_sigmas[i] 
         """ 
             This needs to be added for monitoring the progression all individual losses
             else:
