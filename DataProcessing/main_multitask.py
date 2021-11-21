@@ -22,9 +22,9 @@ from sklearn.datasets import make_multilabel_classification
 # users = np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
 
 # Debugging/model test parameter
-train = False
+train = True
 evaluate = True
-model_path = f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/localOnly/checkpoint_test-010-Batch16_Drop0.2_Lr0.0001.pt'
+#model_path = f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/localOnly/checkpoint_test-010-Batch16_Drop0.2_Lr0.0001.pt'
 
 # Data parameters
 aus = [1,2,4,5,6,9,12,15,17,20,25,26]
@@ -52,7 +52,7 @@ plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
 # CV test on bactch size
-for k, BATCH_SIZE in enumerate([16]):
+for k, BATCH_SIZE in enumerate([64]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -98,7 +98,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 100
+        EPOCHS = 30
     else:
         EPOCHS = 10
     SAVE_FREQ = 10
@@ -116,8 +116,8 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR and DR
-    for i, LEARNING_RATE in enumerate([1e-4]):
-        for j, DROPOUT_RATE in enumerate([.2]):
+    for i, LEARNING_RATE in enumerate([5e-5]):
+        for j, DROPOUT_RATE in enumerate([.35, .45, .5]):
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
@@ -134,7 +134,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
             optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-2)
             criterion = MultiTaskLossWrapper(model, task_num= 12 + 1, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
-            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [5,16], gamma=0.1)
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [6], gamma = 0.1)
 
             if torch.cuda.device_count() > 1:
                 model = nn.DataParallel(model)
@@ -164,21 +164,22 @@ for k, BATCH_SIZE in enumerate([16]):
                     fig.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
                 else:
                     fig.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
-
-                # Clear up memory and reset individual figures
-                del model, loss_collect, val_loss_collect, fig, ax
         
-if evaluate:
-    AU_scores, intensity_scores = get_predictions(model, train_dataloader, device)
+            if evaluate:
+                AU_scores, intensity_scores = get_predictions(model, val_dataloader, device)
 
-    # Print scores
-    print(f'\nScores on AU identification:\n{val_scores(AU_scores[0], AU_scores[1])}')
-    print("\nScores on AU intensities")
-    for au in aus:
-        pred = intensity_scores[f'AU{au}']["pred"]
-        true = intensity_scores[f'AU{au}']["true"]
-        if len(pred) > 0:
-            print(f'AU{au}:\n{val_scores(true,pred)}')
+                # Print scores
+                print(f'n\{name}:')
+                print(f'\nScores on AU identification:\n{val_scores(AU_scores[0], AU_scores[1])}')
+                print("\nScores on AU intensities")
+                for au in aus:
+                    pred = intensity_scores[f'AU{au}']["pred"]
+                    true = intensity_scores[f'AU{au}']["true"]
+                    if len(pred) > 0:
+                        print(f'AU{au}:\n{val_scores(true,pred)}')
+            
+            # Clear up memory and reset individual figures
+            del model, loss_collect, val_loss_collect, fig, ax
 
 # Save collective plot
 if sys.platform == 'linux':

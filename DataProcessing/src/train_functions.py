@@ -113,7 +113,7 @@ def get_predictions(model, test_dataloader, device):
                 if (j - 1) in list(AU_idx[1]):
                     idx = list(AU_idx[1]).index(j - 1)
                     if len(AU_idx) > 0:
-                        intensities_dict[f'AU{au}']["pred"].append(np.argmax(out[1][AU_idx[1][idx]][AU_idx[0][idx]]).cpu().numpy() + 1)
+                        intensities_dict[f'AU{au}']["pred"].append(np.argmax(out[1][AU_idx[1][idx]][AU_idx[0][idx]].cpu()).numpy() + 1)
                         intensities_dict[f'AU{au}']["true"].append(x[2][AU_idx[0][idx]][AU_idx[1][idx]].cpu().numpy())
 
         predAU = np.concatenate(predAU).ravel()
