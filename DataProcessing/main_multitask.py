@@ -52,7 +52,7 @@ plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
 # CV test on bactch size
-for k, BATCH_SIZE in enumerate([64]):
+for k, BATCH_SIZE in enumerate([16]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -98,7 +98,7 @@ for k, BATCH_SIZE in enumerate([64]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 30
+        EPOCHS = 100
     else:
         EPOCHS = 10
     SAVE_FREQ = 10
@@ -116,8 +116,8 @@ for k, BATCH_SIZE in enumerate([64]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR and DR
-    for i, LEARNING_RATE in enumerate([5e-5]):
-        for j, DROPOUT_RATE in enumerate([.35, .45, .5]):
+    for i, LEARNING_RATE in enumerate([5e-6]):
+        for j, DROPOUT_RATE in enumerate([.45, .5]):
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
@@ -134,7 +134,7 @@ for k, BATCH_SIZE in enumerate([64]):
 
             optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-2)
             criterion = MultiTaskLossWrapper(model, task_num= 12 + 1, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
-            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [6], gamma = 0.1)
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [100], gamma = 0.1)
 
             if torch.cuda.device_count() > 1:
                 model = nn.DataParallel(model)

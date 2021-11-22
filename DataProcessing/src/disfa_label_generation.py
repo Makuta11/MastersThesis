@@ -22,7 +22,7 @@ def generate_AU_df(folder):
     df = pd.DataFrame()
     for au in aus:
         tmp = pd.read_csv(f'{folder}/{key}_au{au}.txt', header=None)
-        df[f'AU{au}'] = tmp[1]
+        df[f'AU{au}'] = tmp[1].iloc[:4840]
     df["ID"] = dkey
     return [dkey, df]
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     if sys.platform == "linux":
         AU_path = "/zhome/08/3/117881/MastersThesis/data/DISFA/ActionUnit_Labels"
-        pickles_path = "/zhome/08/3/117881/MastersThesis/DataProcessing/pickles"
+        pickles_path = "/work3/s164272/data/Features"
     else:
         AU_path = "/Users/DG/Documents/PasswordProtected/DISFA/ActionUnit_Labels"
         pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles"
@@ -45,8 +45,7 @@ if __name__ == '__main__':
     df = pd.DataFrame()
 
     for i, frame in enumerate(lab_array):
-        # use only evey 6th label
-        tmp = frame[1].iloc[::6,:]
+        tmp = frame[1]
         df = df.append(tmp)
     
     df = df.reset_index(drop=True)

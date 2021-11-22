@@ -8,10 +8,12 @@ import pickle
 import numpy as np
 import pandas as pd
 import threading
+
 from glob import glob
 from joblib import Parallel, delayed
-from multiprocessing import Pool, cpu_count, Process
 from concurrent.futures import ThreadPoolExecutor
+from multiprocessing import Pool, cpu_count, Process
+from generate_feature_vector import compress_pickle, decompress_pickle
 import urllib.request
 
 def fetch_vid_files(vid_dir):
@@ -22,21 +24,31 @@ def fetch_vid_files(vid_dir):
 
 def convert_vid_to_array(file):
     key = file[-12:-9]
-    dataDir = f"/zhome/08/3/117881/MastersThesis/data/DISFA/ImageDir/SN{key}_"
+    misses = []
+    dataDir = f"/work3/s164272/data/ImgDISFA/SN{key}_"
     vidcap = cv2.VideoCapture(file)
     success, image = vidcap.read()
     count = 0
     while success:
         success, image = vidcap.read()
-        if count%6 == 0:
+        #if count%6 == 0:
+        try:
             cv2.imwrite(dataDir + '{0:05}'.format(count) + ".jpg", image)
-        count += 1
+            count += 1
+        except:
+            misses.append(count)
+            count += 1
+        if count == 4840:
+            break
+        
+    if len(misses) > 0:
+        compress_pickle(f"/work3/s164272/data/Features/data_misses{key}", misses)
 
 if __name__ == '__main__':
 
     if sys.platform == "linux":
-        video_path = "/zhome/08/3/117881/MastersThesis/data/DISFA/Video_RightCamera"
-        pickles_path = "/zhome/08/3/117881/MastersThesis/Data Processing/pickles"
+        video_path = "/work3/s164272/data/Video/Video_RightCamera"
+        pickles_path = "/work3/s164272/data/ImgDISFA"
     else:
         video_path = "/Users/DG/Documents/PasswordProtected/DISFA/Video_RightCamera"
         pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/Data Processing/pickles"

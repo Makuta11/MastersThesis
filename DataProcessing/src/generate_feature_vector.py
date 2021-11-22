@@ -205,6 +205,7 @@ def get_plot_range(landmarks_norm):
     xmax, xmin, ymax, ymin = max(landmarks_norm[:,0]).astype(int), min(landmarks_norm[:,0]).astype(int), max(landmarks_norm[:,1]).astype(int), min(landmarks_norm[:,1]).astype(int)
 
 def main(i, img_dir):
+
     if "DS" in img_dir:
         return 
     
@@ -228,16 +229,17 @@ def main(i, img_dir):
             for landmark in landmarks_norm:
                 filt_size = np.shape(gb_fb[key])[0]
                 landmark = landmark.astype(int)
+                
+                # Slice our the pixes surrounding the landmark for computation of hadderman product
                 x_slice = slice(int(landmark[0] - np.floor(filt_size/2)), int((landmark[0] + np.floor(filt_size/2))+1),1)
                 y_slice = slice(int(landmark[1] - np.floor(filt_size/2)), int(landmark[1] + np.floor(filt_size/2)+1),1)
                 try:
+                    # Perform hadderman product and take sum of new matrix
                     feat_g.append((img[y_slice,x_slice]*gb_fb[key]).sum())
                 except:
-                    # append nan if convolution is obscured
+                    # append nan if convolution is obscured and not possible
                     feat_g.append(np.nan)                                   
         
-        
-
         return {main_key: np.append(feat_x,feat_g)}
     
     except:
@@ -247,8 +249,8 @@ def main(i, img_dir):
 if __name__ == "__main__":
     os.environ["GLOG_minloglevel"] ="2"
     if sys.platform == "linux":
-        dir_path = "/zhome/08/3/117881/MastersThesis/data/DISFA/ImageDirTest/"
-        pickles_path = "/zhome/08/3/117881/MastersThesis/DataProcessing/pickles"
+        dir_path = "/work3/s164272/data/ImgDISFA/"
+        pickles_path = "/work3/s164272/data/Features"
     else:
         dir_path = ""#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
         pickles_path = ""#"/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/DataProcessing/pickles"
@@ -257,7 +259,7 @@ if __name__ == "__main__":
 
     print("Generation started....")
     # Parallel generation of face_space vectors
-    dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}') for i, file in enumerate(sorted(os.listdir(dir_path))))
+    dictionary_list = Parallel(n_jobs=1,verbose=10)(delayed(main)(i,f'{dir_path}{file}') for i, file in enumerate(sorted(os.listdir(dir_path))))
     print("Generation done!!!")
 
     print("Dictionary combination started....")
@@ -268,8 +270,8 @@ if __name__ == "__main__":
             misses.append(d)
 
     print("Compressin bz2 pickle files...")
-    compress_pickle(f"{pickles_path}/face_space_dict_disfa_test", face_space)
-    compress_pickle(f"{pickles_path}/misses_disfa_test", misses)
+    compress_pickle(f"{pickles_path}/face_space_dict_disfa_large", face_space)
+    compress_pickle(f"{pickles_path}/misses_disfa_large", misses)
     print("All done!...")
     time.sleep(1)
     print("Well done")

@@ -17,6 +17,9 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
     
     loss_collect = []
     val_loss_collect = []
+    
+    # Collection array for uncertainty weights
+    sigma_collect = np.zeros((epochs, 13))
 
     for epoch in range(num_epochs):
         
@@ -38,8 +41,8 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
             del data
             torch.cuda.empty_cache()
 
-            loss,_ = criterion(out, AUs, AU_intensities, device)
-            loss.backward()
+            loss, sigma_scores = criterion(out, AUs, AU_intensities, device)
+            loss[0].backward()
             optimizer.step()
             running_loss += loss.detach().cpu().item()
 
@@ -50,6 +53,8 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
            scheduler.step()
 
         loss_collect = np.append(loss_collect, running_loss/(i+1))
+        sigma_collect = [epoch,:]
+
 
         # get validation loss
         model.eval()

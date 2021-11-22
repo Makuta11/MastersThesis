@@ -20,7 +20,7 @@ def load_data(user_train, user_val, user_test):
     if sys.platform == "linux":
         # Big dataload on hpc
         dataset = decompress_pickle(f'/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/face_space_dict_disfa.pbz2')
-        labels = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/disfa_labels.pbz2")
+        labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels.pbz2")
     else:
         # Small testing dataload on local mac
         dataset = decompress_pickle(f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2')
