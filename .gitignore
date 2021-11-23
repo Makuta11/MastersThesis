@@ -19,6 +19,7 @@ logs
 pickles
 
 # Distribution / packaging
+local_fun.py
 scratch.code-workspace
 .Python
 .DS_Store
