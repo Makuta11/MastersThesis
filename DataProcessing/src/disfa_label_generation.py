@@ -45,7 +45,7 @@ if __name__ == '__main__':
     df = pd.DataFrame()
 
     for i, frame in enumerate(lab_array):
-        tmp = frame[1]
+        tmp = frame[1].iloc[::6,:]
         df = df.append(tmp)
     
     df = df.reset_index(drop=True)

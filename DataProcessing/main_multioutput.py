@@ -1,12 +1,11 @@
-#%%
-import os
-import sys
-import time
+# Imports
+import os, sys, time, pickle
+
 import numpy as np
 import pandas as pd
 
-
 from sklearn.metrics import f1_score
+from src.validation_score import val_scores
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.datasets import make_multilabel_classification
@@ -14,11 +13,14 @@ from src.generate_feature_vector import decompress_pickle, compress_pickle
 
 def main(bool):
 
+    # AUs in dataset
+    aus = [1,2,4,5,6,9,12,15,17,20,25,26]
+
     print("Loading Dataset")
     t = time.time()
     if sys.platform == 'linux':
         data = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/face_space_dict_disfa.pbz2")
-        labels = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/disfa_labels.pbz2")
+        labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels.pbz2")
     else:
         data = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2")
         labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
@@ -46,73 +48,87 @@ def main(bool):
     X = np.nan_to_num(X)
     y = labels.drop(columns="ID").to_numpy()
     y = np.delete(y, bad_idx, axis = 0)
-
     print(f"Data loaded in {time.time() - t} seconds")
 
+    X_test, y_test = X[:100], y[:100]
+    X_train, y_train = X[100:800], y[100:800]
+    print(f'Train size = {X_train.shape}\nTest size = {X_test.shape}')
+
+    del X, y, data, data_arr, data_list, bad_idx
+    
     print("Starting fit")
     t1 = time.time()
-    X_test, y_test = X[:1616], y[:1616]
-    X_train, y_train = X[1616:], y[1616:]
-    """
-    #clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=-1).fit(X_train, y_train)
-    print(f"Model fit in {time.time() - t1} seconds")
+    clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=6).fit(X_train, y_train)
+    print(f"Model fit in {time.time() - t1} seconds") 
     
     # Save the test model
     if sys.platform == 'linux':
-        compress_pickle("/work3/s164272/KNearest", clf)
+        compress_pickle("/work3/s164272/data/multioutput_results/KNearest", clf)
     else:
         compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
-    """
-    # Clear some memory space
-    del X_train, y_train, X, y, data, labels, data_list, data_arr, bad_idx
 
-    clf = decompress_pickle("/work3/s164272/KNearest.pbz2")
-    print("Starting prediction")
+    # Clear memory space
+    del X_train, y_train 
+
+    #clf = decompress_pickle("/work3/s164272/data/multioutput_results/KNearest.pbz2")
+    print("Starting prediction...")
     t2 = time.time()
     y_pred = clf.predict(X_test)
     print(f'It took {time.time() - t2} to make predictions')
 
-    compress_pickle("/work3/s164272/y_pred", y_pred)
+    import pdb; pdb.set_trace()
+
+    #compress_pickle("/work3/s164272/data/multioutput_results/y_pred", y_pred)
 
     del X_test
-
+    
+    # Convert to only look at AU accuracy
+    y_pred_flat = y_pred
+    y_pred_flat[y_pred_flat >= 1] = 1
+    y_test_flat = y_test
+    y_test_flat[y_test_flat >= 1] = 1
+    
     print("Starting f1-score calculation")
+    print(f'\nAU f1-scores:\n{f1_score(y_test_flat, y_pred_flat, average = None, zero_division = 1)}')
 
-    try:
-        f1 = f1_score(y_test, y_pred)
-        print(f'F1-score (binary) of the classifier was: {f1}')
-    except:
-        print("could not calculate binary")
-    try:
-        f1_micro = f1_score(y_test, y_pred, average='micro')
-        print(f'F1-score (micro) of the classifier was: {f1_micro}')
-    except:
-        print("could not calculate micro")
-    try:
-        f1_macro = f1_score(y_test, y_pred, average='macro')
-        print(f'F1-score (macro) of the classifier was: {f1_macro}')
-    except:
-        print("could not calculate macro")
-    try:
-        f1_weighted = f1_score(y_test, y_pred, average='weighted')
-        print(f'F1-score (weighted) of the classifier was: {f1_macro}')
-    except:
-        print("could not calculate weighted")
-    try:
-        f1_samples = f1_score(y_test, y_pred, average='samples')
-        print(f'F1-score (samples) of the classifier was: {f1_macro}')
-    except:
-        print("could not calculate samples")
-
+    for i, au in enumerate(aus):
+        print(f"f1-score for intensity of AU{au}:")
+        print(f'{f1_score(y_true[:,i], y_pred[:,i], average = None)}')
+    
+    """
+        try:
+            f1 = f1_score(y_test, y_pred)
+            print(f'F1-score (binary) of the classifier was: {f1}')
+        except:
+            print("could not calculate binary")
+        try:
+            f1_micro = f1_score(y_test, y_pred, average='micro')
+            print(f'F1-score (micro) of the classifier was: {f1_micro}')
+        except:
+            print("could not calculate micro")
+        try:
+            f1_macro = f1_score(y_test, y_pred, average='macro')
+            print(f'F1-score (macro) of the classifier was: {f1_macro}')
+        except:
+            print("could not calculate macro")
+        try:
+            f1_weighted = f1_score(y_test, y_pred, average='weighted')
+            print(f'F1-score (weighted) of the classifier was: {f1_macro}')
+        except:
+            print("could not calculate weighted")
+        try:
+            f1_samples = f1_score(y_test, y_pred, average='samples')
+            print(f'F1-score (samples) of the classifier was: {f1_macro}')
+        except:
+            print("could not calculate samples")
+    """
+    
     # Save the test model
     if sys.platform == 'linux':
-        compress_pickle("/work3/s164272/", clf)
+        compress_pickle("/work3/s164272/clf", clf)
     else:
         compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
 
 if __name__ == "__main__":
     print("starting script")
     main(True)
-
-
-# %%

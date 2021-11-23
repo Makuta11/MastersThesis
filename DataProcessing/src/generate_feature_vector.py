@@ -12,7 +12,9 @@ from imutils import face_utils
 from operator import itemgetter
 from scipy.signal import convolve
 from joblib import Parallel, delayed
+from sklearn.decomposition import PCA
 from math import pi, cos, sin, exp, sqrt
+from sklearn.preprocessing import StandardScaler
 
 """ For possible implementation in the future
     def get_landmarks_dlib(img_dir):
@@ -219,7 +221,7 @@ def main(i, img_dir):
         distances = get_distances(contors, landmarks_norm)
         angles = get_angles_mp(contors, landmarks_norm)
         feat_x = np.append(distances, angles)
-
+    
         # Generate Shading Vector
         img = reshape_img(img_dir, c, show=False)
         gb_fb = get_gb_fb()
@@ -259,7 +261,7 @@ if __name__ == "__main__":
 
     print("Generation started....")
     # Parallel generation of face_space vectors
-    dictionary_list = Parallel(n_jobs=1,verbose=10)(delayed(main)(i,f'{dir_path}{file}') for i, file in enumerate(sorted(os.listdir(dir_path))))
+    dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}') for i, file in enumerate(sorted(os.listdir(dir_path))))
     print("Generation done!!!")
 
     print("Dictionary combination started....")
@@ -269,9 +271,46 @@ if __name__ == "__main__":
         except:
             misses.append(d)
 
-    print("Compressin bz2 pickle files...")
-    compress_pickle(f"{pickles_path}/face_space_dict_disfa_large", face_space)
-    compress_pickle(f"{pickles_path}/misses_disfa_large", misses)
-    print("All done!...")
-    time.sleep(1)
-    print("Well done")
+    do_pca = True
+    if do_pca:
+        # Convert to numpy array
+        data_list = list(face_space.items())
+        data_arr = np.array(data_list)
+        data_arr = np.vstack(data_arr[:,1])
+        data_arr = np.nan_to_num(data_arr)
+        
+        # Collect bad inputs
+        ln = data_arr[0,1].shape[0]
+        for i, arr in enumerate(data_arr[:,1]):
+            try:
+                if len(arr) != ln:
+                    bad_idx.append(i)
+            except:
+                bad_idx.append(i)
+
+        # Delete bad data points from labels and array
+        data_arr = np.delete(data_arr, bad_idx, axis=0)
+
+        # Construct final data arrays
+        data_arr = np.vstack(data_arr[:,1])
+        data_arr = np.nan_to_num(data_arr)
+
+        pca = PCA(0.95)
+        print("Applying PCA...")
+        face_space = StandardScaler().fit_transform(data_arr)
+        pca.fit(face_space)
+        face_space = pca.transform(face_space)
+        print("Compressin bz2 pickle files...")
+        compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1_PCA95", face_space)
+        compress_pickle(f"{pickles_path}/misses_disfa_large1_PCA95", misses)
+        print("All done!...")
+        time.sleep(1)
+        print("Well done")
+
+    else:
+        print("Compressin bz2 pickle files...")
+        compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
+        compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
+        print("All done!...")
+        time.sleep(1)
+        print("Well done")

@@ -165,7 +165,6 @@ class Multitask(nn.Module):
                             self.fc_layer_AU25(X_shared),
                             self.fc_layer_AU26(X_shared)]
 
-        #return [self.sigm(X),[F.softmax(AU1), F.softmax(AU2), F.softmax(AU4), F.softmax(AU5), F.softmax(AU6), F.softmax(AU9), F.softmax(AU12), F.softmax(AU15), F.softmax(AU17), F.softmax(AU20), F.softmax(AU25), F.softmax(AU26)]]
         return [X, AU_intensities]
 
 class MultiTaskLossWrapper(nn.Module):
@@ -187,10 +186,12 @@ class MultiTaskLossWrapper(nn.Module):
         
         # Calculate loss for the intensity of the AUs present in the image
         for i, lab in enumerate(AU_intensities.permute(1,0)):
-            # Find indexes that contain the AU and train individual networks for AU intensity
+            
+            # Find indexes that contain the AU so each network is trained only on images containing containing that AU
             AU_idx = (lab >= 1).nonzero(as_tuple=True)[0]
             if len(AU_idx) > 0:
                 au_tmp_loss = F.cross_entropy(out_AU_intensities[i][AU_idx], lab[AU_idx] - 1, weight = self.cw_int[i]) #Subtract one from label to end up with 4 classes [0,1,2,3]
                 loss_collect += torch.exp(-self.log_sigmas[i])*au_tmp_loss + self.log_sigmas[i]*self.task_num
 
+        # The loss of the entire network is collected in loss_collect, while the learnable weights for each individual loss is stored in log_sigmas
         return loss_collect, self.log_sigmas.data.tolist()
