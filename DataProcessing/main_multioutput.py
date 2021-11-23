@@ -50,9 +50,12 @@ def main(bool):
     y = np.delete(y, bad_idx, axis = 0)
     print(f"Data loaded in {time.time() - t} seconds")
 
-    X_test, y_test = X[:100], y[:100]
-    X_train, y_train = X[100:800], y[100:800]
-    print(f'Train size = {X_train.shape}\nTest size = {X_test.shape}')
+    print(X.shape)
+    print(y.shape)
+
+    X_test, y_test = X[:2000], y[:2000]
+    X_train, y_train = X[2000:], y[2000:]
+    print(f'Train size = {X_train.shape}\nTrain size lab = {y_train}\nTest size = {X_test.shape} \nTest size lab = {y_test}')
 
     del X, y, data, data_arr, data_list, bad_idx
     
@@ -61,12 +64,13 @@ def main(bool):
     clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=6).fit(X_train, y_train)
     print(f"Model fit in {time.time() - t1} seconds") 
     
-    # Save the test model
-    if sys.platform == 'linux':
-        compress_pickle("/work3/s164272/data/multioutput_results/KNearest", clf)
-    else:
-        compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
-
+    """    
+        # Save the test model
+        if sys.platform == 'linux':
+            compress_pickle("/work3/s164272/data/multioutput_results/KNearest", clf)
+        else:
+            compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
+    """
     # Clear memory space
     del X_train, y_train 
 

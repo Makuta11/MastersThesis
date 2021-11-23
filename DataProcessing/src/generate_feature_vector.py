@@ -273,12 +273,11 @@ if __name__ == "__main__":
 
     do_pca = True
     if do_pca:
-        # Convert to numpy array
-        data_list = list(face_space.items())
+        # Initialize parameters
+        bad_idx = []
+        data_list = list(dataset.items())
         data_arr = np.array(data_list)
-        data_arr = np.vstack(data_arr[:,1])
-        data_arr = np.nan_to_num(data_arr)
-        
+
         # Collect bad inputs
         ln = data_arr[0,1].shape[0]
         for i, arr in enumerate(data_arr[:,1]):
@@ -288,7 +287,8 @@ if __name__ == "__main__":
             except:
                 bad_idx.append(i)
 
-        # Delete bad data points from labels and array
+        # Delete bad inputs from labels and array
+        labels = labels.drop(bad_idx).reset_index(drop=True)
         data_arr = np.delete(data_arr, bad_idx, axis=0)
 
         # Construct final data arrays
