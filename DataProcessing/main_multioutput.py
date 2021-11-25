@@ -99,34 +99,6 @@ def main(bool):
         print(f"f1-score for intensity of AU{au}:")
         print(f'{f1_score(y_true[:,i], y_pred[:,i], average = None)}')
     
-    """
-        try:
-            f1 = f1_score(y_test, y_pred)
-            print(f'F1-score (binary) of the classifier was: {f1}')
-        except:
-            print("could not calculate binary")
-        try:
-            f1_micro = f1_score(y_test, y_pred, average='micro')
-            print(f'F1-score (micro) of the classifier was: {f1_micro}')
-        except:
-            print("could not calculate micro")
-        try:
-            f1_macro = f1_score(y_test, y_pred, average='macro')
-            print(f'F1-score (macro) of the classifier was: {f1_macro}')
-        except:
-            print("could not calculate macro")
-        try:
-            f1_weighted = f1_score(y_test, y_pred, average='weighted')
-            print(f'F1-score (weighted) of the classifier was: {f1_macro}')
-        except:
-            print("could not calculate weighted")
-        try:
-            f1_samples = f1_score(y_test, y_pred, average='samples')
-            print(f'F1-score (samples) of the classifier was: {f1_macro}')
-        except:
-            print("could not calculate samples")
-    """
-    
     # Save the test model
     if sys.platform == 'linux':
         compress_pickle("/work3/s164272/clf", clf)

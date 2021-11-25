@@ -59,11 +59,6 @@ for k, BATCH_SIZE in enumerate([16]):
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=True)
     test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers = 2)
 
-    #TODO: Update to contain correct balancing for logit loss (number of negatives/number of possitives)
-    #Calculate class weights across AUs - for binary cross entropy loss
-    #min_non_zero = min(labels_train.sum()[:-1][labels_train.sum()[:-1] != 0])
-    #class_weights_AU = torch.FloatTensor([min_non_zero/x if x != 0 else 10**5 for x in labels_train.sum()[:-1]])
-
     class_weights_AU = []
     for element in np.array(labels_train.sum()[:-1]):
         if element == 0:
@@ -98,11 +93,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-<<<<<<< HEAD
         EPOCHS = 100
-=======
-        EPOCHS = 150
->>>>>>> 1fd6cd62aef4f7cfb5afe828d4e45e91303108cb
     else:
         EPOCHS = 5
     SAVE_FREQ = 10
@@ -120,8 +111,8 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR and DR
-    for i, LEARNING_RATE in enumerate([1e-3]):
-        for j, DROPOUT_RATE in enumerate([.5]):
+    for i, LEARNING_RATE in enumerate([1e-4]):
+        for j, DROPOUT_RATE in enumerate([.45]):
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
@@ -138,7 +129,6 @@ for k, BATCH_SIZE in enumerate([16]):
 
             model = MultiTaskLossWrapper(model, task_num = 13, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
             optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-3)
-            #criterion = MultiTaskLossWrapper(model, task_num= 12 + 1, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
             scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
 
             if torch.cuda.device_count() > 1:
@@ -146,7 +136,6 @@ for k, BATCH_SIZE in enumerate([16]):
 
             if train:
                 # Run training
-                #model, loss_collect, val_loss_collect, sigma_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=scheduler)
                 model, loss_collect, val_loss_collect, sigma_collect = train_model(model, optimizer, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=scheduler)
 
                 # Plot each individual figure
@@ -171,7 +160,6 @@ for k, BATCH_SIZE in enumerate([16]):
                 ax_uw.set_title(f"Uncertainty Weights - BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
                 ax_uw.set_xlabel("Epochs")
                 ax_uw.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-                
 
                 # Plot on collective figure
                 ax_tot.semilogy(np.arange(EPOCHS), loss_collect, linewidth="3", label = f"train_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")

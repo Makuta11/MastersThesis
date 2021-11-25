@@ -12,8 +12,6 @@ def checkpoint_save(model, save_path, epoch, name):
         torch.save(model.state_dict(), f)
     print('saved checkpoint:', f)
 
-#def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_dataloader, device,
-#                save_path, save_freq, scheduler = None, name = None):
 def train_model(model, optimizer, num_epochs, train_dataloader, val_dataloader, device,
                 save_path, save_freq, scheduler = None, name = None):
     
@@ -23,7 +21,6 @@ def train_model(model, optimizer, num_epochs, train_dataloader, val_dataloader, 
     # Collection array for uncertainty weights
     sigma_collect = np.zeros((num_epochs, 13))
 
-    
     for epoch in range(num_epochs):
         
         # Initialilze loss and set model to train mode
@@ -35,9 +32,6 @@ def train_model(model, optimizer, num_epochs, train_dataloader, val_dataloader, 
             data = x[0].float().to(device)
             AUs = x[1].float().to(device)
             AU_intensities = x[2].type(torch.LongTensor).to(device)
-            #for elm in AU_intensities:
-            #    elm.float().to(device)
-                #AU_intensities = torch.cat((AU_intensities, elm.to(device)), axis=0)
             
             optimizer.zero_grad()
 
@@ -117,6 +111,7 @@ def get_predictions(model, test_dataloader, device):
         predAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(predAU)]
         trueAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(trueAU)]
 
+        #TODO make sure the output does not truncate to 15 - seems like it was a problem locally
         for j, au in enumerate(aus):
             intensities_dict[f'AU{au}']["pred"] = np.array(intensities_dict[f'AU{au}']["pred"]).ravel()
             intensities_dict[f'AU{au}']["true"] = np.array(intensities_dict[f'AU{au}']["true"]).ravel()
