@@ -24,14 +24,13 @@ def main(bool):
     else:
         data = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2")
         labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
-
-    bad_idx = []
     
     # Convert from dictionary to np array
     data_list = list(data.items())
     data_arr = np.array(data_list)
     
     # Collect bad inputs
+    bad_idx = []
     ln = data_arr[0,1].shape[0]
     for i, arr in enumerate(data_arr[:,1]):
         try:
