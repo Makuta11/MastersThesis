@@ -98,7 +98,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 100
+        EPOCHS = 50
     else:
         EPOCHS = 10
     SAVE_FREQ = 10
@@ -141,7 +141,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
             if train:
                 # Run training
-                model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=scheduler)
+                model, loss_collect, val_loss_collect, sigma_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=scheduler)
 
                 # Plot each individual figure
                 plt.style.use('fivethirtyeight')
@@ -151,6 +151,17 @@ for k, BATCH_SIZE in enumerate([16]):
                 ax.set_title(f"BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
                 ax.set_xlabel("Epochs")
                 ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+                """
+                    # Plot each sigma figure
+                    plt.style.use('fivethirtyeight')
+                    fig, ax = plt.subplots(figsize=(10,12))
+                    for sig in sigma_collect:
+                        ax.semilogy(np.arange(EPOCHS), TODO , color="blue", linewidth="3", label="train_loss")
+                    ax.set_title(f"BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
+                    ax.set_xlabel("Epochs")
+                    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+                """
 
                 # Plot on collective figure
                 ax_tot.semilogy(np.arange(EPOCHS), loss_collect, linewidth="3", label = f"train_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")

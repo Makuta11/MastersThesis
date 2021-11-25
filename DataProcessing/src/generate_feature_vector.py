@@ -275,7 +275,7 @@ if __name__ == "__main__":
     if do_pca:
         # Initialize parameters
         bad_idx = []
-        data_list = list(dataset.items())
+        data_list = list(face_space.items())
         data_arr = np.array(data_list)
 
         # Collect bad inputs
@@ -287,8 +287,7 @@ if __name__ == "__main__":
             except:
                 bad_idx.append(i)
 
-        # Delete bad inputs from labels and array
-        labels = labels.drop(bad_idx).reset_index(drop=True)
+        # Delete bad inputs from array
         data_arr = np.delete(data_arr, bad_idx, axis=0)
 
         # Construct final data arrays

@@ -19,7 +19,7 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
     val_loss_collect = []
     
     # Collection array for uncertainty weights
-    sigma_collect = np.zeros((epochs, 13))
+    sigma_collect = np.zeros((num_epochs, 13))
 
     for epoch in range(num_epochs):
         
@@ -53,8 +53,7 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
            scheduler.step()
 
         loss_collect = np.append(loss_collect, running_loss/(i+1))
-        sigma_collect = [epoch,:]
-
+        sigma_collect[epoch,:] = sigma_scores
 
         # get validation loss
         model.eval()
@@ -87,7 +86,7 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
         if (epoch + 1) % save_freq == 0:
             checkpoint_save(model, save_path, epoch, name)
 
-    return model, loss_collect, val_loss_collect
+    return model, loss_collect, val_loss_collect, sigma_collect
 
 def get_predictions(model, test_dataloader, device):
     model.eval()

@@ -6,7 +6,7 @@
 ### specify that all cores should be on the same host
 #BSUB -gpu "num=1:mode=exclusive_process"
 ### specify the memory needed
-#BSUB -R "rusage[mem=32GB]"
+#BSUB -R "rusage[mem=200GB]"
 ### Number of hours needed
 #BSUB -W 23:59
 ### added outputs and errors to files
