@@ -308,8 +308,11 @@ if __name__ == "__main__":
 
     else:
         print("Compressin bz2 pickle files...")
-        compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
-        compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
+        face_space = face_space.astype(np.float32)
+        np.save(f"{pickles_path}/face_space_dict_disfa_large1.npy", face_space)
+        np.save(f"{pickles_path}/misses_disfa_large1", misses)
+        #compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
+        #compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
         print("All done!...")
         time.sleep(1)
         print("Well done")
