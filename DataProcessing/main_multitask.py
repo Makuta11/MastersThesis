@@ -100,7 +100,7 @@ for k, BATCH_SIZE in enumerate([16]):
     if sys.platform == "linux":
         EPOCHS = 50
     else:
-        EPOCHS = 50
+        EPOCHS = 70
     SAVE_FREQ = 10
     DATA_SHAPE = train_dataset.__nf__()
 
@@ -154,16 +154,15 @@ for k, BATCH_SIZE in enumerate([16]):
                 ax.set_xlabel("Epochs")
                 ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
-                """
-                    # Plot each sigma figure
-                    plt.style.use('fivethirtyeight')
-                    fig, ax = plt.subplots(figsize=(10,12))
-                    for sig in sigma_collect:
-                        ax.semilogy(np.arange(EPOCHS), TODO , color="blue", linewidth="3", label="train_loss")
-                    ax.set_title(f"BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
-                    ax.set_xlabel("Epochs")
-                    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-                """
+                # Plot each sigma figure
+                plt.style.use('fivethirtyeight')
+                fig_uw, ax_uw = plt.subplots(figsize=(10,12))
+                for i, au in enumerate(aus):
+                    ax_uw.plot(np.arange(EPOCHS), sigma_collect[:,i] , linewidth="3", label=f"AU{au}")
+                ax_uw.set_title(f"Uncertainty Weights - BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
+                ax_uw.set_xlabel("Epochs")
+                ax_uw.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+                
 
                 # Plot on collective figure
                 ax_tot.semilogy(np.arange(EPOCHS), loss_collect, linewidth="3", label = f"train_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")
@@ -175,8 +174,10 @@ for k, BATCH_SIZE in enumerate([16]):
                 # Make output dir for images
                 if sys.platform == 'linux':
                     fig.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+                    fig_uw.savefig(f"logs/{today[:19]}/UW_fig_{name}.png", dpi=128, bbox_inches='tight')
                 else:
                     fig.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+                    fig_uw.savefig(f"{save_path}/{today[:19]}/UW_fig_{name}.png", dpi=128, bbox_inches='tight')
         
             if evaluate:
                 for dataloader in [train_dataloader, val_dataloader]:
