@@ -117,7 +117,6 @@ def get_predictions(model, test_dataloader, device):
         predAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(predAU)]
         trueAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(trueAU)]
 
-
         for j, au in enumerate(aus):
             intensities_dict[f'AU{au}']["pred"] = np.array(intensities_dict[f'AU{au}']["pred"]).ravel()
             intensities_dict[f'AU{au}']["true"] = np.array(intensities_dict[f'AU{au}']["true"]).ravel()
