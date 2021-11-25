@@ -100,7 +100,7 @@ for k, BATCH_SIZE in enumerate([16]):
     if sys.platform == "linux":
         EPOCHS = 50
     else:
-        EPOCHS = 30
+        EPOCHS = 50
     SAVE_FREQ = 10
     DATA_SHAPE = train_dataset.__nf__()
 
@@ -117,7 +117,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # CV testing for LR and DR
     for i, LEARNING_RATE in enumerate([1e-3]):
-        for j, DROPOUT_RATE in enumerate([.35, .5]):
+        for j, DROPOUT_RATE in enumerate([.5]):
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
@@ -179,17 +179,18 @@ for k, BATCH_SIZE in enumerate([16]):
                     fig.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
         
             if evaluate:
-                AU_scores, intensity_scores = get_predictions(model, train_dataloader, device)
+                for dataloader in [train_dataloader, val_dataloader]:
+                    AU_scores, intensity_scores = get_predictions(model, dataloader, device)
 
-                # Print scores
-                print(f'n\{name}:')
-                print(f'\nScores on AU identification:\n{val_scores(AU_scores[0], AU_scores[1])}')
-                print("\nScores on AU intensities")
-                for au in aus:
-                    pred = intensity_scores[f'AU{au}']["pred"]
-                    true = intensity_scores[f'AU{au}']["true"]
-                    if len(pred) > 0:
-                        print(f'AU{au}:\n{val_scores(true,pred)}')
+                    # Print scores
+                    print(f'n\{name}:')
+                    print(f'\nScores on AU identification:\n{val_scores(AU_scores[0], AU_scores[1])}')
+                    print("\nScores on AU intensities")
+                    for au in aus:
+                        pred = intensity_scores[f'AU{au}']["pred"]
+                        true = intensity_scores[f'AU{au}']["true"]
+                        if len(pred) > 0:
+                            print(f'AU{au}:\n{val_scores(true,pred)}')
             
             # Clear up memory and reset individual figures
             del model, loss_collect, val_loss_collect, fig, ax
