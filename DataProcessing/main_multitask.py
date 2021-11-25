@@ -98,9 +98,9 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 50
+        EPOCHS = 150
     else:
-        EPOCHS = 70
+        EPOCHS = 5
     SAVE_FREQ = 10
     DATA_SHAPE = train_dataset.__nf__()
 
@@ -135,7 +135,7 @@ for k, BATCH_SIZE in enumerate([16]):
             model = MultiTaskLossWrapper(model, task_num = 13, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
             optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-3)
             #criterion = MultiTaskLossWrapper(model, task_num= 12 + 1, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
-            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [100], gamma = 0.1)
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
 
             if torch.cuda.device_count() > 1:
                 model = nn.DataParallel(model)
@@ -157,8 +157,13 @@ for k, BATCH_SIZE in enumerate([16]):
                 # Plot each sigma figure
                 plt.style.use('fivethirtyeight')
                 fig_uw, ax_uw = plt.subplots(figsize=(10,12))
-                for i, au in enumerate(aus):
-                    ax_uw.plot(np.arange(EPOCHS), sigma_collect[:,i] , linewidth="3", label=f"AU{au}")
+                for i, au in enumerate(np.append(["AUs"], aus)):
+                    if i == 0:
+                        ax_uw.semilogy(np.arange(EPOCHS), sigma_collect[:,i] , color = "magenta", linewidth="3", label=f"AUs Overall")
+                    elif i >= 7:
+                        ax_uw.semilogy(np.arange(EPOCHS), sigma_collect[:,i] , linewidth="3", label=f"AU{au}")
+                    else:
+                        ax_uw.semilogy(np.arange(EPOCHS), sigma_collect[:,i] , linewidth="3", label=f"AU{au}", linestyle="dashed")
                 ax_uw.set_title(f"Uncertainty Weights - BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
                 ax_uw.set_xlabel("Epochs")
                 ax_uw.legend(loc='center left', bbox_to_anchor=(1, 0.5))
@@ -190,7 +195,7 @@ for k, BATCH_SIZE in enumerate([16]):
                     for au in aus:
                         pred = intensity_scores[f'AU{au}']["pred"]
                         true = intensity_scores[f'AU{au}']["true"]
-                        if len(pred) > 0:
+                        if len(true) > 0 or len(pred) > 0:
                             print(f'AU{au}:\n{val_scores(true,pred)}')
             
             # Clear up memory and reset individual figures
