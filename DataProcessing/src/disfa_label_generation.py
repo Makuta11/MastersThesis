@@ -22,7 +22,7 @@ def generate_AU_df(folder):
     df = pd.DataFrame()
     for au in aus:
         tmp = pd.read_csv(f'{folder}/{key}_au{au}.txt', header=None)
-        df[f'AU{au}'] = tmp[1].iloc[:4840]
+        df[f'AU{au}'] = tmp[1].iloc[:4841]
     df["ID"] = dkey
     return [dkey, df]
 
