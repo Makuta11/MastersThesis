@@ -26,6 +26,8 @@ def main(bool):
         labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
 
     bad_idx = []
+    
+    # Convert from dictionary to np array
     data_list = list(data.items())
     data_arr = np.array(data_list)
     
@@ -40,7 +42,7 @@ def main(bool):
 
     print(f'There were a total of {len(bad_idx)} bad indexes')
 
-    # Delete bad inputs
+    # Remove bad inputs
     data_arr = np.delete(data_arr, bad_idx, axis=0)
 
     # Construct final data arrays
@@ -50,13 +52,12 @@ def main(bool):
     y = np.delete(y, bad_idx, axis = 0)
     print(f"Data loaded in {time.time() - t} seconds")
 
-    print(X.shape)
-    print(y.shape)
-
+    # Test train split
     X_test, y_test = X[:2000], y[:2000]
-    X_train, y_train = X[2000:], y[2000:]
+    X_train, y_train = X[2000:20000], y[2000:20000]
     print(f'Train size = {X_train.shape}\nTrain size lab = {y_train}\nTest size = {X_test.shape} \nTest size lab = {y_test}')
 
+    # Clear memory space
     del X, y, data, data_arr, data_list, bad_idx
     
     print("Starting fit")
@@ -71,6 +72,7 @@ def main(bool):
         else:
             compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
     """
+
     # Clear memory space
     del X_train, y_train 
 
@@ -79,8 +81,6 @@ def main(bool):
     t2 = time.time()
     y_pred = clf.predict(X_test)
     print(f'It took {time.time() - t2} to make predictions')
-
-    import pdb; pdb.set_trace()
 
     #compress_pickle("/work3/s164272/data/multioutput_results/y_pred", y_pred)
 
