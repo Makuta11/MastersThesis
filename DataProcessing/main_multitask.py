@@ -116,7 +116,7 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR and DR
-    for i, LEARNING_RATE in enumerate([5e-6]):
+    for i, LEARNING_RATE in enumerate([1e-3]):
         for j, DROPOUT_RATE in enumerate([.45, .5]):
 
             # Name for saving the model
@@ -132,8 +132,9 @@ for k, BATCH_SIZE in enumerate([16]):
                 else:
                     model.load_state_dict(torch.load(model_path, map_location=device))
 
-            optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-2)
-            criterion = MultiTaskLossWrapper(model, task_num= 12 + 1, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
+            model = MultiTaskLossWrapper(model, task_num = 13, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
+            optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-3)
+            #criterion = MultiTaskLossWrapper(model, task_num= 12 + 1, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
             scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [100], gamma = 0.1)
 
             if torch.cuda.device_count() > 1:
@@ -141,7 +142,8 @@ for k, BATCH_SIZE in enumerate([16]):
 
             if train:
                 # Run training
-                model, loss_collect, val_loss_collect, sigma_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=scheduler)
+                #model, loss_collect, val_loss_collect, sigma_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=scheduler)
+                model, loss_collect, val_loss_collect, sigma_collect = train_model(model, optimizer, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=scheduler)
 
                 # Plot each individual figure
                 plt.style.use('fivethirtyeight')
@@ -177,7 +179,7 @@ for k, BATCH_SIZE in enumerate([16]):
                     fig.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
         
             if evaluate:
-                AU_scores, intensity_scores = get_predictions(model, val_dataloader, device)
+                AU_scores, intensity_scores = get_predictions(model, train_dataloader, device)
 
                 # Print scores
                 print(f'n\{name}:')

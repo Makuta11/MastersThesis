@@ -12,7 +12,9 @@ def checkpoint_save(model, save_path, epoch, name):
         torch.save(model.state_dict(), f)
     print('saved checkpoint:', f)
 
-def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_dataloader, device,
+#def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_dataloader, device,
+#                save_path, save_freq, scheduler = None, name = None):
+def train_model(model, optimizer, num_epochs, train_dataloader, val_dataloader, device,
                 save_path, save_freq, scheduler = None, name = None):
     
     loss_collect = []
@@ -21,13 +23,14 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
     # Collection array for uncertainty weights
     sigma_collect = np.zeros((num_epochs, 13))
 
+    
     for epoch in range(num_epochs):
         
         # Initialilze loss and set model to train mode
         running_loss = 0
         val_loss = 0
-        model.train()
         
+        model.train()
         for i, x in enumerate(train_dataloader):
             data = x[0].float().to(device)
             AUs = x[1].float().to(device)
@@ -37,23 +40,20 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
                 #AU_intensities = torch.cat((AU_intensities, elm.to(device)), axis=0)
             
             optimizer.zero_grad()
-            out = model(data)
-            del data
-            torch.cuda.empty_cache()
 
-            loss, sigma_scores = criterion(out, AUs, AU_intensities, device)
+            loss = model(data, AUs, AU_intensities, device)
             loss[0].backward()
             optimizer.step()
-            running_loss += loss.detach().cpu().item()
+            running_loss += loss[0].detach().cpu().item()
 
-            del AUs, AU_intensities, loss
+            del AUs, AU_intensities
             torch.cuda.empty_cache()
         
         if scheduler:
            scheduler.step()
 
         loss_collect = np.append(loss_collect, running_loss/(i+1))
-        sigma_collect[epoch,:] = sigma_scores
+        sigma_collect[epoch,:] = loss[1]
 
         # get validation loss
         model.eval()
@@ -61,16 +61,9 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
             data = x[0].float().to(device)
             AUs = x[1].float().to(device)
             AU_intensities = x[2].type(torch.LongTensor).to(device)
-            #for elm in AU_intensities:
-            #    elm.float().to(device)
 
-            out = model(data)
-            
-            del data
-            torch.cuda.empty_cache()
-
-            loss,_ = criterion(out, AUs, AU_intensities, device)
-            val_loss += loss.detach().cpu().item()
+            loss = model(data, AUs, AU_intensities, device)
+            val_loss += loss[0].detach().cpu().item()
             
             del AUs, AU_intensities, loss
             torch.cuda.empty_cache()
@@ -104,14 +97,13 @@ def get_predictions(model, test_dataloader, device):
 
         for i, x in enumerate(test_dataloader):
     
-            out = model(x[0].float().to(device))
+            out = model.model(x[0].float().to(device))
 
             # Append logic bool array for predicted and true labels
             predAU.append(list(out[0].cpu().numpy().ravel() > 0)) 
             trueAU.append(list(x[1].cpu().numpy().ravel() > 0))
 
             # Append intensity prediction to dictionary organized for each AU
-
             for j, au in enumerate(aus):
                 AU_idx = (x[2] >= 1).nonzero(as_tuple=True)
                 if (j - 1) in list(AU_idx[1]):
@@ -124,6 +116,7 @@ def get_predictions(model, test_dataloader, device):
         trueAU = np.concatenate(trueAU).ravel()
         predAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(predAU)]
         trueAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(trueAU)]
+
 
         for j, au in enumerate(aus):
             intensities_dict[f'AU{au}']["pred"] = np.array(intensities_dict[f'AU{au}']["pred"]).ravel()

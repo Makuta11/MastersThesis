@@ -170,20 +170,23 @@ class Multitask(nn.Module):
 class MultiTaskLossWrapper(nn.Module):
     def __init__(self, model, task_num, cw_AU, cw_int):
         super(MultiTaskLossWrapper, self).__init__()
+        self.model = model
         self.task_num = task_num
         self.cw_AU = cw_AU
         self.cw_int = cw_int
-        self.log_sigmas = nn.Parameter(torch.zeros((task_num)))
+        self.log_sigmas = nn.Parameter(torch.ones((task_num)))
 
     def forward(self, data, AUs, AU_intensities, device):
 
-        out_AU, out_AU_intensities = data[0], data[1]
-        loss = nn.BCEWithLogitsLoss(pos_weight = self.cw_AU)
+        out_AU, out_AU_intensities = self.model(data)
+
+        bce = nn.BCEWithLogitsLoss(pos_weight = self.cw_AU)
 
         # Calculate loss for the multi-label classification of identifying if AU is present in image
-        AU_loss = loss(out_AU, AUs)
-        loss_collect = torch.exp(-self.log_sigmas[0])*AU_loss + self.log_sigmas[0]*self.task_num
-        
+        AU_loss = bce(out_AU, AUs)
+        #loss_collect = torch.exp(-self.log_sigmas[0]**2)*AU_loss + self.log_sigmas[0]
+        loss_collect = 1/((self.log_sigmas[0]**2)) * AU_loss + torch.log(self.log_sigmas[0])/self.task_num
+
         # Calculate loss for the intensity of the AUs present in the image
         for i, lab in enumerate(AU_intensities.permute(1,0)):
             
@@ -191,7 +194,8 @@ class MultiTaskLossWrapper(nn.Module):
             AU_idx = (lab >= 1).nonzero(as_tuple=True)[0]
             if len(AU_idx) > 0:
                 au_tmp_loss = F.cross_entropy(out_AU_intensities[i][AU_idx], lab[AU_idx] - 1, weight = self.cw_int[i]) #Subtract one from label to end up with 4 classes [0,1,2,3]
-                loss_collect += torch.exp(-self.log_sigmas[i])*au_tmp_loss + self.log_sigmas[i]*self.task_num
+                #loss_collect += torch.exp(-self.log_sigmas[i]**2)*au_tmp_loss + self.log_sigmas[i]
+                loss_collect += 1/((self.log_sigmas[i]**2)) * au_tmp_loss + torch.log(self.log_sigmas[i])/self.task_num
 
         # The loss of the entire network is collected in loss_collect, while the learnable weights for each individual loss is stored in log_sigmas
         return loss_collect, self.log_sigmas.data.tolist()
