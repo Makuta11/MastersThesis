@@ -5,10 +5,11 @@ import numpy as np
 import pandas as pd
 
 from sklearn.metrics import f1_score
-from src.validation_score import val_scores
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.datasets import make_multilabel_classification
+
+from src.validation_score import val_scores
 from src.generate_feature_vector import decompress_pickle, compress_pickle
 
 def main(bool):
