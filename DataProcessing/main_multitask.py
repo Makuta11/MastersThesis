@@ -100,7 +100,7 @@ for k, BATCH_SIZE in enumerate([16]):
     if sys.platform == "linux":
         EPOCHS = 50
     else:
-        EPOCHS = 10
+        EPOCHS = 30
     SAVE_FREQ = 10
     DATA_SHAPE = train_dataset.__nf__()
 
@@ -117,7 +117,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # CV testing for LR and DR
     for i, LEARNING_RATE in enumerate([1e-3]):
-        for j, DROPOUT_RATE in enumerate([.25, .5]):
+        for j, DROPOUT_RATE in enumerate([.35, .5]):
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
