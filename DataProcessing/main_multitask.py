@@ -98,7 +98,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 50
+        EPOCHS = 100
     else:
         EPOCHS = 70
     SAVE_FREQ = 10
