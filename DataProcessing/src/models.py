@@ -10,8 +10,6 @@ class Multitask(nn.Module):
                  fc_hidden_dim_3, fc_hidden_dim_4, fc_hidden_dim_5, dropout_prop):
         super(Multitask, self).__init__()
 
-        #TODO: add uncertainty weights (self.stop_weights = stop_weights)
-
         self.fc_layer = nn.Sequential(
             nn.BatchNorm1d(data_shape),
             nn.ReLU(),
