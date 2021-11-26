@@ -93,7 +93,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 100
+        EPOCHS = 50
     else:
         EPOCHS = 5
     SAVE_FREQ = 10
@@ -111,8 +111,8 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR and DR
-    for i, LEARNING_RATE in enumerate([1e-4]):
-        for j, DROPOUT_RATE in enumerate([.45]):
+    for i, LEARNING_RATE in enumerate([5e-5]):
+        for j, DROPOUT_RATE in enumerate([.5]):
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
