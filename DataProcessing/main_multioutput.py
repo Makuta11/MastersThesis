@@ -97,7 +97,7 @@ def main(bool):
 
     for i, au in enumerate(aus):
         print(f"f1-score for intensity of AU{au}:")
-        print(f'{f1_score(y_true[:,i], y_pred[:,i], average = None)}')
+        print(f'{f1_score(y_test[:,i], y_pred[:,i], average = None)}')
     
     # Save the test model
     if sys.platform == 'linux':
