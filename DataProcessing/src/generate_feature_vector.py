@@ -218,7 +218,8 @@ def main(i, img_dir, subset=None):
         # Generate Shape Vector
         if subset:
             landmarks, _ = get_landmarks_mp(img_dir)
-            contors = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/src/assets/subset_contors.npy")
+            #contors = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/src/assets/subset_contors.npy")
+            contors = np.load("/zhome/08/3/117881/MastersThesis/DataProcessing/src/assets/subset_contors.npy")
             landmark_idx = np.unique(contors).astype(int)
         else:
             landmarks, contors = get_landmarks_mp(img_dir)
