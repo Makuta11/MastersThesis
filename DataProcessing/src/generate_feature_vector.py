@@ -121,7 +121,7 @@ def get_angles_mp(cont_list,landmarks):
                 angles.append(calc_angle(landmarks[sorted(comb)[0]], landmarks[i], landmarks[sorted(comb)[1]]))
     return angles
 
-def plot_mp_landmarks(landmarks, contors=None, annotate=False, img_dir=None):
+def plot_mp_landmarks(landmarks, contors = None, annotate = False, img_dir = None):
     _, ax = plt.subplots(figsize=(15,18))
     if type(img_dir) == str:
         img = Image.open(img_dir)
@@ -315,6 +315,7 @@ if __name__ == "__main__":
 
     else:
         print("Compressin bz2 pickle files...")
+        print(face_space)
         face_space = face_space[0].astype(np.float32)
         np.save(f"{pickles_path}/face_space_dict_disfa_large_subset.npy", face_space)
         np.save(f"{pickles_path}/misses_disfa_large_subset.npy", misses)
