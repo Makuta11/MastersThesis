@@ -157,7 +157,7 @@ def get_norm_landmarks(img_dir, landmarks):
     inner_eye_distace = math.dist(eye_centers[0],eye_centers[1])
     c = 100/inner_eye_distace
     return np.array(landmarks)*c, c
-    
+
 def reshape_img(img_dir, c, show=False):
     img = Image.open(img_dir).convert('L')
     y,x = np.shape(img)
@@ -206,8 +206,8 @@ def get_gb_fb():
 def get_plot_range(landmarks_norm):
     xmax, xmin, ymax, ymin = max(landmarks_norm[:,0]).astype(int), min(landmarks_norm[:,0]).astype(int), max(landmarks_norm[:,1]).astype(int), min(landmarks_norm[:,1]).astype(int)
 
-def main(i, img_dir):
-
+def main(i, img_dir, subset=None):
+    
     if "DS" in img_dir:
         return 
     
@@ -216,17 +216,24 @@ def main(i, img_dir):
 
     try:
         # Generate Shape Vector
-        landmarks, contors = get_landmarks_mp(img_dir)
+        if subset:
+            landmarks, _ = get_landmarks_mp(img_dir)
+            contors = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/src/assets/subset_contors.npy")
+            landmark_idx = np.unique(contors).astype(int)
+        else:
+            landmarks, contors = get_landmarks_mp(img_dir)
         landmarks_norm, c = get_norm_landmarks(img_dir, landmarks)
         distances = get_distances(contors, landmarks_norm)
         angles = get_angles_mp(contors, landmarks_norm)
+
         feat_x = np.append(distances, angles)
-    
         # Generate Shading Vector
         img = reshape_img(img_dir, c, show=False)
         gb_fb = get_gb_fb()
         
         feat_g =[]
+        if subset:
+            landmarks_norm = landmarks_norm[landmark_idx]
         for key in gb_fb.keys():
             for landmark in landmarks_norm:
                 filt_size = np.shape(gb_fb[key])[0]
@@ -254,14 +261,14 @@ if __name__ == "__main__":
         dir_path = "/work3/s164272/data/ImgDISFA/"
         pickles_path = "/work3/s164272/data/Features"
     else:
-        dir_path = ""#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
-        pickles_path = ""#"/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/DataProcessing/pickles"
+        dir_path = "/Users/DG/Documents/PasswordProtected/TestImg/"#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
+        pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles"
     face_space = dict()
     misses = []
 
     print("Generation started....")
     # Parallel generation of face_space vectors
-    dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}') for i, file in enumerate(sorted(os.listdir(dir_path))))
+    dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
     print("Generation done!!!")
 
     print("Dictionary combination started....")
@@ -308,11 +315,13 @@ if __name__ == "__main__":
 
     else:
         print("Compressin bz2 pickle files...")
-        face_space = face_space.astype(np.float32)
-        np.save(f"{pickles_path}/face_space_dict_disfa_large1.npy", face_space)
-        np.save(f"{pickles_path}/misses_disfa_large1", misses)
+        face_space = face_space[0].astype(np.float32)
+        np.save(f"{pickles_path}/face_space_dict_disfa_large_subset.npy", face_space)
+        np.save(f"{pickles_path}/misses_disfa_large_subset.npy", misses)
         #compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
         #compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
         print("All done!...")
         time.sleep(1)
         print("Well done")
+
+# %%
