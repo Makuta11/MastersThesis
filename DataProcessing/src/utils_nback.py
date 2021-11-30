@@ -299,7 +299,7 @@ def collective_performace_change(df, full = None):
     print(f'        3-Back: \n'+
           f'            sham change: {perf_list[10]}% \n'+
           f'            stim change: {perf_list[11]}%\n')
-    print(f'    Across Sessions (not corrected for subj diff)')
+    print(f'    Across Sessions')
     print(f'        1-Back: \n'+
           f'            sham change: {round(np.mean([perf_list[0], perf_list[6]]), 2)}% \n'+
           f'            stim change: {round(np.mean([perf_list[1], perf_list[7]]), 2)}%')
