@@ -25,7 +25,7 @@ def main(bool):
     else:
         data = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2")
         labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
-    
+
     # Convert from dictionary to np array
     data_list = list(data.items())
     data_arr = np.array(data_list)
@@ -99,7 +99,7 @@ def main(bool):
     y_test_flat = y_test
     y_test_flat[y_test_flat >= 1] = 1
     
-    print(f'\nAU f1-scores:\n{f1_score(y_test_flat, y_pred_flat, average = None, zero_division = 1)}')
+    print(f'\nAU f1-scores:\n{f1_score(y_test_flat, y_pred_flat, average = None, zero_division = 1)}')<<
     
     # Save the test model
     if sys.platform == 'linux':
