@@ -35,7 +35,7 @@ num_intensities = 4 # 4 different intensity levels (when active)
 user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
 user_val = np.array([3,5,7,9,12,13])
 user_test = np.array([5])
-
+c
 # Data loading
 print("Loading Dataset")
 t = time.time()
@@ -93,7 +93,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 300
+        EPOCHS = 20
     else:
         EPOCHS = 5
     SAVE_FREQ = 10
@@ -111,8 +111,8 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR and DR
-    for i, LEARNING_RATE in enumerate([1e-6]):
-        for j, DROPOUT_RATE in enumerate([0.4]):
+    for i, LEARNING_RATE in enumerate([2.5e-3]):
+        for j, DROPOUT_RATE in enumerate([.4]):
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}_ones'
@@ -128,7 +128,7 @@ for k, BATCH_SIZE in enumerate([16]):
                     model.load_state_dict(torch.load(model_path, map_location=device))
 
             model = MultiTaskLossWrapper(model, task_num = 13, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
-            optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-3)
+            optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-4)
             scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
 
             if torch.cuda.device_count() > 1:
@@ -152,11 +152,11 @@ for k, BATCH_SIZE in enumerate([16]):
                 fig_uw, ax_uw = plt.subplots(figsize=(10,12))
                 for i, au in enumerate(np.append(["AUs"], aus)):
                     if i == 0:
-                        ax_uw.semilogy(np.arange(EPOCHS), sigma_collect[:,i] , color = "magenta", linewidth="3", label=f"AUs Overall")
+                        ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i]) , color = "magenta", linewidth="3", label=f"AUs Overall")
                     elif i >= 7:
-                        ax_uw.semilogy(np.arange(EPOCHS), sigma_collect[:,i] , linewidth="3", label=f"AU{au}")
+                        ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i]) , linewidth="3", label=f"AU{au}")
                     else:
-                        ax_uw.semilogy(np.arange(EPOCHS), sigma_collect[:,i] , linewidth="3", label=f"AU{au}", linestyle="dashed")
+                        ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i])  , linewidth="3", label=f"AU{au}", linestyle="dashed")
                 ax_uw.set_title(f"Uncertainty Weights - BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
                 ax_uw.set_xlabel("Epochs")
                 ax_uw.legend(loc='center left', bbox_to_anchor=(1, 0.5))
