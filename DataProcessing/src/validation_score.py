@@ -10,12 +10,21 @@ def val_scores(pred, label):
         fp = ((pred == lab) & (label!=lab)).sum()
         fn = ((pred != lab) & (label == lab)).sum()
 
-        precision = tp/(tp+fp)
-        recall = tp/(tp+fn)
+        if (tp+fp) == 0:
+            precision = 0
+        else:
+            precision = tp/(tp+fp)
+        if (tp+fn) == 0:
+            recall = 0
+        else:
+            recall = tp/(tp+fn)
 
-        f_score = 2*precision*recall/(precision + recall)
+        if (precision + recall) == 0:
+            f_score = 0
+        else:
+            f_score = 2*precision*recall/(precision + recall)
         
         temp = pd.DataFrame({'Precision': precision, 'Recall': recall, 'F1 score': f_score}, index = [lab])
-        collect = collect.append(temp)
+        collect = collect.append(temp.fillna(0))
     
     return collect

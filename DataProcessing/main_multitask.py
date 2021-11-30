@@ -95,7 +95,7 @@ for k, BATCH_SIZE in enumerate([16]):
     if sys.platform == "linux":
         EPOCHS = 50
     else:
-        EPOCHS = 5
+        EPOCHS = 25
     SAVE_FREQ = 10
     DATA_SHAPE = train_dataset.__nf__()
 
@@ -112,7 +112,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # CV testing for LR and DR
     
-    for i, LEARNING_RATE in enumerate([5e-5]):
+    for i, LEARNING_RATE in enumerate([1e-4]):
         for j, DROPOUT_RATE in enumerate([.5]):
 
             # Name for saving the model
@@ -153,11 +153,11 @@ for k, BATCH_SIZE in enumerate([16]):
                 fig_uw, ax_uw = plt.subplots(figsize=(10,12))
                 for i, au in enumerate(np.append(["AUs"], aus)):
                     if i == 0:
-                        ax_uw.semilogy(np.arange(EPOCHS), sigma_collect[:,i] , color = "magenta", linewidth="3", label=f"AUs Overall")
+                        ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i]) , color = "magenta", linewidth="3", label=f"AUs Overall")
                     elif i >= 7:
-                        ax_uw.semilogy(np.arange(EPOCHS), sigma_collect[:,i] , linewidth="3", label=f"AU{au}")
+                        ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i]) , linewidth="3", label=f"AU{au}")
                     else:
-                        ax_uw.semilogy(np.arange(EPOCHS), sigma_collect[:,i] , linewidth="3", label=f"AU{au}", linestyle="dashed")
+                        ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i]) , linewidth="3", label=f"AU{au}", linestyle="dashed")
                 ax_uw.set_title(f"Uncertainty Weights - BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
                 ax_uw.set_xlabel("Epochs")
                 ax_uw.legend(loc='center left', bbox_to_anchor=(1, 0.5))
