@@ -35,7 +35,7 @@ num_intensities = 4 # 4 different intensity levels (when active)
 user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
 user_val = np.array([3,5,7,9,12,13])
 user_test = np.array([5])
-c
+
 # Data loading
 print("Loading Dataset")
 t = time.time()
@@ -93,11 +93,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-<<<<<<< HEAD
-        EPOCHS = 20
-=======
         EPOCHS = 50
->>>>>>> 1555485d1e0684583abdc068eadf3c1417af3649
     else:
         EPOCHS = 5
     SAVE_FREQ = 10
@@ -115,14 +111,8 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR and DR
-<<<<<<< HEAD
     for i, LEARNING_RATE in enumerate([2.5e-3]):
         for j, DROPOUT_RATE in enumerate([.4]):
-=======
-    
-    for i, LEARNING_RATE in enumerate([5e-5]):
-        for j, DROPOUT_RATE in enumerate([.5]):
->>>>>>> 1555485d1e0684583abdc068eadf3c1417af3649
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
