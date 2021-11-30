@@ -95,7 +95,7 @@ for k, BATCH_SIZE in enumerate([16]):
     if sys.platform == "linux":
         EPOCHS = 50
     else:
-        EPOCHS = 25
+        EPOCHS = 30
     SAVE_FREQ = 10
     DATA_SHAPE = train_dataset.__nf__()
 
@@ -111,8 +111,13 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR and DR
+<<<<<<< HEAD
+    for i, LEARNING_RATE in enumerate([1e-3]):
+        for j, DROPOUT_RATE in enumerate([.5]):
+=======
     for i, LEARNING_RATE in enumerate([2.5e-3]):
         for j, DROPOUT_RATE in enumerate([.4]):
+>>>>>>> 9da6dfc3b7e75224f8caa6d2ad07f31d5b5df57d
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
@@ -128,7 +133,7 @@ for k, BATCH_SIZE in enumerate([16]):
                     model.load_state_dict(torch.load(model_path, map_location=device))
 
             model = MultiTaskLossWrapper(model, task_num = 13, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
-            optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-4)
+            optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-3)
             scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
 
             if torch.cuda.device_count() > 1:
@@ -156,7 +161,11 @@ for k, BATCH_SIZE in enumerate([16]):
                     elif i >= 7:
                         ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i]) , linewidth="3", label=f"AU{au}")
                     else:
+<<<<<<< HEAD
+                        ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i])  , linewidth="3", label=f"AU{au}", linestyle="dashed")
+=======
                         ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i]) , linewidth="3", label=f"AU{au}", linestyle="dashed")
+>>>>>>> 9da6dfc3b7e75224f8caa6d2ad07f31d5b5df57d
                 ax_uw.set_title(f"Uncertainty Weights - BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
                 ax_uw.set_xlabel("Epochs")
                 ax_uw.legend(loc='center left', bbox_to_anchor=(1, 0.5))
