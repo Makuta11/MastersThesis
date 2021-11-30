@@ -172,7 +172,7 @@ class MultiTaskLossWrapper(nn.Module):
         self.task_num = task_num
         self.cw_AU = cw_AU
         self.cw_int = cw_int
-        self.log_sigmas = nn.Parameter(torch.zeros((task_num)))
+        self.log_sigmas = nn.Parameter(torch.ones((task_num)))
 
     def forward(self, data, AUs, AU_intensities, device):
 
