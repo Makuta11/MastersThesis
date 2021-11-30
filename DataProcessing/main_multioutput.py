@@ -20,8 +20,8 @@ def main(bool):
     print("Loading Dataset")
     t = time.time()
     if sys.platform == 'linux':
-        data = decompress_pickle("/zhome/08/3/117881/MastersThesis/DataProcessing/pickles/face_space_dict_disfa.pbz2")
-        labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels.pbz2")
+        data = decompress_pickle("/work3/s164272/data/Features/face_space_dict_disfa_large1.pbz2")
+        labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels_large1.pbz2")
     else:
         data = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2")
         labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
@@ -97,7 +97,7 @@ def main(bool):
 
     for i, au in enumerate(aus):
         print(f"f1-score for intensity of AU{au}:")
-        print(f'{f1_score(y_true[:,i], y_pred[:,i], average = None)}')
+        print(f'{f1_score(y_test[:,i], y_pred[:,i], average = None)}')
     
     # Save the test model
     if sys.platform == 'linux':

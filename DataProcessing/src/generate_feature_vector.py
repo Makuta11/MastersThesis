@@ -271,7 +271,7 @@ if __name__ == "__main__":
         except:
             misses.append(d)
 
-    do_pca = True
+    do_pca = False
     if do_pca:
         # Initialize parameters
         bad_idx = []
