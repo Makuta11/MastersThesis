@@ -53,8 +53,8 @@ def main(bool):
     print(f"Data loaded in {time.time() - t} seconds")
 
     # Test train split
-    X_test, y_test = X[:2000], y[:2000]
-    X_train, y_train = X[2000:20000], y[2000:20000]
+    X_test, y_test = X[:20000], y[:20000]
+    X_train, y_train = X[20000:120000], y[20000:120000]
     print(f'Train size = {X_train.shape}\nTrain size lab = {y_train}\nTest size = {X_test.shape} \nTest size lab = {y_test}')
 
     # Clear memory space
@@ -62,7 +62,7 @@ def main(bool):
     
     print("Starting fit")
     t1 = time.time()
-    clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=6).fit(X_train, y_train)
+    clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=24).fit(X_train, y_train)
     print(f"Model fit in {time.time() - t1} seconds") 
     
     """    
@@ -86,18 +86,20 @@ def main(bool):
 
     del X_test
     
+    print(np.unique(y_pred))
+    print("\nStarting f1-score calculation")
+
+    for i, au in enumerate(aus):
+        print(f"f1-score for intensity of AU{au}:")
+        print(f'{f1_score(y_test[:,i], y_pred[:,i], average = None)}')
+
     # Convert to only look at AU accuracy
     y_pred_flat = y_pred
     y_pred_flat[y_pred_flat >= 1] = 1
     y_test_flat = y_test
     y_test_flat[y_test_flat >= 1] = 1
     
-    print("Starting f1-score calculation")
     print(f'\nAU f1-scores:\n{f1_score(y_test_flat, y_pred_flat, average = None, zero_division = 1)}')
-
-    for i, au in enumerate(aus):
-        print(f"f1-score for intensity of AU{au}:")
-        print(f'{f1_score(y_test[:,i], y_pred[:,i], average = None)}')
     
     # Save the test model
     if sys.platform == 'linux':

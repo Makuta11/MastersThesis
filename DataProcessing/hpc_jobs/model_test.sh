@@ -2,11 +2,11 @@
 #BSUB -q hpc
 #BSUB -J My_Test
 ### number of core
-#BSUB -n 6
+#BSUB -n 24
 ### specify that all cores should be on the same host
 #BSUB -R "span[hosts=1]"
 ### specify the memory needed
-#BSUB -R "rusage[mem=50GB]"
+#BSUB -R "rusage[mem=15GB]"
 ### Number of hours needed
 #BSUB -W 23:59
 ### added outputs and errors to files
