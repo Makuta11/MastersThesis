@@ -1,0 +1,154 @@
+body {
+    font-family: "Montserrat";
+    margin: 0;
+    background-image: linear-gradient(to right,#6d7997,#414b65);
+}
+
+.app__container {
+    margin: 3% 3%;
+}
+
+.app__centerDiv {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.app__header__img {
+    padding: 25px;
+    width: 800px;
+    display: flex;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.app__header__title {
+    color: #FFFFFF;
+    font-size: 48px;
+    font-weight: bold;
+    text-align: center;
+    margin: 0 auto;
+    margin-bottom: 50px;
+}
+
+.SessionSettingsButton {
+    transition-duration: 0.4s;
+    font-size: 20px;
+    border-radius: 12px;
+    margin-left: 25px;
+    width: 220px;
+    padding: 15px;
+    color: white;
+    background-color: #414b65;
+    border: 0;
+}
+
+.SessionSettingsButton:hover { 
+    background-color: #e2bf6f;
+    color: #414b65;
+}
+
+.button {
+    transition-duration: 0.4s;
+    font-size: 40px;
+    border-radius: 12px;
+    padding: 15px;
+    color: white;
+    background-color: #e2bf6f;
+    border: 0;
+}
+
+.button__clicked {
+    transition-duration: 0.4s;
+    font-size: 40px;
+    border-radius: 12px;
+    padding: 15px;
+    color: #e2bf6f;
+    background-color: #414b65;
+    border: 0;
+}
+
+.button:hover { 
+    background-color: #414b65;
+    color: #e2bf6f;
+}
+
+.button:active{
+    transition-duration: 0.3s;
+    background-color: white;
+    color: white;
+}
+
+.button:disabled{
+    background-color:  #adaeb3d7;
+}
+
+.button_container{
+    width: 33%;
+    text-align: right;
+}
+
+.input_container{
+    width: 60%;
+    text-align: left;
+    margin-top: 12px;
+}
+
+.inputStyle {
+    background-color: #414b65;
+    color: #e2bf6f;
+    margin-right: 15px;
+    font-size: 32px;
+    width: 100%;
+
+}
+
+.containerInput {
+    padding: 15px;
+    width: 40%;
+}
+
+
+.containerColumn {
+    padding: 15px;
+    width: 64%;
+}
+
+.containerRow {
+    display: flex;
+    color: #FFFFFF;
+    max-width: 600px;
+    padding: 25px;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 0px;
+    margin-top: 30px;
+    margin-right: auto;
+    margin-left: auto;
+    background-image: linear-gradient(to left,#6d7997,#414b65);
+    border-radius: 25px;
+}
+
+/*
+@media (min-width: 550px) {
+    .column,
+    .columns {margin-left: 20px;}
+    .one-third.column               { width: calc(37% - 20px); }
+    .two-thirds.column              { width: 59%; }
+    .full.column                 { width: 96%; }         
+  
+}
+*/
+
+@media only screen and (min-width: 600px) {
+    .header__logo {
+        order: 0;
+    }
+    .header_DASHBOARD {
+        order: 1;
+    }
+    .app__content {
+        order: 2;
+    } 
+}
