@@ -104,7 +104,7 @@ def main(bool):
     y_test_flat = y_test
     y_test_flat[y_test_flat >= 1] = 1
     
-    print(f'\nAU f1-scores:\n{f1_score(y_test_flat, y_pred_flat, average = None, zero_division = 1)}')<<
+    print(f'\nAU f1-scores:\n{f1_score(y_test_flat, y_pred_flat, average = None, zero_division = 1)}')
     
     # Save the test model
     if sys.platform == 'linux':
