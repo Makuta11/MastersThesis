@@ -6,7 +6,7 @@ import pandas as pd
 
 from sklearn.lda import LDA
 from sklearn.metrics import f1_score
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.datasets import make_multilabel_classification
 
