@@ -5,6 +5,7 @@ def val_scores(pred, label):
 
     unique_labels = np.unique(np.append(label,pred))
     collect = pd.DataFrame()
+    
     for lab in unique_labels:
         tp = ((pred == lab) & (label == lab)).sum()
         fp = ((pred == lab) & (label!=lab)).sum()
