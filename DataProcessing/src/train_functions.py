@@ -27,6 +27,7 @@ def train_model(model, optimizer, num_epochs, train_dataloader, val_dataloader, 
         running_loss = 0
         val_loss = 0
         
+        # Calculate training loss
         model.train()
         for i, x in enumerate(train_dataloader):
             data = x[0].float().to(device)
@@ -40,6 +41,7 @@ def train_model(model, optimizer, num_epochs, train_dataloader, val_dataloader, 
             optimizer.step()
             running_loss += loss[0].detach().cpu().item()
 
+            # Clear memory space
             del AUs, AU_intensities
             torch.cuda.empty_cache()
         
@@ -49,7 +51,7 @@ def train_model(model, optimizer, num_epochs, train_dataloader, val_dataloader, 
         loss_collect = np.append(loss_collect, running_loss/(i+1))
         sigma_collect[epoch,:] = loss[1]
 
-        # get validation loss
+        # Calculate validation loss
         model.eval()
         for i, x in enumerate(val_dataloader):
             data = x[0].float().to(device)
@@ -70,14 +72,19 @@ def train_model(model, optimizer, num_epochs, train_dataloader, val_dataloader, 
         print(str(epoch + 1) + ' out of ' + str(num_epochs))
         print(loss_collect[epoch])
         print(val_loss_collect[epoch])
+
+        # Save checkpoint at pre-determined intervals
         if (epoch + 1) % save_freq == 0:
             checkpoint_save(model, save_path, epoch, name)
 
     return model, loss_collect, val_loss_collect, sigma_collect
 
 def get_predictions(model, test_dataloader, device):
+    
     model.eval()
     with torch.no_grad():
+        
+        # Parameter initialization
         predAU = []
         trueAU = []
     
@@ -89,6 +96,7 @@ def get_predictions(model, test_dataloader, device):
             intensities_dict[f'AU{au}']["pred"] = []
             intensities_dict[f'AU{au}']["true"] = []
 
+        # Collect model outputs on test_data
         for i, x in enumerate(test_dataloader):
     
             out = model.model(x[0].float().to(device))
@@ -106,12 +114,15 @@ def get_predictions(model, test_dataloader, device):
                         intensities_dict[f'AU{au}']["pred"].append(np.argmax(out[1][AU_idx[1][idx]][AU_idx[0][idx]].cpu()).numpy() + 1)
                         intensities_dict[f'AU{au}']["true"].append(x[2][AU_idx[0][idx]][AU_idx[1][idx]].cpu().numpy())
 
+        # Ravel list to get one-dimensional arrays with predictions and true labels
         predAU = np.concatenate(predAU).ravel()
         trueAU = np.concatenate(trueAU).ravel()
+        
+        # Insert label names to differentiate precision socres between labels
         predAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(predAU)]
         trueAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(trueAU)]
 
-        #TODO make sure the output does not truncate to 15 - seems like it was a problem locally
+        # Ravel arrays for each AU intensity 
         for j, au in enumerate(aus):
             intensities_dict[f'AU{au}']["pred"] = np.array(intensities_dict[f'AU{au}']["pred"]).ravel()
             intensities_dict[f'AU{au}']["true"] = np.array(intensities_dict[f'AU{au}']["true"]).ravel()

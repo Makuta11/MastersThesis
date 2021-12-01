@@ -20,11 +20,16 @@ def main(bool):
     print("Loading Dataset")
     t = time.time()
     if sys.platform == 'linux':
-        data = decompress_pickle("/work3/s164272/data/Features/face_space_dict_disfa_large1.pbz2")
+        dataset = np.load('/work3/s164272/data/Features/face_space_dict_disfa_large_subset.npy', allow_pickle=True)
+        #data = decompress_pickle("/work3/s164272/data/Features/face_space_dict_disfa_large1.pbz2")
         labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels_large1.pbz2")
     else:
         data = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2")
         labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
+
+    # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
+    if dataset.shape == ():
+        dataset = dataset.tolist()
 
     # Convert from dictionary to np array
     data_list = list(data.items())

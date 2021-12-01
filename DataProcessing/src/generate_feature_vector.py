@@ -16,47 +16,6 @@ from sklearn.decomposition import PCA
 from math import pi, cos, sin, exp, sqrt
 from sklearn.preprocessing import StandardScaler
 
-""" For possible implementation in the future
-    def get_landmarks_dlib(img_dir):
-        image = cv2.cvtColor(cv2.imread(img_dir), cv2.COLOR_BGR2GRAY)
-        p = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/Data Processing/src/assets/shape_predictor_68_face_landmarks.dat"
-        detector = dlib.get_frontal_face_detector()
-        predictor = dlib.shape_predictor(p)
-
-        rect = detector(image, 0)
-        for rect in rect:
-            shape = predictor(image, rect)
-            shape = face_utils.shape_to_np(shape)
-        return shape
-        print(len(tri.simplices))
-
-    def plot_dlib_landmarks(landmarks,tri=None, annotate=False):
-        x, y = zip(*landmarks)
-        fig, ax = plt.subplots(figsize=(15,18))
-        ax.scatter(x,y)
-        if tri:
-            tri = Delaunay(landmarks)
-            ax.triplot(x,y,tri.simplices)
-        ax.invert_yaxis()
-        if annotate:
-            for i, txt in enumerate(np.arange(len(landmarks))):
-                ax.annotate(str(i), (x[i]+5, y[i]-5))
-            for i, txt in enumerate(landmarks[tri.simplices]):
-            x, y = zip(*txt)
-                ax.annotate(str(i), (np.mean(x),np.mean(y)))
-
-    def inter_eye_normalization(landmarks):
-        if len(landmarks) == 1:
-            landamrks[0].landmark[0]
-        else:
-            left_inner_eye = landmarks[42]
-            right_inner_eye = landmarks[39]
-        inner_eye_distace = np.sqrt((left_inner_eye[0] - right_inner_eye[0])**2 + (left_inner_eye[1] - right_inner_eye[1])**2)
-        c = 300/inner_eye_distace
-        landmarks_normalized = c*landmarks
-        return landmarks_normalized
-"""
-
 def decompress_pickle(file: str):
     data = bz2.BZ2File(file, 'rb')
     data = pickle.load(data)
@@ -174,7 +133,7 @@ def self_gabor(sigma, theta, Lambda, psi, gamma):
     sigma_y = float(sigma) / gamma
 
     # Bounding box
-    nstds = 5  # Number of standard deviation sigma
+    nstds = 5  # Number of standard deviations
     xmax = max(abs(nstds * sigma_x * np.cos(theta)), abs(nstds * sigma_y * np.sin(theta)))
     xmax = np.ceil(max(1, xmax))
     ymax = max(abs(nstds * sigma_x * np.sin(theta)), abs(nstds * sigma_y * np.cos(theta)))
@@ -187,7 +146,9 @@ def self_gabor(sigma, theta, Lambda, psi, gamma):
     x_theta = x * np.cos(theta) + y * np.sin(theta)
     y_theta = -x * np.sin(theta) + y * np.cos(theta)
 
+    # Construct the gabor filter 
     gb = np.exp(-.5 * (x_theta ** 2 / sigma_x ** 2 + y_theta ** 2 / sigma_y ** 2)) * np.cos(2 * np.pi / Lambda * x_theta + psi)
+    
     return gb
 
 def get_gb_fb():
