@@ -1,10 +1,9 @@
 #%%
-import os
-import math
-import pickle
-import fnmatch
+import os, math, pickle, fnmatch
+
 import numpy as np
 import pandas as pd
+
 from glob import glob
 from rich.console import Console
 from rich.table import Column, Table
