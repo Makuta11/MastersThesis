@@ -1,6 +1,5 @@
-import os
-from tqdm import tqdm
-import torch
+import os, torch
+
 import numpy as np
 import pandas as pd
 
