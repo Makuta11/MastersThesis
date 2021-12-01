@@ -38,6 +38,7 @@ def load_data(user_train, user_val, user_test):
         dataset = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_large_subset.npy", allow_pickle=True)
         labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_large1.pbz2")
 
+    # Unfold dict inside 0-dimensional array due to np.save/np.load
     dataset = dataset.tolist()
     print(np.shape(dataset))
     print(labels.shape)
