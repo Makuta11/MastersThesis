@@ -146,7 +146,7 @@ def self_gabor(sigma, theta, Lambda, psi, gamma):
     x_theta = x * np.cos(theta) + y * np.sin(theta)
     y_theta = -x * np.sin(theta) + y * np.cos(theta)
 
-    # Construct the gabor filter 
+    # Construct the real component of the gabor filter 
     gb = np.exp(-.5 * (x_theta ** 2 / sigma_x ** 2 + y_theta ** 2 / sigma_y ** 2)) * np.cos(2 * np.pi / Lambda * x_theta + psi)
     
     return gb
@@ -216,6 +216,7 @@ def main(i, img_dir, subset=None):
     except:
         print(f'Image {main_key} could not be handled')
         return {main_key: np.nan}
+        
 #%%
 if __name__ == "__main__":
     os.environ["GLOG_minloglevel"] ="2"

@@ -135,7 +135,7 @@ for k, BATCH_SIZE in enumerate([16]):
             model = MultiTaskLossWrapper(model, task_num = 13, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
             
             # Optimization parameters
-            optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-4)
+            optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-2)
             scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
 
             if train:

@@ -15,6 +15,7 @@ def val_scores(pred, label):
             precision = 0
         else:
             precision = tp/(tp+fp)
+        
         if (tp+fn) == 0:
             recall = 0
         else:
