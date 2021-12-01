@@ -95,7 +95,7 @@ for k, BATCH_SIZE in enumerate([16]):
     if sys.platform == "linux":
         EPOCHS = 50
     else:
-        EPOCHS = 10
+        EPOCHS = 20
     SAVE_FREQ = 10
     DATA_SHAPE = train_dataset.__nf__()
 

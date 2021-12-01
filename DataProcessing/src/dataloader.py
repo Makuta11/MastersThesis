@@ -71,8 +71,8 @@ def load_data(user_train, user_val, user_test):
         labels_train = pd.concat([labels[(labels.ID==tr)] for tr in user_train])
     else:
         labels_test = labels.iloc[:1]
-        labels_val = labels.iloc[1:750]
-        labels_train = labels.iloc[750:4500]
+        labels_val = labels.iloc[3400:4000]
+        labels_train = labels.iloc[1:3400]
 
     # Extract test-val-train indexes
     test_idx = list(labels_test.index)

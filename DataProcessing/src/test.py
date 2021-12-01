@@ -1,14 +1,10 @@
-import pickle, bz2
-import numpy as np
-from sklearn.datasets import make_multilabel_classification
-from sklearn.multioutput import MultiOutputClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from generate_feature_vector import decompress_pickle
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_classification
+X, y = make_classification(n_samples=1000, n_features=20, n_classes=4,
+                           n_informative=20, n_redundant=0,
+                           random_state=0, shuffle=False, n_clusters_per_class=4)
+clf = RandomForestClassifier(max_depth=2, random_state=0)
+clf.fit(X, y)
 
-tmp = decompress_pickle("/work3/s164272/data/Features/face_space_dict_disfa_large1.pbz2")
-data_list = list(tmp.items())
-data_arr = np.array(data_list)
-data_arr = np.vstack(data_arr[:,1])
-data_arr = np.nan_to_num(data_arr)
 
-print(data_arr.shape)
+print("hello")
