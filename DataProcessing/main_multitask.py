@@ -29,7 +29,7 @@ evaluate = True
 # Data parameters
 aus = [1,2,4,5,6,9,12,15,17,20,25,26]
 num_AU = 12
-num_intensities = 4 # 4 different intensity levels (when active)
+num_intensities = 5 # 5 different intensity levels (when active)
 
 # Subject split
 user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
@@ -74,10 +74,10 @@ for k, BATCH_SIZE in enumerate([16]):
         tmpd = {}
         for i, key in enumerate(np.array(labels_train[col].value_counts().axes)[0]):
                 tmpd[key] = tmp[i]
-        for k in [1,2,3,4]:
+        for k in [1,2,3,4,5]:
             if k not in tmpd.keys():
                 tmpd[k] = 10**5
-        class_weights_int.append([tmpd[1], tmpd[2], tmpd[3], tmpd[4]])
+        class_weights_int.append([tmpd[1], tmpd[2], tmpd[3], tmpd[4], tmpd[5]])
     class_weights_int = np.array(class_weights_int)
     class_weights_int  = torch.tensor(class_weights_int, dtype=torch.float)
 
@@ -95,7 +95,7 @@ for k, BATCH_SIZE in enumerate([16]):
     if sys.platform == "linux":
         EPOCHS = 50
     else:
-        EPOCHS = 30
+        EPOCHS = 10
     SAVE_FREQ = 10
     DATA_SHAPE = train_dataset.__nf__()
 
@@ -111,7 +111,7 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR and DR
-    for i, LEARNING_RATE in enumerate([1e-3]):
+    for i, LEARNING_RATE in enumerate([2.5e-3]):
         for j, DROPOUT_RATE in enumerate([.5]):
 
             # Name for saving the model
@@ -128,7 +128,7 @@ for k, BATCH_SIZE in enumerate([16]):
                     model.load_state_dict(torch.load(model_path, map_location=device))
 
             model = MultiTaskLossWrapper(model, task_num = 13, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
-            optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-3)
+            optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-4)
             scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
 
             #if torch.cuda.device_count() > 1:

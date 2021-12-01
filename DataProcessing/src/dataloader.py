@@ -34,8 +34,9 @@ def load_data(user_train, user_val, user_test):
         misses = np.load('/work3/s164272/data/Features/misses_disfa_large_subset.npy', allow_pickle=True)
     else:
         # Small testing dataload for local machine
-        dataset = decompress_pickle(f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2')
-        labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
+        #dataset = decompress_pickle(f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2')
+        dataset = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_large_subset.npy", allow_pickle=True)
+        labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_large1.pbz2")
 
     dataset = dataset.tolist()
     print(np.shape(dataset))
@@ -70,8 +71,8 @@ def load_data(user_train, user_val, user_test):
         labels_train = pd.concat([labels[(labels.ID==tr)] for tr in user_train])
     else:
         labels_test = labels.iloc[:1]
-        labels_val = labels.iloc[1:600]
-        labels_train = labels.iloc[600:807]
+        labels_val = labels.iloc[1:750]
+        labels_train = labels.iloc[750:4500]
 
     # Extract test-val-train indexes
     test_idx = list(labels_test.index)
