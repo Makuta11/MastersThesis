@@ -4,10 +4,8 @@ import os, sys, time, pickle
 import numpy as np
 import pandas as pd
 
-from sklearn.lda import LDA
 from sklearn.metrics import f1_score
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.multioutput import MultiOutputClassifier
 from sklearn.datasets import make_multilabel_classification
 
 from src.validation_score import val_scores
@@ -25,8 +23,8 @@ def main(bool):
         #data = decompress_pickle("/work3/s164272/data/Features/face_space_dict_disfa_large1.pbz2")
         labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels_large1.pbz2")
     else:
-        data = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2")
-        labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_test.pbz2")
+        data = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_large_subset.npy", allow_pickle=True)
+        labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_large1.pbz2")
 
     # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
     if data.shape == ():
@@ -70,7 +68,7 @@ def main(bool):
     
     print("Starting fit")
     t1 = time.time()
-    clf = MultiOutputClassifier(LDA(), n_jobs=24).fit(X_train, y_train)
+    clf = RandomForestClassifier(random_state=0, n_jobs=-1).fit(X_train, y_train)
     print(f"Model fit in {time.time() - t1} seconds") 
     
     """    
@@ -99,7 +97,7 @@ def main(bool):
 
     for i, au in enumerate(aus):
         print(f"f1-score for intensity of AU{au}:")
-        print(f'{f1_score(y_test[:,i], y_pred[:,i], average = None)}')
+        print(f'{f1_score(y_test[:,i], y_pred[:,i], average = None, zero_division = 1)}')
 
     # Convert to only look at AU accuracy
     y_pred_flat = y_pred
@@ -111,7 +109,7 @@ def main(bool):
     
     # Save the test model
     if sys.platform == 'linux':
-        compress_pickle("/work3/s164272/clf", clf)
+        compress_pickle("/work3/s164272/RF_clf", clf)
     else:
         compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
 

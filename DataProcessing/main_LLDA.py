@@ -111,7 +111,7 @@ def main(bool):
     
     # Save the test model
     if sys.platform == 'linux':
-        compress_pickle("/work3/s164272/clf", clf)
+        compress_pickle("/work3/s164272/LLDA_clf", clf)
     else:
         compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
 
