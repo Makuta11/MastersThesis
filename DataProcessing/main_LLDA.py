@@ -73,14 +73,6 @@ def main(bool):
     clf = MultiOutputClassifier(LDA(), n_jobs=24).fit(X_train, y_train)
     print(f"Model fit in {time.time() - t1} seconds") 
     
-    """    
-        # Save the test model
-        if sys.platform == 'linux':
-            compress_pickle("/work3/s164272/data/multioutput_results/KNearest", clf)
-        else:
-            compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
-    """
-
     # Clear memory space
     del X_train, y_train 
 
