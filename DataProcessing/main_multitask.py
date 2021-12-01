@@ -93,7 +93,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 50
+        EPOCHS = 100
     else:
         EPOCHS = 10
     SAVE_FREQ = 10
@@ -111,8 +111,8 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR and DR
-    for i, LEARNING_RATE in enumerate([2.5e-3]):
-        for j, DROPOUT_RATE in enumerate([.5]):
+    for i, LEARNING_RATE in enumerate([1e-6, 1e-5, 1e-4]):
+        for j, DROPOUT_RATE in enumerate([.25, 0.5]):
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
@@ -134,7 +134,6 @@ for k, BATCH_SIZE in enumerate([16]):
             # Initialize model with loss wrapper for multitask learning
             model = MultiTaskLossWrapper(model, task_num = 13, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
             
-
             # Optimization parameters
             optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-4)
             scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
