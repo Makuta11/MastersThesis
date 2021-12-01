@@ -1,12 +1,12 @@
-import torch, bz2, sys
-import torch.nn as nn
-from torch.utils import data
-import torch.nn.functional as F
-import torch.optim as optim
-import pickle
+import torch, bz2, sys, pickle
+
 import numpy as np
 import pandas as pd
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
 
+from torch.utils import data
 
 def decompress_pickle(file: str):
     data = bz2.BZ2File(file, 'rb')
@@ -18,14 +18,6 @@ def compress_pickle(title: str, data):
         pickle.dump(data, f)
 
 def load_data(user_train, user_val, user_test):
-
-    # save np.load
-    #np_load_old = np.load
-
-    # modify the default parameters of np.load
-    #np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
-
-    print("loading data inside dataloader")
     
     if sys.platform == "linux":
         # Big dataload on hpc
@@ -38,9 +30,9 @@ def load_data(user_train, user_val, user_test):
         dataset = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_large_subset.npy", allow_pickle=True)
         labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_large1.pbz2")
 
-    dataset = dataset.tolist()
-    print(np.shape(dataset))
-    print(labels.shape)
+    # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
+    if dataset.shape == ():
+        dataset = dataset.tolist()
 
     # Initialize parameters
     bad_idx = []

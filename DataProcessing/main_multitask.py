@@ -93,7 +93,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 50
+        EPOCHS = 100
     else:
         EPOCHS = 20
     SAVE_FREQ = 10
@@ -111,28 +111,32 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR and DR
-    for i, LEARNING_RATE in enumerate([2.5e-3]):
-        for j, DROPOUT_RATE in enumerate([.5]):
+    for i, LEARNING_RATE in enumerate([1e-6, 1e-5, 1e-4]):
+        for j, DROPOUT_RATE in enumerate([.25, 0.5]):
 
             # Name for saving the model
             name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
 
-            # Model initialization
+            # Device determination - allows for same code with and without access to CUDA (GPU)
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            
+            # Model initialization
             model = Multitask(DATA_SHAPE, num_AU, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
                             FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
+            
+            # Load model if script is run for evaluating trained model
             if not train:
                 if torch.cuda.is_available():
                     model.load_state_dict(torch.load(model_path), strict = False)
                 else:
                     model.load_state_dict(torch.load(model_path, map_location=device))
-
+            
+            # Initialize model with loss wrapper for multitask learning
             model = MultiTaskLossWrapper(model, task_num = 13, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
+            
+            # Optimization parameters
             optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= 1e-4)
             scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
-
-            #if torch.cuda.device_count() > 1:
-            #    model = nn.DataParallel(model)
 
             if train:
                 # Run training
@@ -168,7 +172,7 @@ for k, BATCH_SIZE in enumerate([16]):
                 ax_tot.set_xlabel("Epochs")
                 ax_tot.legend(loc='center left', bbox_to_anchor=(1, 0.5))
                 
-                # Make output dir for images
+                # Create output directory for images
                 if sys.platform == 'linux':
                     fig.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
                     fig_uw.savefig(f"logs/{today[:19]}/UW_fig_{name}.png", dpi=128, bbox_inches='tight')
@@ -177,6 +181,7 @@ for k, BATCH_SIZE in enumerate([16]):
                     fig_uw.savefig(f"{save_path}/{today[:19]}/UW_fig_{name}.png", dpi=128, bbox_inches='tight')
         
             if evaluate:
+                # Test model performance on given dataloaders
                 for dataloader in [train_dataloader, val_dataloader]:
                     AU_scores, intensity_scores = get_predictions(model, dataloader, device)
 

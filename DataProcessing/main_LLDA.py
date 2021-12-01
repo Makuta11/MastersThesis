@@ -4,6 +4,7 @@ import os, sys, time, pickle
 import numpy as np
 import pandas as pd
 
+from sklearn.lda import LDA
 from sklearn.metrics import f1_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.multioutput import MultiOutputClassifier
@@ -29,7 +30,7 @@ def main(bool):
 
     # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
     if data.shape == ():
-        data = data.tolist()
+        data = dataset.tolist()
 
     # Convert from dictionary to np array
     data_list = list(data.items())
@@ -55,11 +56,13 @@ def main(bool):
     X = np.nan_to_num(X)
     y = labels.drop(columns="ID").to_numpy()
     y = np.delete(y, bad_idx, axis = 0)
+    y[y >= 1] = int(1)
+    y[y < 1] = int(0)
     print(f"Data loaded in {time.time() - t} seconds")
 
     # Test train split
-    X_test, y_test = X[:20000], y[:20000]
-    X_train, y_train = X[20000:120000], y[20000:120000]
+    X_test, y_test = X[:4840*5], y[:4840*5]
+    X_train, y_train = X[4840*5:], y[4840*5:]
     print(f'Train size = {X_train.shape}\nTrain size lab = {y_train}\nTest size = {X_test.shape} \nTest size lab = {y_test}')
 
     # Clear memory space
@@ -67,7 +70,7 @@ def main(bool):
     
     print("Starting fit")
     t1 = time.time()
-    clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=24).fit(X_train, y_train)
+    clf = MultiOutputClassifier(LDA(), n_jobs=24).fit(X_train, y_train)
     print(f"Model fit in {time.time() - t1} seconds") 
     
     """    

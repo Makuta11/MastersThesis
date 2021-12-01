@@ -6,7 +6,7 @@
 ### specify that all cores should be on the same host
 #BSUB -gpu "num=1:mode=exclusive_process"
 ### specify the memory needed
-#BSUB -R "rusage[mem=64GB]"
+#BSUB -R "rusage[mem=50GB]"
 ### Number of hours needed
 #BSUB -W 23:59
 ### added outputs and errors to files
@@ -17,4 +17,4 @@ echo "Runnin script..."
 
 module load cuda/10.2
 module load python3/3.8.11
-python3 main_multitask.py > outputs/log_multitask_$(date +"%d-%m-%y")_$(date +'%H:%M:%S')
+python3 main_multitask.py > outputs/multitask_$(date +"%d-%m-%y")_$(date +'%H:%M:%S')
