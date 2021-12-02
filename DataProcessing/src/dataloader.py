@@ -7,7 +7,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from torch.utils import data
-from utils import decompress_pickle, compress_pickle
+from src.utils import decompress_pickle
 
 def load_data(user_train, user_val, user_test, subset = None):
     if subset:
@@ -23,6 +23,9 @@ def load_data(user_train, user_val, user_test, subset = None):
             #dataset = decompress_pickle(f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2')
             dataset = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_large_subset.npy", allow_pickle=True)
             labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_large1.pbz2")
+            misses = np.load('/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/misses_disfa_large_subset.npy', allow_pickle=True)
+            # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
+            dataset = dataset.tolist()
     else:
         if sys.platform == "linux":
             # Big dataload on hpc
@@ -35,10 +38,17 @@ def load_data(user_train, user_val, user_test, subset = None):
             dataset = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_large_subset.npy", allow_pickle=True)
             labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_large1.pbz2")
 
+    # Remove missed dataindexes from labels (currently not any so its not implemented)
+    if len(misses) > 0:
+        pass
+
     # Initialize parameters
     bad_idx = []
-    data_list = list(dataset.items())
-    data_arr = np.array(data_list)
+    if type(dataset) == dict:
+        data_list = list(dataset.items())
+        data_arr = np.array(data_list)
+    else:
+        data_arr = dataset
 
     # Collect bad inputs
     ln = data_arr[0,1].shape[0]
@@ -63,9 +73,9 @@ def load_data(user_train, user_val, user_test, subset = None):
         labels_val = pd.concat([labels[(labels.ID==va)] for va in user_val])
         labels_train = pd.concat([labels[(labels.ID==tr)] for tr in user_train])
     else:
-        labels_test = labels.iloc[:1]
-        labels_val = labels.iloc[3400:4000]
-        labels_train = labels.iloc[1:3400]
+        labels_test = labels.iloc[1:4840*1]
+        labels_val = labels.iloc[:1]
+        labels_train = labels.iloc[4840*1:int(4840*1.5)]
 
     # Extract test-val-train indexes
     test_idx = list(labels_test.index)
@@ -93,8 +103,6 @@ class ImageTensorDatasetMultitask(data.Dataset):
         return len(self.data[0])
     
     def __getitem__(self, key):
-        data = self.data[key]
-        
         # Multi-label classification labels
         AUs = np.array(self.labels.iloc[key])
         AUs[AUs != 0] = 1

@@ -1,4 +1,3 @@
-# Imports
 import os, sys, time, pickle
 
 import numpy as np

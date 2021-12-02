@@ -1,6 +1,9 @@
-import pickle, bz2, os
+import pickle, bz2, os, torch
+
 import numpy as np
 import pandas as pd
+
+from sklearn.utils.class_weight import compute_class_weight
 
 def decompress_pickle(file: str):
     data = bz2.BZ2File(file, 'rb')
@@ -13,12 +16,12 @@ def compress_pickle(title: str, data):
 
 def get_class_weights_AU(labels_train):
     class_weights_AU = []
-        for element in np.array(labels_train.sum()[:-1]):
-            if element == 0:
-                class_weights_AU.append(torch.tensor(10**5))
-            else:
-                class_weights_AU.append(torch.tensor(labels_train.shape[0]/element))
-        class_weights_AU = torch.tensor(class_weights_AU)
+    for element in np.array(labels_train.sum()[:-1]):
+        if element == 0:
+            class_weights_AU.append(torch.tensor(10**5))
+        else:
+            class_weights_AU.append(torch.tensor(labels_train.shape[0]/element))
+    class_weights_AU = torch.tensor(class_weights_AU)
     return class_weights_AU
 
 def get_class_weights_AU_int(labels_train):

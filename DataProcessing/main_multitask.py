@@ -17,7 +17,6 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import KFold
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.multioutput import MultiOutputClassifier
-from sklearn.utils.class_weight import compute_class_weight
 from sklearn.datasets import make_multilabel_classification
 
 # users = np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
