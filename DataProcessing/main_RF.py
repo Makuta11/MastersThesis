@@ -1,4 +1,3 @@
-# Imports
 import os, sys, time, pickle
 
 import numpy as np
@@ -6,7 +5,7 @@ import pandas as pd
 
 from sklearn.metrics import f1_score
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.datasets import make_multilabel_classification
+from sklearn.multioutput import MultiOutputClassifier
 
 from src.validation_score import val_scores
 from src.generate_feature_vector import decompress_pickle, compress_pickle
@@ -54,8 +53,6 @@ def main(bool):
     X = np.nan_to_num(X)
     y = labels.drop(columns="ID").to_numpy()
     y = np.delete(y, bad_idx, axis = 0)
-    y[y >= 1] = int(1)
-    y[y < 1] = int(0)
     print(f"Data loaded in {time.time() - t} seconds")
 
     # Test train split
@@ -68,16 +65,9 @@ def main(bool):
     
     print("Starting fit")
     t1 = time.time()
-    clf = RandomForestClassifier(random_state=0, n_jobs=-1).fit(X_train, y_train)
+    forest =  RandomForestClassifier(random_state = 1)
+    clf = MultiOutputClassifier(forest, n_jobs = -1).fit(X_train, y_train)
     print(f"Model fit in {time.time() - t1} seconds") 
-    
-    """    
-        # Save the test model
-        if sys.platform == 'linux':
-            compress_pickle("/work3/s164272/data/multioutput_results/KNearest", clf)
-        else:
-            compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
-    """
 
     # Clear memory space
     del X_train, y_train 

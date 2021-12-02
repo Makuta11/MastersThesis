@@ -5,9 +5,7 @@ import numpy as np
 import pandas as pd
 
 from sklearn.metrics import f1_score
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.multioutput import MultiOutputClassifier
-from sklearn.datasets import make_multilabel_classification
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
 from src.validation_score import val_scores
@@ -56,8 +54,8 @@ def main(bool):
     X = np.nan_to_num(X)
     y = labels.drop(columns="ID").to_numpy()
     y = np.delete(y, bad_idx, axis = 0)
-    y[y >= 1] = int(1)
-    y[y < 1] = int(0)
+    #y[y >= 1] = int(1)
+    #y[y < 1] = int(0)
     print(f"Data loaded in {time.time() - t} seconds")
 
     # Test train split
