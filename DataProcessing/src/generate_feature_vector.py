@@ -15,15 +15,7 @@ from joblib import Parallel, delayed
 from sklearn.decomposition import PCA
 from math import pi, cos, sin, exp, sqrt
 from sklearn.preprocessing import StandardScaler
-
-def decompress_pickle(file: str):
-    data = bz2.BZ2File(file, 'rb')
-    data = pickle.load(data)
-    return data
-
-def compress_pickle(title: str, data):
-    with bz2.BZ2File(title + '.pbz2', 'w') as f: 
-        pickle.dump(data, f)
+from src.utils import decompress_pickle, compress_pickle
 
 def get_landmarks_mp(img_dir):
     mp_face_mesh = mp.solutions.face_mesh
