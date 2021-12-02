@@ -9,6 +9,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.datasets import make_multilabel_classification
 
+from src.dataloader import *
 from src.validation_score import val_scores
 from src.utils import decompress_pickle, compress_pickle
 

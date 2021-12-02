@@ -123,7 +123,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
                 if train:
                     # Run training
-                    model, loss_collect, val_loss_collect, sigma_collect = train_model(model, optimizer, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=scheduler)
+                    model, loss_collect, val_loss_collect, sigma_collect = train_model(model, optimizer, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=None)
 
                     # Plot each individual figure
                     plt.style.use('fivethirtyeight')
