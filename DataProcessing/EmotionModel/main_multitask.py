@@ -84,7 +84,7 @@ for k, BATCH_SIZE in enumerate([16]):
     # Logging Parameters
     today = str(datetime.datetime.now())
     if sys.platform == "linux":
-        os.makedirs(f"/zhome/08/3/117881/MastersThesis/DataProcessing/logs/{today[:19]}")
+        os.makedirs(f"/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/logs/{today[:19]}")
         os.makedirs(f"/work3/s164272/{today[:19]}")
         save_path = f"/work3/s164272/{today[:19]}"
     else:
