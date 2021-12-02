@@ -34,7 +34,7 @@ def main(bool):
     print(f"Model fit in {time.time() - t1} seconds") 
     
     # Clear memory space
-    #del data_train, labels_train
+    del data_train, labels_train
 
     t2 = time.time()
     print("Starting Prediction")
@@ -63,7 +63,7 @@ def main(bool):
 
     # Save the test model
     if sys.platform == 'linux':
-        compress_pickle("/work3/s164272/RF_clf", clf)
+        compress_pickle("/work3/s164272/models/RF_clf", clf)
     else:
         compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
 
