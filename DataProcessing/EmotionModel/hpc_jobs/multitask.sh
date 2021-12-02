@@ -1,5 +1,5 @@
 #!/bin/sh
-#BSUB -q gpua100
+#BSUB -q gpuv100
 #BSUB -J MULT
 ### number of core
 #BSUB -n 1

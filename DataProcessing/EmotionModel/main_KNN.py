@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 
 from sklearn.metrics import f1_score
-from sklearn.neighbors import KNeighborsClassifier
+from skmultilearn.adapt import MLkNN
+from sklearn.model_selection import GridSearchCV
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.datasets import make_multilabel_classification
 
@@ -32,7 +33,17 @@ def main(bool):
     
     print("Starting fit")
     t1 = time.time()
-    clf = MultiOutputClassifier(KNeighborsClassifier(), n_jobs=24).fit(data_train, labels_train)
+    
+    # Parameters to do perform GridSearch on
+    parameters = {'k': range(2,5), 's': [0.5, 0.7, 1.0]}
+    score = 'f1_macro'
+    
+    # Perform gridsearch to choose optimal parameters and then choose those for fitting
+    clf = MLkNN(k=3)
+    clf.fit(data_train, labels_train)
+    
+    print("The optimal parameters found during gridsearch")
+    print (f'k: {clf.best_params_} \nscore: {clf.best_score_}')
     print(f"Model fit in {time.time() - t1} seconds") 
 
     # Clear memory space
@@ -40,6 +51,7 @@ def main(bool):
 
     print("Starting prediction...")
     t2 = time.time()
+    
     y_pred = clf.predict(data_test)
     print(f'It took {time.time() - t2} to make predictions')
 
