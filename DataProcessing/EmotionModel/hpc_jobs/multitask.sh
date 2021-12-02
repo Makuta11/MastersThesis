@@ -1,6 +1,6 @@
 #!/bin/sh
 #BSUB -q gpuv100
-#BSUB -J My_Test
+#BSUB -J MULT
 ### number of core
 #BSUB -n 1
 ### specify that all cores should be on the same host
