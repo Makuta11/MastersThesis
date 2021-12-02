@@ -18,7 +18,7 @@ def main(bool):
     # Subject split
     user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
     user_test = np.array([3,5,7,9,12,13])
-    user_val = np.array([])
+    user_val = np.array([5])
 
     # Data loading with test-train splits 
     print("Loading Dataset")
