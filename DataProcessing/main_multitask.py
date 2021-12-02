@@ -98,7 +98,7 @@ for k, BATCH_SIZE in enumerate([16]):
             for k, WEIGHT_DECAY in enumerate([1e-2, 1e-3, 1e-4]):
                 
                 # Name for saving the model
-                name = f'Batch{BATCH_SIZE}_Drop{DROPOUT_RATE}_Lr{LEARNING_RATE}'
+                name = f'B:{BATCH_SIZE}_DR:{DROPOUT_RATE}_LR:{LEARNING_RATE}_WD:{WEIGHT_DECAY}'
 
                 # Device determination - allows for same code with and without access to CUDA (GPU)
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -119,7 +119,7 @@ for k, BATCH_SIZE in enumerate([16]):
                 
                 # Optimization parameters
                 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
-                scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
+                #scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
 
                 if train:
                     # Run training

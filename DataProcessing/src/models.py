@@ -169,6 +169,7 @@ class MultiTaskLossWrapper(nn.Module):
         # Calculate loss for the multi-label classification of identifying if AU is present in image
         AU_loss = bce(out_AU, AUs)
         loss_collect = 0.5 * torch.exp(-2*self.log_sigmas[0]) * AU_loss + (self.log_sigmas[0])
+        #loss_collect = torch.exp(-self.log_sigmas[0]) * AU_loss + (self.log_sigmas[0])
 
         # Calculate loss for the intensity of the AUs present in the image
         for i, lab in enumerate(AU_intensities.permute(1,0)):
@@ -178,6 +179,7 @@ class MultiTaskLossWrapper(nn.Module):
             if len(AU_idx) > 0:
                 au_tmp_loss = F.cross_entropy(out_AU_intensities[i][AU_idx], lab[AU_idx] - 1, weight = self.cw_int[i]) #Subtract one from label to end up with 5 classes [0,1,2,3,4]
                 loss_collect += 0.5 * torch.exp(-2*self.log_sigmas[i])*au_tmp_loss + (self.log_sigmas[i])
+                #loss_collect += torch.exp(-self.log_sigmas[i]) * au_tmp_loss + (self.log_sigmas[i])
 
         # The loss of the entire network is collected in loss_collect, while the learnable weights for each individual loss is stored in log_sigmas for plotting
         return loss_collect, self.log_sigmas.data.tolist()

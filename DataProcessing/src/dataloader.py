@@ -70,8 +70,13 @@ def load_data(user_train, user_val, user_test, subset = None):
     # Check for small dataload on local system
     if sys.platform == "linux":
         labels_test = pd.concat([labels[(labels.ID==te)] for te in user_test])
-        labels_val = pd.concat([labels[(labels.ID==va)] for va in user_val])
         labels_train = pd.concat([labels[(labels.ID==tr)] for tr in user_train])
+        
+        # Test if validation set is given
+        if len(user_val) == 0:
+            labels_val = np.array([])
+        else:
+            labels_val = pd.concat([labels[(labels.ID==va)] for va in user_val])
     else:
         labels_test = labels.iloc[1:4840*1]
         labels_val = labels.iloc[:1]
