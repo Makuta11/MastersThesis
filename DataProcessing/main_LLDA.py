@@ -9,7 +9,7 @@ from sklearn.multioutput import MultiOutputClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
 from src.validation_score import val_scores
-from src.generate_feature_vector import decompress_pickle, compress_pickle
+from src.utils import decompress_pickle, compress_pickle
 
 def main(bool):
 

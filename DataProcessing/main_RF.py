@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.multioutput import MultiOutputClassifier
 
 from src.validation_score import val_scores
-from src.generate_feature_vector import decompress_pickle, compress_pickle
+from src.utils import decompress_pickle, compress_pickle
 
 def main(bool):
 
@@ -68,35 +68,27 @@ def main(bool):
     forest =  RandomForestClassifier(random_state = 1)
     clf = MultiOutputClassifier(forest, n_jobs = -1).fit(X_train, y_train)
     print(f"Model fit in {time.time() - t1} seconds") 
-
     # Clear memory space
     del X_train, y_train 
 
-    #clf = decompress_pickle("/work3/s164272/data/multioutput_results/KNearest.pbz2")
     print("Starting prediction...")
     t2 = time.time()
     y_pred = clf.predict(X_test)
     print(f'It took {time.time() - t2} to make predictions')
-
-    #compress_pickle("/work3/s164272/data/multioutput_results/y_pred", y_pred)
 
     del X_test
     
     print(np.unique(y_pred))
     print("\nStarting f1-score calculation")
 
+    y_pred_ones = y_pred
+    y_pred_ones[y_pred_ones >= 1] = 1
+    print(f'\nScores on AU identification:\n{val_scores(y_pred_ones, y_test)}')
+
     for i, au in enumerate(aus):
         print(f"f1-score for intensity of AU{au}:")
         print(f'{f1_score(y_test[:,i], y_pred[:,i], average = None, zero_division = 1)}')
 
-    # Convert to only look at AU accuracy
-    y_pred_flat = y_pred
-    y_pred_flat[y_pred_flat >= 1] = 1
-    y_test_flat = y_test
-    y_test_flat[y_test_flat >= 1] = 1
-    
-    print(f'\nAU f1-scores:\n{f1_score(y_test_flat, y_pred_flat, average = None, zero_division = 1)}')
-    
     # Save the test model
     if sys.platform == 'linux':
         compress_pickle("/work3/s164272/RF_clf", clf)

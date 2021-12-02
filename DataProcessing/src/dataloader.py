@@ -7,32 +7,33 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from torch.utils import data
+from utils import decompress_pickle, compress_pickle
 
-def decompress_pickle(file: str):
-    data = bz2.BZ2File(file, 'rb')
-    data = pickle.load(data)
-    return data
-
-def compress_pickle(title: str, data):
-    with bz2.BZ2File(title + '.pbz2', 'w') as f: 
-        pickle.dump(data, f)
-
-def load_data(user_train, user_val, user_test):
-    
-    if sys.platform == "linux":
-        # Big dataload on hpc
-        dataset = np.load('/work3/s164272/data/Features/face_space_dict_disfa_large_subset.npy', allow_pickle=True)
-        labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels_large1.pbz2")
-        misses = np.load('/work3/s164272/data/Features/misses_disfa_large_subset.npy', allow_pickle=True)
+def load_data(user_train, user_val, user_test, subset = None):
+    if subset:
+        if sys.platform == "linux":
+            # Big dataload on hpc
+            dataset = np.load('/work3/s164272/data/Features/face_space_dict_disfa_large_subset.npy', allow_pickle=True)
+            labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels_large1.pbz2")
+            misses = np.load('/work3/s164272/data/Features/misses_disfa_large_subset.npy', allow_pickle=True)
+            # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
+            dataset = dataset.tolist()
+        else:
+            # Small testing dataload for local machine
+            #dataset = decompress_pickle(f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2')
+            dataset = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_large_subset.npy", allow_pickle=True)
+            labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_large1.pbz2")
     else:
-        # Small testing dataload for local machine
-        #dataset = decompress_pickle(f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2')
-        dataset = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_large_subset.npy", allow_pickle=True)
-        labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_large1.pbz2")
-
-    # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
-    if dataset.shape == ():
-        dataset = dataset.tolist()
+        if sys.platform == "linux":
+            # Big dataload on hpc
+            dataset = decompress_pickle('/work3/s164272/data/Features/face_space_dict_disfa_large1.pbz2')
+            labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels_large1.pbz2")
+            misses = decompress_pickle('/work3/s164272/data/Features/misses_disfa_large1.pbz2')
+        else:
+            # Small testing dataload for local machine
+            #dataset = decompress_pickle(f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_test.pbz2')
+            dataset = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/face_space_dict_disfa_large_subset.npy", allow_pickle=True)
+            labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles/disfa_labels_large1.pbz2")
 
     # Initialize parameters
     bad_idx = []

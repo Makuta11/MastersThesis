@@ -12,7 +12,7 @@ from glob import glob
 from joblib import Parallel, delayed
 from multiprocessing import Pool, cpu_count, Process
 from concurrent.futures import ThreadPoolExecutor
-from generate_feature_vector import compress_pickle, decompress_pickle
+from utils import compress_pickle, decompress_pickle
 import urllib.request
 
 def generate_AU_df(folder):

@@ -1,17 +1,13 @@
-import os
-import ssl
-import wget
-import time
-import pickle
-import requests
+import os, ssl, wget, time, pickle, requests, threading
+
 import numpy as np
 import pandas as pd
 import xlwings as xw
-import threading
+import urllib.request
+
 from glob import glob
 from multiprocessing import Pool, cpu_count
 from concurrent.futures import ThreadPoolExecutor
-import urllib.request
 
 def fetch_img_files(urlDir):
     """Generates a list of file pathnames from directory and subdirectories containing .txt suffix

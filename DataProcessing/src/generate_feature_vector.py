@@ -15,15 +15,7 @@ from joblib import Parallel, delayed
 from sklearn.decomposition import PCA
 from math import pi, cos, sin, exp, sqrt
 from sklearn.preprocessing import StandardScaler
-
-def decompress_pickle(file: str):
-    data = bz2.BZ2File(file, 'rb')
-    data = pickle.load(data)
-    return data
-
-def compress_pickle(title: str, data):
-    with bz2.BZ2File(title + '.pbz2', 'w') as f: 
-        pickle.dump(data, f)
+from src.utils import decompress_pickle, compress_pickle
 
 def get_landmarks_mp(img_dir):
     mp_face_mesh = mp.solutions.face_mesh
@@ -146,7 +138,7 @@ def self_gabor(sigma, theta, Lambda, psi, gamma):
     x_theta = x * np.cos(theta) + y * np.sin(theta)
     y_theta = -x * np.sin(theta) + y * np.cos(theta)
 
-    # Construct the gabor filter 
+    # Construct the real component of the gabor filter 
     gb = np.exp(-.5 * (x_theta ** 2 / sigma_x ** 2 + y_theta ** 2 / sigma_y ** 2)) * np.cos(2 * np.pi / Lambda * x_theta + psi)
     
     return gb
@@ -216,6 +208,7 @@ def main(i, img_dir, subset=None):
     except:
         print(f'Image {main_key} could not be handled')
         return {main_key: np.nan}
+        
 #%%
 if __name__ == "__main__":
     os.environ["GLOG_minloglevel"] ="2"
