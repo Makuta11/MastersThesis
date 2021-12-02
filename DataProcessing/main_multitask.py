@@ -24,7 +24,7 @@ from sklearn.datasets import make_multilabel_classification
 # Debugging/model test parameter
 train = True
 evaluate = True
-#model_path = f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/localOnly/checkpoint_test-010-Batch16_Drop0.2_Lr0.0001.pt'
+model_path = ""
 
 # Data parameters
 aus = [1,2,4,5,6,9,12,15,17,20,25,26]
