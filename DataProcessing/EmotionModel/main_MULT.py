@@ -52,7 +52,7 @@ plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
 # CV test on bactch size
-for k, BATCH_SIZE in enumerate([1000]):
+for k, BATCH_SIZE in enumerate([256]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
