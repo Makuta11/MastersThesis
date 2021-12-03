@@ -17,4 +17,4 @@ echo "Runnin script..."
 
 module load cuda/10.2
 module load python3/3.8.11
-python3 main_LLDA.py > outputs/LLDA_$(date +"%d-%m-%y")_$(date +'%H:%M:%S')
+python3 main_LLDA.py > performance/LLDA_$(date +"%d-%m-%y")_$(date +'%H:%M:%S')

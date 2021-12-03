@@ -29,7 +29,7 @@ def main(bool):
     
     print("Starting fit")
     t1 = time.time()
-    forest =  RandomForestClassifier(random_state = 1)
+    forest =  RandomForestClassifier(n_estimators=1000, random_state = 1, n_jobs=-1)
     clf = MultiOutputClassifier(forest, n_jobs = -1).fit(data_train, labels_train)
     print(f"Model fit in {time.time() - t1} seconds") 
     

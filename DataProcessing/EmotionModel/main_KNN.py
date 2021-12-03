@@ -30,17 +30,21 @@ def main(bool):
     data_test, data_val, data_train, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True)
     labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_train.drop(columns="ID"), labels_val.drop(columns="ID")
     print(f"It took {time.time() - t} seconds to load the data")
+
+    # Redefine labels since algorithm can't handle multiple intensities
+    labels_train[labels_train >= 1] = 1
+    labels_test[labels_test >= 1] = 1
     
     print("Starting fit")
     t1 = time.time()
     
-    # Parameters to do perform GridSearch on
+    # Parameters to do perform GridSearch on (not currently implemented)
     parameters = {'k': range(2,5), 's': [0.5, 0.7, 1.0]}
     score = 'f1_macro'
     
-    # Perform gridsearch to choose optimal parameters and then choose those for fitting
+    # Determine model
     clf = MLkNN(k=3)
-    clf.fit(data_train, labels_train)
+    clf.fit(data_train, labels_train.to_numpy())
     
     print("The optimal parameters found during gridsearch")
     print (f'k: {clf.best_params_} \nscore: {clf.best_score_}')
@@ -74,6 +78,7 @@ def main(bool):
     # Calculate f1_scores
     print(f'\nScores on AU identification:\n{val_scores(predAU, trueAU)}')
 
+""" Since KNN can't do intensity scoring, we are suppressing this section
     for i, au in enumerate(aus):
         print(f"f1-score for intensity of AU{au}:")
         print(f'{val_scores(labels_test.iloc[:,i].to_numpy(), y_pred[:,i])}')
@@ -83,6 +88,7 @@ def main(bool):
         compress_pickle("/work3/s164272/models/KNN_clf", clf)
     else:
         compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
+"""
 
 if __name__ == "__main__":
     print("starting script")

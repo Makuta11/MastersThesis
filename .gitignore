@@ -17,6 +17,7 @@ checkpoints
 outputs
 logs
 pickles
+performance
 
 # Distribution / packaging
 local_fun.py
