@@ -3,6 +3,7 @@ import os, sys, time, pickle
 import numpy as np
 import pandas as pd
 
+from src.dataloader import *
 from sklearn.metrics import f1_score
 from sklearn.decomposition import KernelPCA
 from sklearn.multioutput import MultiOutputClassifier
@@ -65,13 +66,15 @@ def main(bool):
     # Calculate f1_scores
     print(f'\nScores on AU identification:\n{val_scores(predAU, trueAU)}')
 
+    """
     for i, au in enumerate(aus):
         print(f"f1-score for intensity of AU{au}:")
         print(f'{val_scores(labels_test.iloc[:,i].to_numpy(), y_pred[:,i])}')
-    
+    """
+
     # Save the test model
     if sys.platform == 'linux':
-        compress_pickle("/work3/s164272/models/LLDA_clf", clf)
+        compress_pickle("/work3/s164272/models/KERN_clf", clf)
     else:
         compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
 

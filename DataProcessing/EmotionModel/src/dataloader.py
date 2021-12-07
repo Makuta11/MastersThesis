@@ -121,4 +121,23 @@ class ImageTensorDatasetMultitask(data.Dataset):
         
         return self.data[key], AUs, self.labels.iloc[key].values
         #return self.data[key], AUs.values, torch.Tensor(np.array([AU_int[0],AU_int[1],AU_int[2],AU_int[3],AU_int[4],AU_int[5],AU_int[6],AU_int[7],AU_int[8],AU_int[9],AU_int[10],AU_int[11]]))
+
+class ImageTensorDatasetMultiLabel(data.Dataset):
+    
+    def __init__(self, data, labels):
+        self.data = data
+        self.user_id = labels["ID"]
+        self.labels = labels.drop(columns = "ID")
         
+    def __len__(self):
+        return len(self.labels)
+
+    def __nf__(self):
+        return len(self.data[0])
+    
+    def __getitem__(self, key):
+        # Multi-label classification labels
+        AUs = np.array(self.labels.iloc[key])
+        AUs[AUs != 0] = 1
+        
+        return self.data[key], AUs

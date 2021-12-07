@@ -6,6 +6,54 @@ from torch import nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+class MultiLabelClassifier(nn.Module):
+
+    def __init__(self, data_shape, num_AU, num_intensities, fc_hidden_dim_1, fc_hidden_dim_2,
+                 fc_hidden_dim_3, fc_hidden_dim_4, fc_hidden_dim_5, dropout_prop):
+        super(Multitask, self).__init__()
+
+        self.fc_layer = nn.Sequential(
+            nn.BatchNorm1d(data_shape),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = data_shape, out_features = fc_hidden_dim_1),
+            nn.BatchNorm1d(fc_hidden_dim_1),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_1, out_features = fc_hidden_dim_2),
+            nn.BatchNorm1d(fc_hidden_dim_2),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_2, out_features = fc_hidden_dim_3),
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_5),
+            #nn.BatchNorm1d(fc_hidden_dim_4),
+            # nn.ReLU(),
+            # nn.Dropout(p = dropout_prop),
+            # nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5)
+        )
+        
+        # Fully conencted layer for multi-label classification of AU being present in each image
+        self.fc_layer_AU = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_5),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_5, out_features = num_AU)
+        )
+    
+    def forward(self, data):
+        batch_size = data.shape[0]
+
+        # Body encorder for the netoworks
+        X_shared = self.fc_layer(data)
+
+        #fully connected layer for multi-label classification (12 possible targets)
+        X = self.fc_layer_AU(X_shared)
+
+        return X
+
 class Multitask(nn.Module):
 
     def __init__(self, data_shape, num_AU, num_intensities, fc_hidden_dim_1, fc_hidden_dim_2,
@@ -127,18 +175,18 @@ class Multitask(nn.Module):
         X = self.fc_layer_AU(X_shared)
         
         #fully connecetd layers for multi-class classification (level 2: 12 groups, 5 targets)
-        AU_intensities= [self.fc_layer_AU1(X_shared),
-                            self.fc_layer_AU2(X_shared),
-                            self.fc_layer_AU4(X_shared),
-                            self.fc_layer_AU5(X_shared),
-                            self.fc_layer_AU6(X_shared),
-                            self.fc_layer_AU9(X_shared),
-                            self.fc_layer_AU12(X_shared),
-                            self.fc_layer_AU15(X_shared),
-                            self.fc_layer_AU17(X_shared),
-                            self.fc_layer_AU20(X_shared),
-                            self.fc_layer_AU25(X_shared),
-                            self.fc_layer_AU26(X_shared)]
+        AU_intensities= [F.softmax(self.fc_layer_AU1(X_shared), dim = 1),
+                            F.softmax(self.fc_layer_AU2(X_shared), dim = 1),
+                            F.softmax(self.fc_layer_AU4(X_shared), dim = 1),
+                            F.softmax(self.fc_layer_AU5(X_shared), dim = 1),
+                            F.softmax(self.fc_layer_AU6(X_shared), dim = 1),
+                            F.softmax(self.fc_layer_AU9(X_shared), dim = 1),
+                            F.softmax(self.fc_layer_AU12(X_shared), dim = 1),
+                            F.softmax(self.fc_layer_AU15(X_shared), dim = 1),
+                            F.softmax(self.fc_layer_AU17(X_shared), dim = 1),
+                            F.softmax(self.fc_layer_AU20(X_shared), dim = 1),
+                            F.softmax(self.fc_layer_AU25(X_shared), dim = 1),
+                            F.softmax(self.fc_layer_AU26(X_shared), dim = 1)]
 
         return [X, AU_intensities]
 
@@ -163,7 +211,7 @@ class MultiTaskLossWrapper(nn.Module):
         # BCEWithLogitsLoss combines a sigmoid layer and binary cross entropy to a single class. This also allows for the addition of class weighting and increases numerical stability by taking advantage of the log-sum-exp trick
         bce = nn.BCEWithLogitsLoss(pos_weight = self.cw_AU)
         
-        # Defined for experimental changes to loss function - (may not be used in final version)
+        # Defined for experimental changes to loss function - (may not be used in final version - currently not in use)
         rel = nn.ReLU()
 
         # Calculate loss for the multi-label classification of identifying if AU is present in image
@@ -183,3 +231,4 @@ class MultiTaskLossWrapper(nn.Module):
 
         # The loss of the entire network is collected in loss_collect, while the learnable weights for each individual loss is stored in log_sigmas for plotting
         return loss_collect, self.log_sigmas.data.tolist()
+        

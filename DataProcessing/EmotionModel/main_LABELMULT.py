@@ -14,9 +14,6 @@ from src.utils import decompress_pickle, compress_pickle
 from src.utils import get_class_weights_AU, get_class_weights_AU_int
 
 from matplotlib import pyplot as plt
-from sklearn.model_selection import KFold
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.multioutput import MultiOutputClassifier
 from sklearn.datasets import make_multilabel_classification
 
 # users = np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
@@ -29,7 +26,6 @@ model_path = ""
 # Data parameters
 aus = [1,2,4,5,6,9,12,15,17,20,25,26]
 num_AU = 12
-num_intensities = 5 # 5 different intensity levels (when active)
 
 # Subject split
 user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
@@ -43,9 +39,9 @@ data_test, data_val, data_train, labels_test, labels_val, labels_train = load_da
 print(f"It took {time.time() - t} seconds to load the data")
 
 # Train, Val, Test split
-train_dataset = ImageTensorDatasetMultitask(data_train, labels_train)
-val_dataset = ImageTensorDatasetMultitask(data_val, labels_val)
-test_dataset = ImageTensorDatasetMultitask(data_test, labels_test)
+train_dataset = ImageTensorDatasetMultiLabel(data_train, labels_train)
+val_dataset = ImageTensorDatasetMultiLabel(data_val, labels_val)
+test_dataset = ImageTensorDatasetMultiLabel(data_test, labels_test)
 
 # Create collective loss figure across validation loops
 plt.style.use('fivethirtyeight')
@@ -61,7 +57,6 @@ for k, BATCH_SIZE in enumerate([256]):
 
     #Calcualte class weights within AUs - for cross entropy loss
     class_weights_AU = get_class_weights_AU(labels_train)
-    class_weights_int = get_class_weights_AU_int(labels_train)
 
     # Clear up memory space
     del data_test, data_train, data_val
@@ -70,18 +65,11 @@ for k, BATCH_SIZE in enumerate([256]):
     FC_HIDDEN_DIM_1 = 2**8
     FC_HIDDEN_DIM_2 = 2**10
     FC_HIDDEN_DIM_3 = 2**8
-    FC_HIDDEN_DIM_4 = 2**9 # currently not used
-    FC_HIDDEN_DIM_5 = 2**6 # dimension in final fc_layers for classification
-
-    #FC_HIDDEN_DIM_1 = 2**9
-    #FC_HIDDEN_DIM_2 = 2**12
-    #FC_HIDDEN_DIM_3 = 2**10
-    #FC_HIDDEN_DIM_4 = 2**12
-    #FC_HIDDEN_DIM_5 = 2**9
+    FC_HIDDEN_DIM_5 = 2**6 
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 600
+        EPOCHS = 500
     else:
         EPOCHS = 20
     SAVE_FREQ = 10
@@ -110,7 +98,7 @@ for k, BATCH_SIZE in enumerate([256]):
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 
                 # Model initialization
-                model = Multitask(DATA_SHAPE, num_AU, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
+                model = MultiLabelClassifier(DATA_SHAPE, num_AU, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
                                 FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
                 
                 # Load model if script is run for evaluating trained model
@@ -120,16 +108,15 @@ for k, BATCH_SIZE in enumerate([256]):
                     else:
                         model.load_state_dict(torch.load(model_path, map_location=device))
                 
-                # Initialize model with loss wrapper for multitask learning
-                model = MultiTaskLossWrapper(model, task_num = 13, cw_AU = class_weights_AU.to(device), cw_int = class_weights_int.to(device))
-                
+                # Initialize criterion for multi-label loss
+                criterion = = nn.BCEWithLogitsLoss(pos_weight = class_weights_AU)
                 # Optimization parameters
                 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
                 #scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
 
                 if train:
                     # Run training
-                    model, loss_collect, val_loss_collect, sigma_collect = train_model(model, optimizer, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=None)
+                    model, loss_collect, val_loss_collect, sigma_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=None)
 
                     # Plot each individual figure
                     plt.style.use('fivethirtyeight')
@@ -139,20 +126,6 @@ for k, BATCH_SIZE in enumerate([256]):
                     ax.set_title(f"BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
                     ax.set_xlabel("Epochs")
                     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-
-                    # Plot each sigma figure
-                    plt.style.use('fivethirtyeight')
-                    fig_uw, ax_uw = plt.subplots(figsize=(10,12))
-                    for i, au in enumerate(np.append(["AUs"], aus)):
-                        if i == 0:
-                            ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i]) , color = "magenta", linewidth="3", label=f"AUs Overall")
-                        elif i >= 7:
-                            ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i]) , linewidth="3", label=f"AU{au}")
-                        else:
-                            ax_uw.plot(np.arange(EPOCHS), np.exp(-sigma_collect[:,i])  , linewidth="3", label=f"AU{au}", linestyle="dashed")
-                    ax_uw.set_title(f"Uncertainty Weights - BS:{BATCH_SIZE}, LR:{LEARNING_RATE}, DR:{DROPOUT_RATE}")
-                    ax_uw.set_xlabel("Epochs")
-                    ax_uw.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
                     # Plot on collective figure
                     ax_tot.semilogy(np.arange(EPOCHS), loss_collect, linewidth="3", label = f"train_Dr:{DROPOUT_RATE}_Lr:{LEARNING_RATE}")
@@ -164,25 +137,17 @@ for k, BATCH_SIZE in enumerate([256]):
                     # Create output directory for images
                     if sys.platform == 'linux':
                         fig.savefig(f"logs/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
-                        fig_uw.savefig(f"logs/{today[:19]}/UW_fig_{name}.png", dpi=128, bbox_inches='tight')
                     else:
                         fig.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
-                        fig_uw.savefig(f"{save_path}/{today[:19]}/UW_fig_{name}.png", dpi=128, bbox_inches='tight')
                     
                 if evaluate:
                     # Test model performance on given dataloaders
                     for dataloader in [train_dataloader, val_dataloader]:
-                        AU_scores, intensity_scores = get_predictions_multitask(model, dataloader, device)
+                        AU_scores = get_predictions(model, dataloader, device)
 
                         # Print scores
                         print(f'n\{name}:')
                         print(f'\nScores on AU identification:\n{val_scores(AU_scores[0], AU_scores[1])}')
-                        print("\nScores on AU intensities")
-                        for au in aus:
-                            pred = intensity_scores[f'AU{au}']["pred"]
-                            true = intensity_scores[f'AU{au}']["true"]
-                            if len(true) > 0 or len(pred) > 0:
-                                print(f'AU{au}:\n{val_scores(true,pred)}')
                 
                 # Clear up memory and reset individual figures
                 del model, loss_collect, val_loss_collect, fig, ax
