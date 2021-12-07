@@ -99,7 +99,7 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
             optimizer.zero_grad()
             out = model(data)
 
-            loss = criterion(out[0], AUs)
+            loss = criterion(out, AUs)
             loss.backward()
             optimizer.step()
             running_loss += loss.detach().cpu().item()
@@ -121,7 +121,7 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
 
             out = model(data)
             
-            loss = criterion(out[0], AUs)
+            loss = criterion(out, AUs)
             val_loss += loss.detach().cpu().item()
             
             del AUs, loss
@@ -192,7 +192,7 @@ def get_predictions_multitask(model, test_dataloader, device):
         
     return [predAU, trueAU], intensities_dict
 
-def get_predictions(model, test_dataloader, device):
+def get_predictions(model, dataloaders, device):
     
     model.eval()
     with torch.no_grad():
@@ -202,20 +202,14 @@ def get_predictions(model, test_dataloader, device):
         trueAU = []
     
         aus = [1,2,4,5,6,9,12,15,17,20,25,26]
-        intensities_dict = dict()
-        
-        for j, au in enumerate(aus):
-            intensities_dict[f'AU{au}'] = dict()
-            intensities_dict[f'AU{au}']["pred"] = []
-            intensities_dict[f'AU{au}']["true"] = []
 
         # Collect model outputs on test_data
-        for i, x in enumerate(test_dataloader):
+        for i, x in enumerate(dataloaders):
     
             out = model(x[0].float().to(device))
 
             # Append logic bool array for predicted and true labels
-            predAU.append(list(out[0].cpu().numpy().ravel() > 0)) 
+            predAU.append(list(out.cpu().numpy().ravel() > 0)) 
             trueAU.append(list(x[1].cpu().numpy().ravel() > 0))
 
         # Ravel list to get one-dimensional arrays with predictions and true labels

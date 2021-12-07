@@ -8,9 +8,9 @@ import torch.optim as optim
 
 class MultiLabelClassifier(nn.Module):
 
-    def __init__(self, data_shape, num_AU, num_intensities, fc_hidden_dim_1, fc_hidden_dim_2,
+    def __init__(self, data_shape, num_AU, fc_hidden_dim_1, fc_hidden_dim_2,
                  fc_hidden_dim_3, fc_hidden_dim_4, fc_hidden_dim_5, dropout_prop):
-        super(Multitask, self).__init__()
+        super(MultiLabelClassifier, self).__init__()
 
         self.fc_layer = nn.Sequential(
             nn.BatchNorm1d(data_shape),

@@ -65,6 +65,7 @@ for k, BATCH_SIZE in enumerate([256]):
     FC_HIDDEN_DIM_1 = 2**8
     FC_HIDDEN_DIM_2 = 2**10
     FC_HIDDEN_DIM_3 = 2**8
+    FC_HIDDEN_DIM_4 = 2**8
     FC_HIDDEN_DIM_5 = 2**6 
 
     # Training Parameters
@@ -87,8 +88,8 @@ for k, BATCH_SIZE in enumerate([256]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
-    for i, LEARNING_RATE in enumerate([5e-6]):
-        for j, DROPOUT_RATE in enumerate([0.45]):
+    for i, LEARNING_RATE in enumerate([8e-4]):
+        for j, DROPOUT_RATE in enumerate([0.5]):
             for k, WEIGHT_DECAY in enumerate([0.01]):
                 
                 # Name for saving the model
@@ -98,7 +99,7 @@ for k, BATCH_SIZE in enumerate([256]):
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 
                 # Model initialization
-                model = MultiLabelClassifier(DATA_SHAPE, num_AU, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
+                model = MultiLabelClassifier(DATA_SHAPE, num_AU, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
                                 FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
                 
                 # Load model if script is run for evaluating trained model
@@ -109,14 +110,14 @@ for k, BATCH_SIZE in enumerate([256]):
                         model.load_state_dict(torch.load(model_path, map_location=device))
                 
                 # Initialize criterion for multi-label loss
-                criterion = = nn.BCEWithLogitsLoss(pos_weight = class_weights_AU)
+                criterion = nn.BCEWithLogitsLoss(pos_weight = class_weights_AU)
                 # Optimization parameters
                 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
                 #scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
 
                 if train:
                     # Run training
-                    model, loss_collect, val_loss_collect, sigma_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=None)
+                    model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, test_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=None)
 
                     # Plot each individual figure
                     plt.style.use('fivethirtyeight')
@@ -142,8 +143,8 @@ for k, BATCH_SIZE in enumerate([256]):
                     
                 if evaluate:
                     # Test model performance on given dataloaders
-                    for dataloader in [train_dataloader, val_dataloader]:
-                        AU_scores = get_predictions(model, dataloader, device)
+                    for dataloaders in [train_data_loader, test_dataloader]:
+                        AU_scores = get_predictions(model, dataloaders, device)
 
                         # Print scores
                         print(f'n\{name}:')
