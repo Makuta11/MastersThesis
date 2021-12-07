@@ -110,7 +110,7 @@ for k, BATCH_SIZE in enumerate([256]):
                         model.load_state_dict(torch.load(model_path, map_location=device))
                 
                 # Initialize criterion for multi-label loss
-                criterion = nn.BCEWithLogitsLoss(pos_weight = class_weights_AU)
+                criterion = nn.BCEWithLogitsLoss(pos_weight = class_weights_AU.to(device))
                 # Optimization parameters
                 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
                 #scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
