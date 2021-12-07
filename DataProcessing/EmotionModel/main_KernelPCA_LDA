@@ -3,11 +3,12 @@ import os, sys, time, pickle
 import numpy as np
 import pandas as pd
 
-from src.dataloader import *
 from sklearn.metrics import f1_score
-from src.validation_score import val_scores
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.decomposition import KernelPCA
 from sklearn.multioutput import MultiOutputClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+
+from src.validation_score import val_scores
 from src.utils import decompress_pickle, compress_pickle
 
 def main(bool):
@@ -27,23 +28,20 @@ def main(bool):
     labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_train.drop(columns="ID"), labels_val.drop(columns="ID")
     print(f"It took {time.time() - t} seconds to load the data")
     
-    # Redefine labels to look only at multi-label problem
-    labels_train[labels_train >= 1] = 1
-    labels_test[labels_test >= 1] = 1
-
     print("Starting fit")
     t1 = time.time()
-    forest =  RandomForestClassifier(n_estimators=1000, random_state = 1, n_jobs=-1, class_weight="balanced").fit(data_train, labels_train)
-    clf = MultiOutputClassifier(forest, n_jobs = -1).fit(data_train, labels_train)
+    clf = MultiOutputClassifier(LDA(), n_jobs=24).fit(data_train, labels_train)
     print(f"Model fit in {time.time() - t1} seconds") 
     
     # Clear memory space
-    del data_train, labels_train
+    del data_train, labels_train 
 
+    print("Starting prediction...")
     t2 = time.time()
-    print("Starting Prediction")
     y_pred = clf.predict(data_test)
     print(f'It took {time.time() - t2} to make predictions')
+
+    del data_test
     
     print(np.unique(y_pred))
     print("\nStarting f1-score calculation")
@@ -60,17 +58,17 @@ def main(bool):
 
     # Calculate f1_scores
     print(f'\nScores on AU identification:\n{val_scores(predAU, trueAU)}')
-"""
+
     for i, au in enumerate(aus):
         print(f"f1-score for intensity of AU{au}:")
         print(f'{val_scores(labels_test.iloc[:,i].to_numpy(), y_pred[:,i])}')
-
+    
     # Save the test model
     if sys.platform == 'linux':
-        compress_pickle("/work3/s164272/models/RF_clf", clf)
+        compress_pickle("/work3/s164272/models/LLDA_clf", clf)
     else:
         compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
-"""
+
 if __name__ == "__main__":
     print("starting script")
     main(True)

@@ -67,15 +67,21 @@ for k, BATCH_SIZE in enumerate([256]):
     del data_test, data_train, data_val
 
     # Network Parameters (subject to change)
-    FC_HIDDEN_DIM_1 = 2**9
-    FC_HIDDEN_DIM_2 = 2**12
-    FC_HIDDEN_DIM_3 = 2**10
-    FC_HIDDEN_DIM_4 = 2**12
+    FC_HIDDEN_DIM_1 = 2**8
+    FC_HIDDEN_DIM_2 = 2**10
+    FC_HIDDEN_DIM_3 = 2**8
+    FC_HIDDEN_DIM_4 = 2**10
     FC_HIDDEN_DIM_5 = 2**9
+
+    #FC_HIDDEN_DIM_1 = 2**9
+    #FC_HIDDEN_DIM_2 = 2**12
+    #FC_HIDDEN_DIM_3 = 2**10
+    #FC_HIDDEN_DIM_4 = 2**12
+    #FC_HIDDEN_DIM_5 = 2**9
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 300
+        EPOCHS = 600
     else:
         EPOCHS = 20
     SAVE_FREQ = 10
@@ -93,9 +99,9 @@ for k, BATCH_SIZE in enumerate([256]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
-    for i, LEARNING_RATE in enumerate([1e-5]):
-        for j, DROPOUT_RATE in enumerate([0.5]):
-            for k, WEIGHT_DECAY in enumerate([1e-1, 1e-2]):
+    for i, LEARNING_RATE in enumerate([5e-6]):
+        for j, DROPOUT_RATE in enumerate([0.45]):
+            for k, WEIGHT_DECAY in enumerate([0.01]):
                 
                 # Name for saving the model
                 name = f'B:{BATCH_SIZE}_DR:{DROPOUT_RATE}_LR:{LEARNING_RATE}_WD:{WEIGHT_DECAY}'
@@ -162,7 +168,7 @@ for k, BATCH_SIZE in enumerate([256]):
                     else:
                         fig.savefig(f"{save_path}/{today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
                         fig_uw.savefig(f"{save_path}/{today[:19]}/UW_fig_{name}.png", dpi=128, bbox_inches='tight')
-            
+                    
                 if evaluate:
                     # Test model performance on given dataloaders
                     for dataloader in [train_dataloader, val_dataloader]:
