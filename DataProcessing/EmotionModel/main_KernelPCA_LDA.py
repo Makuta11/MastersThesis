@@ -28,18 +28,24 @@ def main(bool):
     labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_train.drop(columns="ID"), labels_val.drop(columns="ID")
     print(f"It took {time.time() - t} seconds to load the data")
     
-    print("Starting fit")
+    print("Kernelizing data")
     t1 = time.time()
-    clf = MultiOutputClassifier(LDA(), n_jobs=24).fit(data_train, labels_train)
-    print(f"Model fit in {time.time() - t1} seconds") 
+    data_train_transform = KernelPCA(kernel='rbf').fit(data_train)
+    data_test_transform = KernelPCA(kernel='rbf').fit(data_train)
+    print(f"Data was kernelized in {time.time() - t1} seconds") 
     
     # Clear memory space
     del data_train, labels_train 
 
+    print("Starting LDA fit...")
+    t2 = time.time()
+    clf = MultiOutputClassifier(LDA(), n_jobs=24).fit(data_train_trandform, labels_train)
+    print(f"Data fit in {time.time() - t2} seconds") 
+
     print("Starting prediction...")
     t2 = time.time()
-    y_pred = clf.predict(data_test)
-    print(f'It took {time.time() - t2} to make predictions')
+    y_pred = clf.predict(data_test_transform)
+    print(f'It took {time.time() - t3} to make predictions')
 
     del data_test
     
