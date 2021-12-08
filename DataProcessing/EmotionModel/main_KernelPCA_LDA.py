@@ -38,7 +38,7 @@ for ncom in [1000, 4000, 6000]:
         print("Kernelizing data")
         t1 = time.time()
         data_train_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam).fit_transform(data_train)
-        #data_test_transform_1 = KernelPCA(kernel='rbf', n_components = 4000, gamma = 0.10).fit_transform(data_test)
+        data_test_transform_1 = KernelPCA(kernel='rbf', n_components = 4000, gamma = 0.10).fit_transform(data_test)
         print(f"Data was kernelized in {time.time() - t1} seconds")  
 
         #%%
@@ -51,7 +51,7 @@ for ncom in [1000, 4000, 6000]:
 
         print("Starting prediction...")
         t3 = time.time()
-        y_pred = clf.predict(data_train_transform_1)
+        y_pred = clf.predict(data_test_transform_1)
         print(f'It took {time.time() - t3} to make predictions')
 
         #%%
@@ -62,7 +62,7 @@ for ncom in [1000, 4000, 6000]:
         # Convert to bool raveled bool array for AU identification
         y_pred_ones = y_pred.ravel()
         y_pred_ones[y_pred_ones >= 1] = 1
-        labels_test_ones = labels_train.to_numpy().ravel()
+        labels_test_ones = labels_test.to_numpy().ravel()
         labels_test_ones[labels_test_ones >= 1] = 1
 
         #%%
