@@ -88,9 +88,9 @@ for k, BATCH_SIZE in enumerate([256]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
-    for i, LEARNING_RATE in enumerate([8e-4]):
+    for i, LEARNING_RATE in enumerate([1e-4]):
         for j, DROPOUT_RATE in enumerate([0.5]):
-            for k, WEIGHT_DECAY in enumerate([0.01]):
+            for k, WEIGHT_DECAY in enumerate([0.001]):
                 
                 # Name for saving the model
                 name = f'B:{BATCH_SIZE}_DR:{DROPOUT_RATE}_LR:{LEARNING_RATE}_WD:{WEIGHT_DECAY}'
@@ -143,7 +143,7 @@ for k, BATCH_SIZE in enumerate([256]):
                     
                 if evaluate:
                     # Test model performance on given dataloaders
-                    for dataloaders in [train_data_loader, test_dataloader]:
+                    for dataloaders in [train_dataloader, test_dataloader]:
                         AU_scores = get_predictions(model, dataloaders, device)
 
                         # Print scores
