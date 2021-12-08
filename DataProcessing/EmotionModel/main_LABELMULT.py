@@ -100,7 +100,7 @@ for k, BATCH_SIZE in enumerate([16]):
                 
                 # Model initialization
                 model = MultiLabelClassifier(DATA_SHAPE, num_AU, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
-                                FC_HIDDEN_DIM_4, FC_HIDDEN_DIM_5, DROPOUT_RATE).to(device)
+                                FC_HIDDEN_DIM_4, DROPOUT_RATE).to(device)
                 
                 # Load model if script is run for evaluating trained model
                 if not train:
