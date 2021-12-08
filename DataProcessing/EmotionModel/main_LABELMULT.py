@@ -48,7 +48,7 @@ plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
 # CV test on bactch size
-for k, BATCH_SIZE in enumerate([256]):
+for k, BATCH_SIZE in enumerate([16]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -70,7 +70,7 @@ for k, BATCH_SIZE in enumerate([256]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 500
+        EPOCHS = 400
     else:
         EPOCHS = 20
     SAVE_FREQ = 10
@@ -88,9 +88,9 @@ for k, BATCH_SIZE in enumerate([256]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
-    for i, LEARNING_RATE in enumerate([1e-4]):
-        for j, DROPOUT_RATE in enumerate([0.5]):
-            for k, WEIGHT_DECAY in enumerate([0.001]):
+    for i, LEARNING_RATE in enumerate([1e-5, 1e-6, 1e-7]):
+        for j, DROPOUT_RATE in enumerate([0.25, 0.5]):
+            for k, WEIGHT_DECAY in enumerate([0.001, 0.01]):
                 
                 # Name for saving the model
                 name = f'B:{BATCH_SIZE}_DR:{DROPOUT_RATE}_LR:{LEARNING_RATE}_WD:{WEIGHT_DECAY}'
