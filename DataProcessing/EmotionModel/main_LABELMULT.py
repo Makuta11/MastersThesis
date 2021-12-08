@@ -63,10 +63,10 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Network Parameters (subject to change)
     FC_HIDDEN_DIM_1 = 2**8
-    FC_HIDDEN_DIM_2 = 2**10
-    FC_HIDDEN_DIM_3 = 2**8
-    FC_HIDDEN_DIM_4 = 2**8
-    FC_HIDDEN_DIM_5 = 2**6 
+    FC_HIDDEN_DIM_2 = 2**9
+    FC_HIDDEN_DIM_3 = 2**7
+    FC_HIDDEN_DIM_4 = 2**5
+    #FC_HIDDEN_DIM_5 = 2**5 
 
     # Training Parameters
     if sys.platform == "linux":
@@ -89,7 +89,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # CV testing for LR, DR, and WD
     for i, LEARNING_RATE in enumerate([1e-6, 1e-7]):
-        for j, DROPOUT_RATE in enumerate([0.25, 0.5]):
+        for j, DROPOUT_RATE in enumerate([0.35, 0.5]):
             for k, WEIGHT_DECAY in enumerate([0.001, 0.01]):
                 
                 # Name for saving the model

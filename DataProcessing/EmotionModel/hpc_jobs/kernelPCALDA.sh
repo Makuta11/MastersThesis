@@ -11,7 +11,7 @@
 #BSUB -W 23:59
 ### added outputs and errors to files
 #BSUB -o outputs/Output_%J.out
-#BSUB -e outputs/Error_%J.err
+#BSUB -e outputs/Error_%J.errbs
 
 echo "Runnin script..."
 

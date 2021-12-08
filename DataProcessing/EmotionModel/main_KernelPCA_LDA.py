@@ -33,12 +33,12 @@ labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_t
 print(f"It took {time.time() - t} seconds to load the data")
 
 #%%
-for ncom in [1000, 4000, 6000]:
-    for gam in [10, 0.1, 0.001]:
+for ncom in [6200]:
+    for gam in [10]:
         print("Kernelizing data")
         t1 = time.time()
-        data_train_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam).fit_transform(data_train)
-        data_test_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam).fit_transform(data_test)
+        data_train_transform_1 = KernelPCA(kernel='rbf', n_components = ncom).fit_transform(data_train)
+        data_test_transform_1 = KernelPCA(kernel='rbf', n_components = ncom).fit_transform(data_test)
         print(f"Data was kernelized in {time.time() - t1} seconds")  
 
         #%%
