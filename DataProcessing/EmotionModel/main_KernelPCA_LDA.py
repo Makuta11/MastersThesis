@@ -38,7 +38,7 @@ for ncom in [1000, 4000, 6000]:
         print("Kernelizing data")
         t1 = time.time()
         data_train_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam).fit_transform(data_train)
-        data_test_transform_1 = KernelPCA(kernel='rbf', n_components = 4000, gamma = 0.10).fit_transform(data_test)
+        data_test_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam).fit_transform(data_test)
         print(f"Data was kernelized in {time.time() - t1} seconds")  
 
         #%%
