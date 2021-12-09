@@ -35,7 +35,6 @@ labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_t
 print(f"It took {time.time() - t} seconds to load the data")
 
 #%%
-<<<<<<< HEAD
 #for ncom in [6000, 4000, 2000]:
     #for gam in [1e-5, 1e-3, 0.1]:
 ncom = None
@@ -47,15 +46,6 @@ dataset = np.vstack(data_train, data_test)
 dataset_transform = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam, eigen_solver="randomized").fit_transform(dataset)
 data_test_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam).fit_transform(data_test)
 print(f"Data was kernelized in {time.time() - t1} seconds")  
-=======
-for ncom in [6200]:
-    for gam in [10]:
-        print("Kernelizing data")
-        t1 = time.time()
-        data_train_transform_1 = KernelPCA(kernel='rbf', n_components = ncom).fit_transform(data_train)
-        data_test_transform_1 = KernelPCA(kernel='rbf', n_components = ncom).fit_transform(data_test)
-        print(f"Data was kernelized in {time.time() - t1} seconds")  
->>>>>>> 20dc2843b5ce3db365efda8f92505b6df8458535
 
 #%%
 display = False

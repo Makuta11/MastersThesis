@@ -88,11 +88,7 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
-<<<<<<< HEAD
     for i, LEARNING_RATE in enumerate([1e-5, 1e-6, 1e-7]):
-=======
-    for i, LEARNING_RATE in enumerate([1e-6, 1e-7]):
->>>>>>> 20dc2843b5ce3db365efda8f92505b6df8458535
         for j, DROPOUT_RATE in enumerate([0.35, 0.5]):
             for k, WEIGHT_DECAY in enumerate([0.001, 0.01]):
                 
