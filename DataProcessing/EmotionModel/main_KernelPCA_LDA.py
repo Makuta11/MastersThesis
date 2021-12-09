@@ -35,17 +35,27 @@ labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_t
 print(f"It took {time.time() - t} seconds to load the data")
 
 #%%
-<<<<<<< HEAD
-=======
 #for ncom in [6000, 4000, 2000]:
     #for gam in [1e-5, 1e-3, 0.1]:
 ncom = None
 gam = 0.0001
 
+from sklearn.svm import SVC
+
+clf = SVC(kernel='rbf', gamma="auto", class_weight="balanced")
+
+trainlab = labels_train.iloc[:,0]
+trainlab[trainlab > 0] = 1
+testlab = labels_test.iloc[:,0]
+testlab[testlab > 0] = 1
+clf.fit(data_train, trainlab)
+
+
 print("Kernelizing data")
 t1 = time.time()
 dataset = np.vstack(data_train, data_test)
-dataset_transform = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam, eigen_solver="randomized").fit_transform(dataset)
+transform = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam, eigen_solver="randomized")
+datset_transformed = transform.fit_transform(dataset)
 data_test_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam).fit_transform(data_test)
 print(f"Data was kernelized in {time.time() - t1} seconds")  
 

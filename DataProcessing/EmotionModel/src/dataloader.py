@@ -25,6 +25,7 @@ def load_data(user_train, user_val, user_test, subset = None):
             labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/disfa_labels_large1.pbz2")
             misses = np.load('/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/misses_disfa_large_subset.npy', allow_pickle=True)
             # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
+            labels = labels[:4840*6]
             dataset = dataset.tolist()
     else:
         if sys.platform == "linux":
@@ -80,7 +81,7 @@ def load_data(user_train, user_val, user_test, subset = None):
     else:
         labels_test = labels.iloc[0:4840*2]
         labels_val = labels.iloc[:1]
-        labels_train = labels.iloc[4840*2:int(4840*4)]
+        labels_train = labels.iloc[4840*2:int(4840*6)]
 
     # Extract test-val-train indexes
     test_idx = list(labels_test.index)
