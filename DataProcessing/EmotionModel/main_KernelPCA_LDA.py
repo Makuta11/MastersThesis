@@ -35,35 +35,16 @@ labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_t
 print(f"It took {time.time() - t} seconds to load the data")
 
 #%%
-<<<<<<< HEAD
-#for ncom in [6000, 4000, 2000]:
-    #for gam in [1e-5, 1e-3, 0.1]:
-ncom = None
-gam = 0.0001
-
-print("Kernelizing data")
-t1 = time.time()
-dataset = np.vstack(data_train, data_test)
-dataset_transform = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam, eigen_solver="randomized").fit_transform(dataset)
-data_test_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, gamma = gam).fit_transform(data_test)
-print(f"Data was kernelized in {time.time() - t1} seconds")  
-=======
 for ncom in [6200]:
     for gam in [0.001]:
         print("Kernelizing data")
         t1 = time.time()
+        dataset_transformed = KernelPCA(kernel='rbf', n_components = ncom, n_jobs = -1).fit_transform(dataset)
+        
         data_train_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, n_jobs = -1).fit_transform(data_train)
         data_test_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, n_jobs = -1).fit_transform(data_test)
         print(f"Data was kernelized in {time.time() - t1} seconds")  
->>>>>>> 20dc2843b5ce3db365efda8f92505b6df8458535
 
-<<<<<<< HEAD
-        #%%
-        print("Starting LDA fit...")
-        t2 = time.time()
-        clf = MultiOutputClassifier(LDA(), n_jobs=-1).fit(data_train_transform_1, labels_train)
-        print(f"Data fit in {time.time() - t2} seconds") 
-=======
 #%%
 display = False
 if display == True:
@@ -93,7 +74,6 @@ print("Starting LDA fit...")
 t2 = time.time()
 clf = MultiOutputClassifier(LDA(), n_jobs=8).fit(data_train_transform_1, labels_train)
 print(f"Data fit in {time.time() - t2} seconds") 
->>>>>>> 5ce4ef0aea485c32d8ca0357afac8f00da64aab4
 
 #%%
 

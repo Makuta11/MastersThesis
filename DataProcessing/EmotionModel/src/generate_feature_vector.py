@@ -167,6 +167,9 @@ def main(i, img_dir, subset=None):
     # Extract key - different for emotionet and disfa -
     main_key = i #int(img_dir[-9:-4])
 
+    if i > 4840*6:
+        return
+
     try:
         # Generate Shape Vector
         if subset:
@@ -223,7 +226,7 @@ if __name__ == "__main__":
 
     print("Generation started....")
     # Parallel generation of face_space vectors
-    dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
+    dictionary_list = Parallel(n_jobs=-1,verbose=10)(if i >  delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
     print("Generation done!!!")
 
     print("Dictionary combination started....")
@@ -272,8 +275,8 @@ if __name__ == "__main__":
         print("Compressin bz2 pickle files...")
         print(face_space)
         #face_space = face_space.astype(np.float32)
-        np.save(f"{pickles_path}/face_space_dict_disfa_large_subset_300.npy", face_space)
-        np.save(f"{pickles_path}/misses_disfa_large_subset_300.npy", misses)
+        np.save(f"{pickles_path}/face_space_dict_disfa_large_subset_300_test.npy", face_space)
+        np.save(f"{pickles_path}/misses_disfa_large_subset_300_test.npy", misses)
         #compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
         #compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
         print("All done!...")
