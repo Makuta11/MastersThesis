@@ -63,14 +63,14 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Network Parameters (subject to change)
     FC_HIDDEN_DIM_1 = 2**8
-    FC_HIDDEN_DIM_2 = 2**9
-    FC_HIDDEN_DIM_3 = 2**7
-    FC_HIDDEN_DIM_4 = 2**5
-    #FC_HIDDEN_DIM_5 = 2**5 
+    FC_HIDDEN_DIM_2 = 2**10
+    FC_HIDDEN_DIM_3 = 2**8
+    FC_HIDDEN_DIM_4 = 2**6
+    #FC_HIDDEN_DIM_5 = 2**6 
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 50
+        EPOCHS = 300
     else:
         EPOCHS = 20
     SAVE_FREQ = 10
@@ -88,19 +88,18 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
-    for i, LEARNING_RATE in enumerate([1e-6, 1e-7]):
-        for j, DROPOUT_RATE in enumerate([0.35, 0.5]):
-            for k, WEIGHT_DECAY in enumerate([0.001, 0.01]):
+    for i, LEARNING_RATE in enumerate([1e-7]):
+        for j, DROPOUT_RATE in enumerate([0.5]):
+            for k, WEIGHT_DECAY in enumerate([0.001]):
                 
                 # Name for saving the model
-                name = f'B:{BATCH_SIZE}_DR:{DROPOUT_RATE}_LR:{LEARNING_RATE}_WD:{WEIGHT_DECAY}'
+                name = f'B:{BATCH_SIZE}_DR:{DROPOUT_RATE}_LR:{LEARNING_RATE}_WD:{WEIGHT_DECAY}   Net{FC_HIDDEN_DIM_1}x{FC_HIDDEN_DIM_2}x{FC_HIDDEN_DIM_3}x{FC_HIDDEN_DIM_4}'
 
                 # Device determination - allows for same code with and without access to CUDA (GPU)
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 
                 # Model initialization
-                model = MultiLabelClassifier(DATA_SHAPE, num_AU, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, 
-                                FC_HIDDEN_DIM_4, DROPOUT_RATE).to(device)
+                model = MultiLabelClassifier(DATA_SHAPE, num_AU, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, FC_HIDDEN_DIM_4, DROPOUT_RATE).to(device)
                 
                 # Load model if script is run for evaluating trained model
                 if not train:

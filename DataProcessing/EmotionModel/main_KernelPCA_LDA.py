@@ -34,17 +34,17 @@ print(f"It took {time.time() - t} seconds to load the data")
 
 #%%
 for ncom in [6200]:
-    for gam in [10]:
+    for gam in [0.001]:
         print("Kernelizing data")
         t1 = time.time()
-        data_train_transform_1 = KernelPCA(kernel='rbf', n_components = ncom).fit_transform(data_train)
-        data_test_transform_1 = KernelPCA(kernel='rbf', n_components = ncom).fit_transform(data_test)
+        data_train_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, n_jobs = -1).fit_transform(data_train)
+        data_test_transform_1 = KernelPCA(kernel='rbf', n_components = ncom, n_jobs = -1).fit_transform(data_test)
         print(f"Data was kernelized in {time.time() - t1} seconds")  
 
         #%%
         print("Starting LDA fit...")
         t2 = time.time()
-        clf = MultiOutputClassifier(LDA(), n_jobs=8).fit(data_train_transform_1, labels_train)
+        clf = MultiOutputClassifier(LDA(), n_jobs=-1).fit(data_train_transform_1, labels_train)
         print(f"Data fit in {time.time() - t2} seconds") 
 
         #%%

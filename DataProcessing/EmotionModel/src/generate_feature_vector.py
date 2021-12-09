@@ -15,7 +15,7 @@ from joblib import Parallel, delayed
 from sklearn.decomposition import PCA
 from math import pi, cos, sin, exp, sqrt
 from sklearn.preprocessing import StandardScaler
-from src.utils import decompress_pickle, compress_pickle
+from utils import decompress_pickle, compress_pickle
 
 def get_landmarks_mp(img_dir):
     mp_face_mesh = mp.solutions.face_mesh
@@ -106,7 +106,7 @@ def get_norm_landmarks(img_dir, landmarks):
         z_center = (np.mean([landmarks[idx[0]][2],landmarks[idx[1]][2]]))
         eye_centers.append([x_center,y_center,z_center])
     inner_eye_distace = math.dist(eye_centers[0],eye_centers[1])
-    c = 100/inner_eye_distace
+    c = 300/inner_eye_distace
     return np.array(landmarks)*c, c
 
 def reshape_img(img_dir, c, show=False):
@@ -272,8 +272,8 @@ if __name__ == "__main__":
         print("Compressin bz2 pickle files...")
         print(face_space)
         #face_space = face_space.astype(np.float32)
-        np.save(f"{pickles_path}/face_space_dict_disfa_large_subset.npy", face_space)
-        np.save(f"{pickles_path}/misses_disfa_large_subset.npy", misses)
+        np.save(f"{pickles_path}/face_space_dict_disfa_large_subset_300.npy", face_space)
+        np.save(f"{pickles_path}/misses_disfa_large_subset_300.npy", misses)
         #compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
         #compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
         print("All done!...")

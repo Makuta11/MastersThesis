@@ -8,8 +8,7 @@ import torch.optim as optim
 
 class MultiLabelClassifier(nn.Module):
 
-    def __init__(self, data_shape, num_AU, fc_hidden_dim_1, fc_hidden_dim_2,
-                 fc_hidden_dim_3, fc_hidden_dim_4, fc_hidden_dim_5, dropout_prop):
+    def __init__(self, data_shape, num_AU, fc_hidden_dim_1, fc_hidden_dim_2, fc_hidden_dim_3, fc_hidden_dim_4, dropout_prop):
         super(MultiLabelClassifier, self).__init__()
 
         self.fc_layer = nn.Sequential(
