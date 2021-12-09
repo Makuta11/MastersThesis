@@ -88,9 +88,15 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
+<<<<<<< HEAD
+    for i, LEARNING_RATE in enumerate([1e-5, 1e-6, 1e-7]):
+        for j, DROPOUT_RATE in enumerate([0.35, 0.5]):
+            for k, WEIGHT_DECAY in enumerate([0.001, 0.01]):
+=======
     for i, LEARNING_RATE in enumerate([1e-7]):
         for j, DROPOUT_RATE in enumerate([0.5]):
             for k, WEIGHT_DECAY in enumerate([0.001]):
+>>>>>>> c86706e52aeca9fbc11c41467a0b6a2c7166f382
                 
                 # Name for saving the model
                 name = f'B:{BATCH_SIZE}_DR:{DROPOUT_RATE}_LR:{LEARNING_RATE}_WD:{WEIGHT_DECAY}   Net{FC_HIDDEN_DIM_1}x{FC_HIDDEN_DIM_2}x{FC_HIDDEN_DIM_3}x{FC_HIDDEN_DIM_4}'
