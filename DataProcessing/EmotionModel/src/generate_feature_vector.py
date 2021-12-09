@@ -167,15 +167,12 @@ def main(i, img_dir, subset=None):
     # Extract key - different for emotionet and disfa -
     main_key = i #int(img_dir[-9:-4])
 
-    if i > 4840*6:
-        return
-
     try:
         # Generate Shape Vector
         if subset:
             landmarks, _ = get_landmarks_mp(img_dir)
-            contors = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
-            #contors = np.load("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
+            #contors = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
+            contors = np.load("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
             landmark_idx = np.unique(contors).astype(int)
         else:
             landmarks, contors = get_landmarks_mp(img_dir)
@@ -226,11 +223,7 @@ if __name__ == "__main__":
 
     print("Generation started....")
     # Parallel generation of face_space vectors
-<<<<<<< HEAD
-    dictionary_list = Parallel(n_jobs=-1,verbose=10)(if i >  delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
-=======
-    dictionary_list = Parallel(n_jobs=8,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
->>>>>>> 01d4b7c846b4abf9e8720b032f12da56ecee56c7
+    dictionary_list = Parallel(n_jobs=24,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))[:4840*6]))
     print("Generation done!!!")
 
     print("Dictionary combination started....")
