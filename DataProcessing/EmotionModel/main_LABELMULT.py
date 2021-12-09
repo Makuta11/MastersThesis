@@ -89,7 +89,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # CV testing for LR, DR, and WD
     for i, LEARNING_RATE in enumerate([1e-5, 1e-6, 1e-7]):
-        for j, DROPOUT_RATE in enumerate([0.25, 0.5]):
+        for j, DROPOUT_RATE in enumerate([0.35, 0.5]):
             for k, WEIGHT_DECAY in enumerate([0.001, 0.01]):
                 
                 # Name for saving the model
