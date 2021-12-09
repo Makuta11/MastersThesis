@@ -28,19 +28,19 @@ class MultiLabelClassifier(nn.Module):
             nn.BatchNorm1d(fc_hidden_dim_3),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
-            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_5),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
             #nn.BatchNorm1d(fc_hidden_dim_4),
-            # nn.ReLU(),
-            # nn.Dropout(p = dropout_prop),
-            # nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5)
+            #nn.ReLU(),
+            #nn.Dropout(p = dropout_prop),
+            #nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5)
         )
         
         # Fully conencted layer for multi-label classification of AU being present in each image
         self.fc_layer_AU = nn.Sequential(
-            nn.BatchNorm1d(fc_hidden_dim_5),
+            nn.BatchNorm1d(fc_hidden_dim_4),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
-            nn.Linear(in_features = fc_hidden_dim_5, out_features = num_AU)
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = num_AU)
         )
     
     def forward(self, data):
