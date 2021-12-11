@@ -2,11 +2,11 @@
 #BSUB -q hpc
 #BSUB -J KSVM
 ### number of core
-#BSUB -n 24
+#BSUB -n 1
 ### specify that all cores should be on the same host
 #BSUB -R "span[hosts=1]"
 ### specify the memory needed
-#BSUB -R "rusage[mem=15GB]"
+#BSUB -R "rusage[mem=250GB]"
 ### Number of hours needed
 #BSUB -W 23:59
 ### added outputs and errors to files

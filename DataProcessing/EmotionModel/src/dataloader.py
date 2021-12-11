@@ -94,12 +94,15 @@ def load_data(user_train, user_val, user_test, subset = None, kernel = None):
     data_train = data_arr[train_idx, :]
 
     # For kernel we only need the indexes since the kernel is precomputed and we will be slicing into that instead
-    if kernel = True:
+    if kernel:
         if sys.platform == "linux":
             kernel = np.load("/work3/s164272/data/assests/rbf_kernel.npy")
         else:
             raise Exception("Not implemented on local platform (needs 127GB memory)")
+        
+        # Clear some memory space since data is not needed (indexing into kernel for test and train)
         del data_test, data_val, data_train
+        
         return kernel, test_idx, val_idx, train_idx, labels_test.reset_index(drop=True), labels_val.reset_index(drop=True), labels_train.reset_index(drop=True)
     else:
         return data_test, data_val, data_train, labels_test.reset_index(drop=True), labels_val.reset_index(drop=True), labels_train.reset_index(drop=True)

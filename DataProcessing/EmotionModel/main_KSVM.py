@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from pelutils import TT
+from sklearn.svm import SVC
 from src.dataloader import *
 from sklearn.metrics import f1_score
 from sklearn.decomposition import KernelPCA
@@ -25,40 +26,41 @@ user_val = np.array([5])
 
 # Data loading with test-train splits 
 print("Loading Dataset")
-t = time.time()
-data_test, data_val, data_train, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True)
-labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_train.drop(columns="ID"), labels_val.drop(columns="ID")
-print(f"It took {time.time() - t} seconds to load the data")
-
-from sklearn.svm import SVC
-clf = SVC(kernel='precomputed', class_weight="balanced")
-trainlab = labels_train.iloc[:,0]
-trainlab[trainlab > 0] = 1
-testlab = labels_test.iloc[:,0]
-testlab[testlab > 0] = 1
-
 TT.tick()
-clf.fit(data_train, trainlab)
-print(f'Time to fit: {TT.tock()}')
+kernel, test_idx, val_idx, train_idx, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True, kernel=True)
+labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_train.drop(columns="ID"), labels_val.drop(columns="ID")
+print(f"It took {TT.tock()} seconds to load the data")
 
-print("Starting prediction...")
-t3 = time.time()
-y_pred = clf.predict(data_test)
-print(f'It took {time.time() - t3} to make predictions')
+for i, au in enumerate([1]):
+    
+    # Initialize SVC from sklearn library
+    clf = SVC(kernel='precomputed', class_weight="balanced")
 
-print(np.unique(y_pred))
-print("\nStarting f1-score calculation")
+    # Redefine labels to classify single AU at a time
+    trainlab = labels_train.iloc[i,0]
+    trainlab[trainlab > 0] = 1
+    testlab = labels_test.iloc[i,0]
+    testlab[testlab > 0] = 1
 
-# Calculate f1_scores
-print(f'\nScores on AU identification:\n{val_scores(y_pred, testlab)}')
+    # Fit SVC to the training kernel
+    TT.tick()
+    print("Starting fit...")
+    clf.fit(kernel[train_idx][:,train_idx], trainlab)
+    print(f'Time to fit: {TT.tock()} \n')
 
-# Save the test model
-if sys.platform == 'linux':
-    compress_pickle("/work3/s164272/models/KSVM_clf", clf)
-else:
-    compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
+    # Predict classes for the test kernel
+    TT.tick()
+    print("Starting prediction...")
+    y_pred = clf.predict(kernel[test_idx][:,train_idx])
+    print(f'It took {TT.tock()} to make predictions \n')
 
-if __name__ == "__main__":
-    print("starting script")
-    #main(True)
+    # Calculate f1_scores
+    print("\nStarting f1-score calculation")
+    print(f'\nScores on AU{au} identification:\n{val_scores(y_pred, testlab)}')
+
+    # Save the SVC model for specific AU
+    if sys.platform == 'linux':
+        compress_pickle(f"/work3/s164272/models/KSVM_AU{au}", clf)
+    else:
+        compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
 
