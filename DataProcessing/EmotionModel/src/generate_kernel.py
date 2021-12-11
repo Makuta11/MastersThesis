@@ -3,6 +3,7 @@ import os, sys
 import numpy as np
 import pandas as pd
 
+from pelutils import TT
 from utils import decompress_pickle
 from sklearn.metrics.pairwise import rbf_kernel
 
@@ -89,19 +90,24 @@ def save_kernel(K, name):
 def main():
     # Load dataset
     print("Loading data")
+    TT.tick()
     dataset = load_data_for_kernel(subset=True)
-    print("Data loaded")
+    print(f"Data loaded in {TT.tock()} seconds")
 
     # Define settings for kernel
-    settings = {'kernel': 'rbf'}
+    settings = {'kernel': 'linear'}
 
     # Compute kernel
     print("Computing kernel")
+    TT.tick()
     K = compute_kernel(dataset, settings)
-    print("Kernal generated")
+    print(f"Kernal generated in {TT.tock()} seconds")
 
     # Save kernel to assests folder
+    print("Saving kernel")
+    TT.tick()
     save_kernel(K, settings['kernel'])
+    print(f"Kernel saved in {TT.tock()} seconds")
 
 if __name__ == "__main__":
     main()

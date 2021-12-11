@@ -31,7 +31,7 @@ labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_t
 print(f"It took {time.time() - t} seconds to load the data")
 
 from sklearn.svm import SVC
-clf = SVC(kernel='rbf', gamma="auto", class_weight="balanced")
+clf = SVC(kernel='precomputed', class_weight="balanced")
 trainlab = labels_train.iloc[:,0]
 trainlab[trainlab > 0] = 1
 testlab = labels_test.iloc[:,0]
