@@ -41,7 +41,7 @@ class MultiLabelClassifier(nn.Module):
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_4, out_features = num_AU)
         )
-    
+      
     def forward(self, data):
         batch_size = data.shape[0]
 

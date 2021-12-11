@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 
 from sklearn.utils.class_weight import compute_class_weight
+from sklearn.metrics.pairwise import rbf_kernel
 
 def decompress_pickle(file: str):
     data = bz2.BZ2File(file, 'rb')
@@ -38,3 +39,15 @@ def get_class_weights_AU_int(labels_train):
     class_weights_int = np.array(class_weights_int)
     class_weights_int  = torch.tensor(class_weights_int, dtype=torch.float)
     return class_weights_int
+
+def compute_kernel(X, settings: dict):
+    print("Computing kernel")
+    if settings['kernel'] == 'linear':
+        K = np.dot(X,X.T) # linear kernel
+    elif settings['kernel'] == 'rbf':
+        K = rbf_kernel(X, gamma=settings['gamma']) # gamma defaults to 1/n_features
+    else:
+        print('Invalid kernel option, terminating')
+        exit()
+    print('.. finished')
+    return K
