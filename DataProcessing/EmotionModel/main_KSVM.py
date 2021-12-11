@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from kfda import Kfda
 from pelutils import TT
 from src.dataloader import *
 from sklearn.metrics import f1_score
@@ -55,11 +54,11 @@ print(f'\nScores on AU identification:\n{val_scores(y_pred, testlab)}')
 
 # Save the test model
 if sys.platform == 'linux':
-compress_pickle("/work3/s164272/models/KSVM_clf", clf)
+    compress_pickle("/work3/s164272/models/KSVM_clf", clf)
 else:
-compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
+    compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
 
 if __name__ == "__main__":
-print("starting script")
+    print("starting script")
     #main(True)
 

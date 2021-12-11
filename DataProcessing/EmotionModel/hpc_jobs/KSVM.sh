@@ -1,6 +1,6 @@
 #!/bin/sh
 #BSUB -q hpc
-#BSUB -J KERN
+#BSUB -J KSVM
 ### number of core
 #BSUB -n 24
 ### specify that all cores should be on the same host
