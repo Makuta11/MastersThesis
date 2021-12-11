@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from torch.utils import data
 from src.utils import decompress_pickle
 
-def load_data(user_train, user_val, user_test, subset = None):
+def load_data(user_train, user_val, user_test, subset = None, kernel = None):
     if subset:
         if sys.platform == "linux":
             # Big dataload on hpc
@@ -93,7 +93,12 @@ def load_data(user_train, user_val, user_test, subset = None):
     data_val = data_arr[val_idx, :]
     data_train = data_arr[train_idx, :]
 
-    return data_test, data_val, data_train, labels_test.reset_index(drop=True), labels_val.reset_index(drop=True), labels_train.reset_index(drop=True)
+    # For kernel we only need the indexes since the kernel is precomputed and we will be slicing into that instead
+    if kernel = True:
+        del data_test, data_val, data_train
+        return test_idx, val_idx, train_idx, labels_test.reset_index(drop=True), labels_val.reset_index(drop=True), labels_train.reset_index(drop=True)
+    else:
+        return data_test, data_val, data_train, labels_test.reset_index(drop=True), labels_val.reset_index(drop=True), labels_train.reset_index(drop=True)
 
 class ImageTensorDatasetMultitask(data.Dataset):
     
