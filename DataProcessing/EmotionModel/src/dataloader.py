@@ -79,8 +79,8 @@ def load_data(user_train, user_val, user_test, subset = None, kernel = None):
         else:
             labels_val = pd.concat([labels[(labels.ID==va)] for va in user_val])
     else:
-        labels_test = labels.iloc[0:4840*2]
-        labels_val = labels.iloc[:1]
+        labels_test = labels.iloc[:1]
+        labels_val = labels.iloc[0:4840*2]
         labels_train = labels.iloc[4840*2:int(4840*6)]
 
     # Extract test-val-train indexes
@@ -154,3 +154,9 @@ class ImageTensorDatasetMultiLabel(data.Dataset):
         AUs[AUs != 0] = 1
         
         return self.data[key], AUs
+
+def main():
+    pass
+
+if __name__ == "__main__":
+    main()

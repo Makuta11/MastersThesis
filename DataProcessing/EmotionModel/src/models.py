@@ -41,13 +41,13 @@ class SingleClassNetwork(nn.Module):
     def forward(self, data):
         batch_size = data.shape[0]
 
-        # Body encorder for the netoworks
-        X_shared = self.fc_layer(data)
+        # Body encorder for the network
+        X_body = self.fc_layer(data)
 
         #fully connected layer for multi-class classification (2 or 5 possible targets)
-        X = self.fc_layer_AU(X_shared)
+        X = self.fc_layer_AU(X_body)
 
-        return F.sofmax(X, dim=1)
+        return F.softmax(X, dim=1)
 
 class MultiLabelClassifier(nn.Module):
 
