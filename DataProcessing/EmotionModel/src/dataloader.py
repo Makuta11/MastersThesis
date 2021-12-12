@@ -154,3 +154,26 @@ class ImageTensorDatasetMultiLabel(data.Dataset):
         AUs[AUs != 0] = 1
         
         return self.data[key], AUs
+
+class ImageTensorDatasetSingleLabel(data.Dataset):
+    
+    def __init__(self, data, labels, au_idx):
+        self.data = data
+        self.user_id = labels["ID"]
+        self.labels = labels.drop(columns = "ID")
+        self.au = au_idx
+        
+    def __len__(self):
+        return len(self.labels)
+
+    def __nf__(self):
+        return len(self.data[0])
+    
+    def __getitem__(self, key):
+        # Multi-label classification labels
+        AUs = np.array(self.labels.iloc[key])
+        AUs[AUs != 0] = 1
+
+        AU = AUs[:,self.au]
+        
+        return self.data[key], AU
