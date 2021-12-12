@@ -96,7 +96,7 @@ def load_data(user_train, user_val, user_test, subset = None, kernel = None):
     # For kernel we only need the indexes since the kernel is precomputed and we will be slicing into that instead
     if kernel:
         if sys.platform == "linux":
-            kernel = np.load("/work3/s164272/data/assests/rbf_kernel.npy")
+            kernel = np.load(f"/work3/s164272/data/assests/{kernel}_kernel.npy")
         else:
             raise Exception("Not implemented on local platform (needs 127GB memory)")
         

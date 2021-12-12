@@ -8,9 +8,11 @@ import matplotlib.pyplot as plt
 from pelutils import TT
 from sklearn.svm import SVC
 from src.dataloader import *
-from sklearn.metrics import f1_score
+from sklearn.pipeline import make_pipeline
 from sklearn.decomposition import KernelPCA
+from sklearn.preprocessing import StandardScaler
 from sklearn.multioutput import MultiOutputClassifier
+from sklearn.metrics import f1_score, classification_report
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
 from src.validation_score import val_scores
@@ -27,40 +29,47 @@ user_val = np.array([5])
 # Data loading with test-train splits 
 print("Loading Dataset")
 TT.tick()
-kernel, test_idx, val_idx, train_idx, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True, kernel=True)
+type_kern = "rbf"
+kernel, test_idx, val_idx, train_idx, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True, kernel=type_kern)
 labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_train.drop(columns="ID"), labels_val.drop(columns="ID")
 print(f"It took {TT.tock()} seconds to load the data")
 
-for i, au in enumerate([1]):
-    
+for i, au in enumerate(aus):
+    #rint(f'Fitting SVC for: {au}')
+
     # Initialize SVC from sklearn library
-    clf = SVC(kernel='precomputed', class_weight="balanced")
+    clf = make_pipeline(StandardScaler(), SVC(kernel='precomputed', class_weight="balanced"))
 
     # Redefine labels to classify single AU at a time
-    trainlab = labels_train.iloc[i,0]
+    trainlab = labels_train.iloc[:,i]
     trainlab[trainlab > 0] = 1
-    testlab = labels_test.iloc[i,0]
+    testlab = labels_test.iloc[:,i]
     testlab[testlab > 0] = 1
-
+    
     # Fit SVC to the training kernel
-    TT.tick()
-    print("Starting fit...")
+    #TT.tick()
+    #print("Starting fit...")
     clf.fit(kernel[train_idx][:,train_idx], trainlab)
-    print(f'Time to fit: {TT.tock()} \n')
+    #print(f'Time to fit: {TT.tock()} \n')
 
     # Predict classes for the test kernel
-    TT.tick()
-    print("Starting prediction...")
+    #TT.tick()
+    #print("Starting prediction...")
     y_pred = clf.predict(kernel[test_idx][:,train_idx])
-    print(f'It took {TT.tock()} to make predictions \n')
+    #y_pred_train = clf.predict(kernel[train_idx][:,train_idx])
+    #print(f'It took {TT.tock()} to make predictions')
+
+    # Compare sums
+    #print(f'train vs test sum: {y_pred.sum()} & {y_pred_train}')
 
     # Calculate f1_scores
-    print("\nStarting f1-score calculation")
-    print(f'\nScores on AU{au} identification:\n{val_scores(y_pred, testlab)}')
+    print("Starting f1-score calculation")
+    #print(f'\nTest scores on AU{au} identification:\n{val_scores(y_pred, testlab)}')
+    print(f'\nTest scores on AU{au} identification:\n{classification_report(testlab, y_pred, target_names=["not active", "active"])}')
 
     # Save the SVC model for specific AU
     if sys.platform == 'linux':
-        compress_pickle(f"/work3/s164272/models/KSVM_AU{au}", clf)
+        compress_pickle(f"/work3/s164272/data/models/KSVM_NORM_{type_kern}_AU{au}", clf)
     else:
         compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
 
