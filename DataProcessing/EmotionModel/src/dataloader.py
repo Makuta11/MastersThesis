@@ -155,7 +155,6 @@ class ImageTensorDatasetMultiLabel(data.Dataset):
         
         return self.data[key], AUs
 
-<<<<<<< HEAD
 class ImageTensorDatasetSingleLabel(data.Dataset):
     
     def __init__(self, data, labels, au_idx):
@@ -178,10 +177,3 @@ class ImageTensorDatasetSingleLabel(data.Dataset):
         AU = AUs[:,self.au]
         
         return self.data[key], AU
-=======
-def main():
-    pass
-
-if __name__ == "__main__":
-    main()
->>>>>>> 67fbf8713c3d655879ba9a6b6c67f8bac63f2079

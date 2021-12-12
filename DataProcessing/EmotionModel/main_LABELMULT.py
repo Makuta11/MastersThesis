@@ -142,7 +142,7 @@ for k, BATCH_SIZE in enumerate([16]):
                     
                 if evaluate:
                     # Test model performance on given dataloaders
-                    for dataloaders in [train_dataloader, test_dataloader]:
+                    for dataloaders in [val_dataloader]:
                         AU_scores = get_predictions(model, dataloaders, device)
 
                         # Print scores
