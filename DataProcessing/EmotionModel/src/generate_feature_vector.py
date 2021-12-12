@@ -148,7 +148,7 @@ def get_gb_fb():
     Lambda = [4, 4*sqrt(2) ,8 ,8*sqrt(2) ,16]   # wavelength
     sig = [2, 6, 8, 10]                         # scaling of filter
     alpha = [-pi/2, pi/3, 3*pi/4, pi]           # orientation
-    phi = 0
+    phi = 0                                     # Phase shift
 
     for l in Lambda:
         for s in sig:

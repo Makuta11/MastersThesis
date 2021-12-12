@@ -6,6 +6,49 @@ from torch import nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+class SingleClassNetwork(nn.Module):
+
+    def __init__(self, data_shape, num_intensities, fc_hidden_dim_1, fc_hidden_dim_2, fc_hidden_dim_3, fc_hidden_dim_4, dropout_prop):
+        super(SingleClassNetwork, self).__init__()
+
+        self.fc_layer = nn.Sequential(
+            nn.BatchNorm1d(data_shape),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = data_shape, out_features = fc_hidden_dim_1),
+            nn.BatchNorm1d(fc_hidden_dim_1),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_1, out_features = fc_hidden_dim_2),
+            nn.BatchNorm1d(fc_hidden_dim_2),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_2, out_features = fc_hidden_dim_3),
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+        )
+        
+        # Fully conencted layer for multi-label classification of AU being present in each image
+        self.fc_layer_AU = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = num_intensities)
+        )
+      
+    def forward(self, data):
+        batch_size = data.shape[0]
+
+        # Body encorder for the netoworks
+        X_shared = self.fc_layer(data)
+
+        #fully connected layer for multi-class classification (2 or 5 possible targets)
+        X = self.fc_layer_AU(X_shared)
+
+        return F.sofmax(X, dim=1)
+
 class MultiLabelClassifier(nn.Module):
 
     def __init__(self, data_shape, num_AU, fc_hidden_dim_1, fc_hidden_dim_2, fc_hidden_dim_3, fc_hidden_dim_4, dropout_prop):
