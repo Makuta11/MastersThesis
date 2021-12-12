@@ -14,6 +14,7 @@ from src.utils import decompress_pickle, compress_pickle
 from src.utils import get_class_weights_AU, get_class_weights_AU_int
 
 from matplotlib import pyplot as plt
+from sklearn.metrics import classification_report
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.datasets import make_multilabel_classification
 
@@ -76,7 +77,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 30
+        EPOCHS = 75
     else:
         EPOCHS = 5
     SAVE_FREQ = 10
@@ -94,9 +95,9 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
-    for i, LEARNING_RATE in enumerate([1e-3]):
-        for j, DROPOUT_RATE in enumerate([0.45]):
-            for k, WEIGHT_DECAY in enumerate([0.001]):
+    for i, LEARNING_RATE in enumerate([1e-5]):
+        for j, DROPOUT_RATE in enumerate([0.5]):
+            for k, WEIGHT_DECAY in enumerate([0.01]):
                 
                 # Name for saving the model
                 name = f'B:{BATCH_SIZE}_DR:{DROPOUT_RATE}_LR:{LEARNING_RATE}_WD:{WEIGHT_DECAY}   Net{FC_HIDDEN_DIM_1}x{FC_HIDDEN_DIM_2}x{FC_HIDDEN_DIM_3}x{FC_HIDDEN_DIM_4}'
@@ -154,7 +155,8 @@ for k, BATCH_SIZE in enumerate([16]):
 
                         # Print scores
                         print(f'{name}:')
-                        print(f'Scores on AU{aus[au]} identification:\n{val_scores(AU_scores[0], AU_scores[1])}')
+                        #print(f'Scores on AU{aus[au]} identification:\n{val_scores(AU_scores[0], AU_scores[1])}')
+                        print(f'\nTest scores on AU{au} identification:\n{classification_report(AU_scores[1], AU_scores[0], target_names=["not active", "active"])}')
                 
                 # Clear up memory and reset individual figures
                 del model, loss_collect, val_loss_collect, fig, ax

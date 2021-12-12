@@ -9,7 +9,6 @@ from pelutils import TT
 from sklearn.svm import SVC
 from src.dataloader import *
 from sklearn.pipeline import make_pipeline
-from sklearn.decomposition import KernelPCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.metrics import f1_score, classification_report
@@ -35,7 +34,7 @@ labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_t
 print(f"It took {TT.tock()} seconds to load the data")
 
 for i, au in enumerate(aus):
-    #rint(f'Fitting SVC for: {au}')
+    #print(f'Fitting SVC for: {au}')
 
     # Initialize SVC from sklearn library
     clf = make_pipeline(StandardScaler(), SVC(kernel='precomputed', class_weight="balanced"))
