@@ -11,6 +11,71 @@ def checkpoint_save(model, save_path, epoch, name):
         torch.save(model.state_dict(), f)
     print('saved checkpoint:', f)
 
+
+def train_single_model(model, au, optimizer, criterion, num_epochs, train_dataloader, val_dataloader, device,
+                save_path, save_freq, scheduler = None, name = None):
+    
+    loss_collect = []
+    val_loss_collect = []
+
+    for epoch in range(num_epochs):
+        
+        # Initialilze loss and set model to train mode
+        running_loss = 0
+        val_loss = 0
+        
+        # Calculate training loss
+        model.train()
+        for i, x in enumerate(train_dataloader):
+            data = x[0].float().to(device)
+            AU = x[1][:,au].long().to(device)
+            
+            optimizer.zero_grad()
+            out = model(data)
+
+            loss = criterion(out, AU)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.detach().cpu().item()
+
+            # Clear memory space
+            del AU
+            torch.cuda.empty_cache()
+        
+        if scheduler:
+           scheduler.step()
+
+        loss_collect = np.append(loss_collect, running_loss/(i+1))
+
+        # Calculate validation loss
+        model.eval()
+        for i, x in enumerate(val_dataloader):
+            data = x[0].float().to(device)
+            AU = x[1][:,au].long().to(device)
+
+            out = model(data)
+            
+            loss = criterion(out, AU)
+            val_loss += loss.detach().cpu().item()
+            
+            del AU, loss
+            torch.cuda.empty_cache()
+        
+        if scheduler:
+           scheduler.step()
+
+        val_loss_collect = np.append(val_loss_collect, val_loss/(i+1))
+
+        print(str(epoch + 1) + ' out of ' + str(num_epochs))
+        print(f'train loss: {loss_collect[epoch]}')
+        print(f'val loss  : {val_loss_collect[epoch]}')
+
+        # Save checkpoint at pre-determined intervals
+        if (epoch + 1) % save_freq == 0:
+            checkpoint_save(model, save_path, epoch, name)
+
+    return model, loss_collect, val_loss_collect
+
 def train_multitask_model(model, optimizer, num_epochs, train_dataloader, val_dataloader, device,
                 save_path, save_freq, scheduler = None, name = None):
     
@@ -69,8 +134,8 @@ def train_multitask_model(model, optimizer, num_epochs, train_dataloader, val_da
         val_loss_collect = np.append(val_loss_collect, val_loss/(i+1))
 
         print(str(epoch + 1) + ' out of ' + str(num_epochs))
-        print(loss_collect[epoch])
-        print(val_loss_collect[epoch])
+        print(f'train loss: {loss_collect[epoch]}')
+        print(f'val loss  : {val_loss_collect[epoch]}')
 
         # Save checkpoint at pre-determined intervals
         if (epoch + 1) % save_freq == 0:
@@ -133,8 +198,8 @@ def train_model(model, optimizer, criterion, num_epochs, train_dataloader, val_d
         val_loss_collect = np.append(val_loss_collect, val_loss/(i+1))
 
         print(str(epoch + 1) + ' out of ' + str(num_epochs))
-        print(loss_collect[epoch])
-        print(val_loss_collect[epoch])
+        print(f'train loss: {loss_collect[epoch]}')
+        print(f'val loss  : {val_loss_collect[epoch]}')
 
         # Save checkpoint at pre-determined intervals
         if (epoch + 1) % save_freq == 0:
@@ -219,5 +284,34 @@ def get_predictions(model, dataloaders, device):
         # Insert label names to differentiate precision socres between labels
         predAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(predAU)]
         trueAU = [0 if elem == False else aus[i%12] for i, elem in enumerate(trueAU)]
+        
+    return [predAU, trueAU]
+
+def get_single_predictions(model, au, dataloaders, device):
+    
+    model.eval()
+    with torch.no_grad():
+        
+        # Parameter initialization
+        predAU = []
+        trueAU = []
+
+        # Collect model outputs on test_data
+        for i, x in enumerate(dataloaders):
+    
+            out = model(x[0].float().to(device))
+
+            # Append logic bool array for predicted and true labels
+            
+            predAU.append(list(np.argmax(out.cpu().numpy(), axis=1).ravel())) 
+            trueAU.append(list(x[1][:,au].cpu().numpy().ravel() > 0))
+
+        # Ravel list to get one-dimensional arrays with predictions and true labels
+        predAU = np.concatenate(predAU).ravel()
+        trueAU = np.concatenate(trueAU).ravel()
+        
+        # Insert label names to differentiate precision socres between labels
+        predAU = [0 if elem == False else 1 for i, elem in enumerate(predAU)]
+        trueAU = [0 if elem == False else 1 for i, elem in enumerate(trueAU)]
         
     return [predAU, trueAU]

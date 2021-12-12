@@ -38,6 +38,7 @@ def get_class_weights_AU_int(labels_train):
         class_weights_int.append([tmpd[1], tmpd[2], tmpd[3], tmpd[4], tmpd[5]])
     class_weights_int = np.array(class_weights_int)
     class_weights_int  = torch.tensor(class_weights_int, dtype=torch.float)
+
     return class_weights_int
 
 

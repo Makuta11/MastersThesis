@@ -48,6 +48,7 @@ trainlab = labels_train.iloc[:,0]
 trainlab[trainlab > 0] = 1
 testlab = labels_test.iloc[:,0]
 testlab[testlab > 0] = 1
+
 clf.fit(data_train, trainlab)
 
 

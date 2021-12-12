@@ -14,6 +14,7 @@ from src.utils import decompress_pickle, compress_pickle
 from src.utils import get_class_weights_AU, get_class_weights_AU_int
 
 from matplotlib import pyplot as plt
+from sklearn.utils.class_weight import compute_class_weight
 from sklearn.datasets import make_multilabel_classification
 
 # users = np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
@@ -25,7 +26,7 @@ model_path = ""
 
 # Data parameters
 aus = [1,2,4,5,6,9,12,15,17,20,25,26]
-num_AU = 12
+num_intensities = 2
 
 # Subject split
 user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
@@ -47,16 +48,21 @@ test_dataset = ImageTensorDatasetMultiLabel(data_test, labels_test)
 plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
+# Action Unit to investigate
+au = aus.index(1)
+
 # CV test on bactch size
 for k, BATCH_SIZE in enumerate([16]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=True)
-    test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers = 2)
+    test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
-    #Calcualte class weights within AUs - for cross entropy loss
-    class_weights_AU = get_class_weights_AU(labels_train)
+    # Calcualte truncated calss weights for training data
+    labtrain = labels_train.iloc[:,au]
+    labtrain[labtrain > 0] = int(1)
+    cw_int = torch.tensor(compute_class_weight(class_weight='balanced', classes=np.unique(labtrain), y=labtrain)).float()
 
     # Clear up memory space
     del data_test, data_train, data_val
@@ -70,9 +76,9 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 300
+        EPOCHS = 30
     else:
-        EPOCHS = 20
+        EPOCHS = 5
     SAVE_FREQ = 10
     DATA_SHAPE = train_dataset.__nf__()
 
@@ -88,8 +94,8 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
-    for i, LEARNING_RATE in enumerate([1e-7]):
-        for j, DROPOUT_RATE in enumerate([0.5]):
+    for i, LEARNING_RATE in enumerate([1e-3]):
+        for j, DROPOUT_RATE in enumerate([0.45]):
             for k, WEIGHT_DECAY in enumerate([0.001]):
                 
                 # Name for saving the model
@@ -99,7 +105,7 @@ for k, BATCH_SIZE in enumerate([16]):
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 
                 # Model initialization
-                model = MultiLabelClassifier(DATA_SHAPE, num_AU, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, FC_HIDDEN_DIM_4, DROPOUT_RATE).to(device)
+                model = SingleClassNetwork(DATA_SHAPE, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, FC_HIDDEN_DIM_4, DROPOUT_RATE).to(device)
                 
                 # Load model if script is run for evaluating trained model
                 if not train:
@@ -109,14 +115,15 @@ for k, BATCH_SIZE in enumerate([16]):
                         model.load_state_dict(torch.load(model_path, map_location=device))
                 
                 # Initialize criterion for multi-label loss
-                criterion = nn.BCEWithLogitsLoss(pos_weight = class_weights_AU.to(device))
+                criterion = nn.CrossEntropyLoss(weight = cw_int.to(device))
+                
                 # Optimization parameters
                 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
                 #scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [150], gamma = 0.1)
 
                 if train:
                     # Run training
-                    model, loss_collect, val_loss_collect = train_model(model, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=None)
+                    model, loss_collect, val_loss_collect = train_single_model(model, au, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=None)
 
                     # Plot each individual figure
                     plt.style.use('fivethirtyeight')
@@ -142,12 +149,12 @@ for k, BATCH_SIZE in enumerate([16]):
                     
                 if evaluate:
                     # Test model performance on given dataloaders
-                    for dataloaders in [train_dataloader, test_dataloader]:
-                        AU_scores = get_predictions(model, dataloaders, device)
+                    for dataloaders in [train_dataloader, val_dataloader]:
+                        AU_scores = get_single_predictions(model, au, dataloaders, device)
 
                         # Print scores
-                        print(f'n\{name}:')
-                        print(f'\nScores on AU identification:\n{val_scores(AU_scores[0], AU_scores[1])}')
+                        print(f'{name}:')
+                        print(f'Scores on AU{aus[au]} identification:\n{val_scores(AU_scores[0], AU_scores[1])}')
                 
                 # Clear up memory and reset individual figures
                 del model, loss_collect, val_loss_collect, fig, ax
