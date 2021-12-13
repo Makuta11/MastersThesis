@@ -145,13 +145,12 @@ def self_gabor(sigma, theta, Lambda, psi, gamma):
 
 def get_gb_fb():
     gb_fb = dict()
-    Lambda = [4, 4*sqrt(2) ,8 ,8*sqrt(2) ,16]   # wavelength
-    sig = [2, 6, 8, 10]                         # scaling of filter
-    alpha = [-pi/2, pi/3, 3*pi/4, pi]           # orientation
+    Lambda = [4, 4*sqrt(2) ,8 ,8*sqrt(2) ,16]   # wavelength                        
+    alpha = [4, 6, 8, 10]                       # orientation
     phi = 0                                     # Phase shift
 
     for l in Lambda:
-        for s in sig:
+        for s in [l/4,l/2,3*l/4,l]:             # scaling of filter
             for a in alpha:
                     gb_fb[f'\u03BB:{round(l,2)},  \u03C3:{s},  \u0398:{round(a,2)}'] = self_gabor(sigma=s, theta=a, Lambda=l, psi=phi, gamma=1)
     return gb_fb

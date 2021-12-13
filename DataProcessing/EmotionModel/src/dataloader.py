@@ -15,9 +15,10 @@ def load_data(user_train, user_val, user_test, subset = None, kernel = None, set
     if subset:
         if sys.platform == "linux":
             # Big dataload on hpc
-            dataset = np.load('/work3/s164272/data/Features/face_space_dict_disfa_large_subset.npy', allow_pickle=True)
+            print("loading here")
+            dataset = np.load('/work3/s164272/data/Features/face_space_dict_disfa_large_subset_300.npy', allow_pickle=True)
             labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels_large1.pbz2")
-            misses = np.load('/work3/s164272/data/Features/misses_disfa_large_subset.npy', allow_pickle=True)
+            misses = np.load('/work3/s164272/data/Features/misses_disfa_large_subset_300.npy', allow_pickle=True)
             # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
             dataset = dataset.tolist()
         else:

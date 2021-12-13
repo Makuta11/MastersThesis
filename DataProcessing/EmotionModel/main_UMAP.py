@@ -1,5 +1,4 @@
-#%%
-import os, sys, time, pickle
+import os, sys, time, pickle, umap
 
 import numpy as np
 import pandas as pd
@@ -7,9 +6,10 @@ import matplotlib.pyplot as plt
 
 from pelutils import TT
 from sklearn.metrics import f1_score
+from sklearn.impute import SimpleImputer
 from sklearn.pipeline import make_pipeline
 from sklearn.decomposition import KernelPCA
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, QuantileTransformer
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
@@ -30,42 +30,39 @@ t = time.time()
 data_test, data_val, data_train, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True)
 print(f"It took {time.time() - t} seconds to load the data")
 
-#%%
+permutation_list = [[data_test,labels_test]]
 
-# Initialize PCA transformation pipeline with standardization to shift columns to zero-mean
-transform = make_pipeline(StandardScaler(copy=False, with_mean=True, with_std=False), KernelPCA(kernel='precomputed', n_components=300))
+for i, data in enumerate(permutation_list):
+    for i, au in enumerate([1]):
 
-# Compute PCA on kernel
-print("Transforming kernelized data")
-TT.tick()
-data_transformed = transform.fit_transform(kernel)
-print(f'It took {TT.tock()} seconds to perform PCA on the kernel')
+        # Convert labels to binary
+        lab = data[1].iloc[:,i]
+        lab[lab > 0] = 1
 
-# Loop through specified action units and use LDA for classification
-for i, au in enumerate([1]):
+        ##### First Pipeline #####
+        pipe = make_pipeline(SimpleImputer(strategy="mean"))
+        X = pipe.fit_transform(data[0].copy())
 
-    # Convert labels to binary
-    trainlab = labels_train.iloc[:,i]
-    trainlab[trainlab > 0] = 1
-    testlab = labels_test.iloc[:,i]
-    testlab[testlab > 0] = 1
+        # Fit UMAP to processed data
+        manifold = umap.UMAP().fit(X, lab)
+        X_reduced_1 = manifold.transform(X)
 
-    # Initialize and fit LDA
-    clf = LDA(shrinkage='auto').fit(data_transformed[train_idx], trainlab)
+        # Plot and save fig
+        plt.style.use('fivethirtyeight')
+        fig1, ax1 = plt.subplots(figsize=(10,12))
+        ax1.scatter(X_reduced_1[:, 0], X_reduced_1[:, 1], c=lab, s=1)
+        fig1.savefig(f"UMAP/test_UMAP_1_AU{au}.png", dpi=128, bbox_inches='tight')
 
-    # Predict classes for test data
-    y_pred = clf.predict(data_transformed[test_idx])
+        ##### Second Pipeline #####
+        pipe = make_pipeline(SimpleImputer(strategy="mean"), QuantileTransformer(n_quantiles=lab.shape[0]))
+        X = pipe.fit_transform(data[0].copy())
 
-    # Calculate f1_scores
-    print("Starting f1-score calculation")
-    print(f'\nTest scores on AU{au} identification:\n{classification_report(testlab, y_pred, target_names=["not active", "active"])}')
+        # Fit UMAP to processed data
+        manifold = umap.UMAP().fit(X, lab)
+        X_reduced_2 = manifold.transform(X)
 
-    # Save the SVC model for specific AU
-    if sys.platform == 'linux':
-        compress_pickle(f"/work3/s164272/data/models/KLDA_{type_kern}_AU{au}", clf)
-    else:
-        compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
-
-
-
-# %%
+        # Plot and save fig
+        plt.style.use('fivethirtyeight')
+        fig1, ax1 = plt.subplots(figsize=(10,12))
+        ax1.scatter(X_reduced_2[:, 0], X_reduced_2[:, 1], c=lab, s=1)
+        fig1.savefig(f"UMAP/test_UMAP_2_AU{au}.png", dpi=128, bbox_inches='tight')
