@@ -170,41 +170,23 @@ def main(i, img_dir, subset=None):
         # Generate Shape Vector
         if subset:
             landmarks, _ = get_landmarks_mp(img_dir)
-            #contors = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
-            contors = np.load("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
+            contors = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
+            #contors = np.load("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
             landmark_idx = np.unique(contors).astype(int)
         else:
             landmarks, contors = get_landmarks_mp(img_dir)
         landmarks_norm, c = get_norm_landmarks(img_dir, landmarks)
         
-        pts = landmarks_norm
+        if subset:
+            landmarks_norm = landmarks_norm[landmark_idx]
+
+        pts = landmarks_norm[:,:2]
         dist = np.abs(pts[np.newaxis, :, :] - pts[:, np.newaxis, :]).min(axis=2)
         dist2 = dist[np.triu_indices(pts.shape[0], 1)].tolist()
 
-        feat_x = np.append(dist2)
-        # Generate Shading Vector
-        img = reshape_img(img_dir, c, show=False)
-        gb_fb = get_gb_fb()
+        feat_x = np.array(dist2)                             
         
-        feat_g =[]
-        if subset:
-            landmarks_norm = landmarks_norm[landmark_idx]
-        for key in gb_fb.keys():
-            for landmark in landmarks_norm:
-                filt_size = np.shape(gb_fb[key])[0]
-                landmark = landmark.astype(int)
-                
-                # Slice our the pixes surrounding the landmark for computation of hadderman product
-                x_slice = slice(int(landmark[0] - np.floor(filt_size/2)), int((landmark[0] + np.floor(filt_size/2))+1),1)
-                y_slice = slice(int(landmark[1] - np.floor(filt_size/2)), int(landmark[1] + np.floor(filt_size/2)+1),1)
-                try:
-                    # Perform hadderman product and take sum of new matrix
-                    feat_g.append((img[y_slice,x_slice]*gb_fb[key]).sum())
-                except:
-                    # append nan if convolution is obscured and not possible
-                    feat_g.append(np.nan)                                   
-        
-        return {main_key: np.append(feat_x,feat_g)}
+        return {main_key: feat_x}
     
     except:
         print(f'Image {main_key} could not be handled')
@@ -224,7 +206,7 @@ if __name__ == "__main__":
 
     print("Generation started....")
     # Parallel generation of face_space vectors
-    dictionary_list = Parallel(n_jobs=24,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
+    dictionary_list = Parallel(n_jobs=1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
     print("Generation done!!!")
 
     print("Dictionary combination started....")
@@ -234,51 +216,16 @@ if __name__ == "__main__":
         except:
             misses.append(d)
 
-    do_pca = False
-    if do_pca:
-        # Initialize parameters
-        bad_idx = []
-        data_list = list(face_space.items())
-        data_arr = np.array(data_list)
 
-        # Collect bad inputs
-        ln = data_arr[0,1].shape[0]
-        for i, arr in enumerate(data_arr[:,1]):
-            try:
-                if len(arr) != ln:
-                    bad_idx.append(i)
-            except:
-                bad_idx.append(i)
-
-        # Delete bad inputs from array
-        data_arr = np.delete(data_arr, bad_idx, axis=0)
-
-        # Construct final data arrays
-        data_arr = np.vstack(data_arr[:,1])
-        data_arr = np.nan_to_num(data_arr)
-
-        pca = PCA(0.95)
-        print("Applying PCA...")
-        face_space = StandardScaler().fit_transform(data_arr)
-        pca.fit(face_space)
-        face_space = pca.transform(face_space)
-        print("Compressin bz2 pickle files...")
-        compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1_PCA95", face_space)
-        compress_pickle(f"{pickles_path}/misses_disfa_large1_PCA95", misses)
-        print("All done!...")
-        time.sleep(1)
-        print("Well done")
-
-    else:
-        print("Compressin bz2 pickle files...")
-        print(face_space)
-        #face_space = face_space.astype(np.float32)
-        np.save(f"{pickles_path}/face_space_dict_disfa_large_subset_300.npy", face_space)
-        np.save(f"{pickles_path}/misses_disfa_large_subset_300.npy", misses)
-        #compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
-        #compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
-        print("All done!...")
-        time.sleep(1)
-        print("Well done")
+    print("Compressin bz2 pickle files...")
+    print(face_space)
+    #face_space = face_space.astype(np.float32)
+    np.save(f"{pickles_path}/shape_space_dict_disfa_large_subset_300.npy", face_space)
+    np.save(f"{pickles_path}/misses_shape_disfa_large_subset_300.npy", misses)
+    #compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
+    #compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
+    print("All done!...")
+    time.sleep(1)
+    print("Well done")
 
 # %%
