@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from pelutils import TT
-from utils import decompress_pickle
+from src.utils import decompress_pickle
 from sklearn.metrics.pairwise import rbf_kernel
 
 def compute_kernel(X, settings: dict):
@@ -19,7 +19,7 @@ def compute_kernel(X, settings: dict):
     print('.. finished')
     return K
 
-def load_data_for_kernel(subset=None):
+def load_data_for_kernel(subset = None):
     if subset:
         if sys.platform == "linux":
             # Big dataload on hpc

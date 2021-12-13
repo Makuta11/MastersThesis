@@ -9,6 +9,7 @@ from pelutils import TT
 from sklearn.svm import SVC
 from src.dataloader import *
 from sklearn.pipeline import make_pipeline
+from src.generate_kernel import compute_kernel
 from sklearn.preprocessing import StandardScaler
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.metrics import f1_score, classification_report
@@ -28,8 +29,10 @@ user_val = np.array([5])
 # Data loading with test-train splits 
 print("Loading Dataset")
 TT.tick()
+gamma = "scale"
 type_kern = "rbf"
-kernel, test_idx, val_idx, train_idx, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True, kernel=type_kern)
+settings = {'kernel': 'rbf', 'gamma': 'scale'}
+kernel, test_idx, val_idx, train_idx, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True, kernel=type_kern, settings=settings)
 labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_train.drop(columns="ID"), labels_val.drop(columns="ID")
 print(f"It took {TT.tock()} seconds to load the data")
 
@@ -68,7 +71,7 @@ for i, au in enumerate(aus):
 
     # Save the SVC model for specific AU
     if sys.platform == 'linux':
-        compress_pickle(f"/work3/s164272/data/models/KSVM_NORM_{type_kern}_AU{au}", clf)
+        compress_pickle(f"/work3/s164272/data/models/KSVM_NORM_{gamma}_{type_kern}_AU{au}", clf)
     else:
         compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
 

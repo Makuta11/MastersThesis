@@ -23,7 +23,7 @@ from sklearn.datasets import make_multilabel_classification
 # Debugging/model test parameter
 train = True
 evaluate = True
-model_path = ""
+model_path = "" # for loading in pre-trained models
 
 # Data parameters
 aus = [1,2,4,5,6,9,12,15,17,20,25,26]
@@ -36,11 +36,9 @@ user_test = np.array([5])
 
 # Data loading
 print("Loading Dataset")
-t = time.time()
 data_test, data_val, data_train, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True)
-print(f"It took {time.time() - t} seconds to load the data")
 
-# Train, Val, Test split
+# Generate Train, Val, Test datasets
 train_dataset = ImageTensorDatasetMultiLabel(data_train, labels_train)
 val_dataset = ImageTensorDatasetMultiLabel(data_val, labels_val)
 test_dataset = ImageTensorDatasetMultiLabel(data_test, labels_test)
@@ -50,7 +48,8 @@ plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
 # Action Unit to investigate
-au = aus.index(1)
+au = 1
+au_idx = aus.index(au)
 
 # CV test on bactch size
 for k, BATCH_SIZE in enumerate([16]):
@@ -60,8 +59,8 @@ for k, BATCH_SIZE in enumerate([16]):
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=True)
     test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
-    # Calcualte truncated calss weights for training data
-    labtrain = labels_train.iloc[:,au]
+    # Calcualte truncated class weights for training data
+    labtrain = labels_train.iloc[:,au_idx]
     labtrain[labtrain > 0] = int(1)
     cw_int = torch.tensor(compute_class_weight(class_weight='balanced', classes=np.unique(labtrain), y=labtrain)).float()
 
@@ -70,14 +69,14 @@ for k, BATCH_SIZE in enumerate([16]):
 
     # Network Parameters (subject to change)
     FC_HIDDEN_DIM_1 = 2**8
-    FC_HIDDEN_DIM_2 = 2**10
-    FC_HIDDEN_DIM_3 = 2**8
-    FC_HIDDEN_DIM_4 = 2**6
+    FC_HIDDEN_DIM_2 = 2**6
+    FC_HIDDEN_DIM_3 = 2**5
+    FC_HIDDEN_DIM_4 = 2**4
     #FC_HIDDEN_DIM_5 = 2**6 
 
     # Training Parameters
     if sys.platform == "linux":
-        EPOCHS = 75
+        EPOCHS = 50
     else:
         EPOCHS = 5
     SAVE_FREQ = 10
@@ -95,9 +94,9 @@ for k, BATCH_SIZE in enumerate([16]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
-    for i, LEARNING_RATE in enumerate([1e-5]):
+    for i, LEARNING_RATE in enumerate([1e-8,5e-8]):
         for j, DROPOUT_RATE in enumerate([0.5]):
-            for k, WEIGHT_DECAY in enumerate([0.01]):
+            for k, WEIGHT_DECAY in enumerate([0.1, 0.01, 0.001]):
                 
                 # Name for saving the model
                 name = f'B:{BATCH_SIZE}_DR:{DROPOUT_RATE}_LR:{LEARNING_RATE}_WD:{WEIGHT_DECAY}   Net{FC_HIDDEN_DIM_1}x{FC_HIDDEN_DIM_2}x{FC_HIDDEN_DIM_3}x{FC_HIDDEN_DIM_4}'
@@ -124,7 +123,7 @@ for k, BATCH_SIZE in enumerate([16]):
 
                 if train:
                     # Run training
-                    model, loss_collect, val_loss_collect = train_single_model(model, au, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=None)
+                    model, loss_collect, val_loss_collect = train_single_model(model, au_idx, optimizer, criterion, EPOCHS, train_dataloader, val_dataloader, device, save_path=save_path, save_freq=SAVE_FREQ, name=name, scheduler=None)
 
                     # Plot each individual figure
                     plt.style.use('fivethirtyeight')
@@ -151,7 +150,7 @@ for k, BATCH_SIZE in enumerate([16]):
                 if evaluate:
                     # Test model performance on given dataloaders
                     for dataloaders in [train_dataloader, val_dataloader]:
-                        AU_scores = get_single_predictions(model, au, dataloaders, device)
+                        AU_scores = get_single_predictions(model, au_idx, dataloaders, device)
 
                         # Print scores
                         print(f'{name}:')

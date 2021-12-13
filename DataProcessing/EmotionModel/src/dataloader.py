@@ -8,8 +8,10 @@ import torch.nn.functional as F
 
 from torch.utils import data
 from src.utils import decompress_pickle
+from src.generate_kernel import compute_kernel
+from sklearn.metrics.pairwise import rbf_kernel
 
-def load_data(user_train, user_val, user_test, subset = None, kernel = None):
+def load_data(user_train, user_val, user_test, subset = None, kernel = None, settings = None):
     if subset:
         if sys.platform == "linux":
             # Big dataload on hpc
@@ -96,7 +98,13 @@ def load_data(user_train, user_val, user_test, subset = None, kernel = None):
     # For kernel we only need the indexes since the kernel is precomputed and we will be slicing into that instead
     if kernel:
         if sys.platform == "linux":
-            kernel = np.load(f"/work3/s164272/data/assests/{kernel}_kernel.npy")
+            if settings:
+                print(type(settings))
+                print(settings['kernel'])
+                print(settings['gamma'])
+                kernel = compute_kernel(data_arr, settings)
+            else:
+                kernel = np.load(f"/work3/s164272/data/assests/{kernel}_kernel.npy")
         else:
             raise Exception("Not implemented on local platform (needs 127GB memory)")
         
