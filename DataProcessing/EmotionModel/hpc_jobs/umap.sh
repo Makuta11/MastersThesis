@@ -16,5 +16,5 @@
 echo "Runnin script..."
 
 module load python3/3.8.11
-python3 main_UMAP.py > outputs/UMAP
+python3 main_UMAP.py > performance/UMAP_$(date +"%d-%m-%y")_$(date +'%H:%M:%S')
 

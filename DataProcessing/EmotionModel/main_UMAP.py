@@ -1,20 +1,44 @@
 import os, sys, time, pickle, umap
 
+import umap.plot
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from pelutils import TT
+from sklearn.svm import SVC
 from sklearn.metrics import f1_score
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import make_pipeline
 from sklearn.decomposition import KernelPCA
-from sklearn.preprocessing import StandardScaler, QuantileTransformer
+from sklearn.metrics import classification_report
 from sklearn.multioutput import MultiOutputClassifier
+from sklearn.preprocessing import StandardScaler, QuantileTransformer
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
 from src.dataloader import *
 from src.utils import decompress_pickle, compress_pickle
+
+def draw_umap(n_neighbors=15, min_dist=0.1, n_components=2, metric='euclidean', title=''):
+    fit = umap.UMAP(
+        n_neighbors=n_neighbors,
+        min_dist=min_dist,
+        n_components=n_components,
+        metric=metric
+    )
+    u = fit.fit_transform(data);
+    fig = plt.figure()
+    if n_components == 1:
+        ax = fig.add_subplot(111)
+        ax.scatter(u[:,0], range(len(u)), c=data)
+    if n_components == 2:
+        ax = fig.add_subplot(111)
+        ax.scatter(u[:,0], u[:,1], c=data)
+    if n_components == 3:
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(u[:,0], u[:,1], u[:,2], c=data, s=100)
+    plt.title(title, fontsize=18)
+    plt.savefig(f"UMAP/test_UMAP_1_n:{n_neighbors}_1_AU{au}.png", dpi=128, bbox_inches='tight')
 
 # AUs in dataset
 aus = [1,2,4,5,6,9,12,15,17,20,25,26]
@@ -33,36 +57,47 @@ print(f"It took {time.time() - t} seconds to load the data")
 permutation_list = [[data_test,labels_test]]
 
 for i, data in enumerate(permutation_list):
-    for i, au in enumerate([1]):
+    for i, au in enumerate(aus):
+        i = aus.index(au)
+        for numn in [1000]:
+            for ncomp in [100]:
+                # Convert labels to binary
+                lab = data[1].iloc[:,i]
+                lab[lab > 0] = 1
 
-        # Convert labels to binary
-        lab = data[1].iloc[:,i]
-        lab[lab > 0] = 1
+                ##### First Pipeline #####
+                pipe = make_pipeline(SimpleImputer(strategy="mean"))
+                X = pipe.fit_transform(data[0].copy())
 
-        ##### First Pipeline #####
-        pipe = make_pipeline(SimpleImputer(strategy="mean"))
-        X = pipe.fit_transform(data[0].copy())
+                # Fit UMAP to processed data
+                manifold = umap.UMAP(n_components=ncomp, n_neighbors=numn, min_dist=0.0).fit(X, lab)
+                X_reduced_1 = manifold.transform(X)
 
-        # Fit UMAP to processed data
-        manifold = umap.UMAP().fit(X, lab)
-        X_reduced_1 = manifold.transform(X)
+                if ncomp == 2:
+                    # Plot and save fig
+                    umap.plot.points(manifold, labels = lab, theme="fire")
+                    plt.savefig(f"UMAP/test_UMAP_1_n:{numn}_1_AU{au}.png", dpi=128, bbox_inches='tight')
+                
+                clf_LDA = LDA().fit(X_reduced_1[:4840*4], lab[:4840*4])
+                clf_SVM = SVC(class_weight="balanced").fit(X_reduced_1[:4840*4], lab[:4840*4])
 
-        # Plot and save fig
-        plt.style.use('fivethirtyeight')
-        fig1, ax1 = plt.subplots(figsize=(10,12))
-        ax1.scatter(X_reduced_1[:, 0], X_reduced_1[:, 1], c=lab, s=1)
-        fig1.savefig(f"UMAP/test_UMAP_1_AU{au}.png", dpi=128, bbox_inches='tight')
+                y_pred_LDA = clf_LDA.predict(X_reduced_1[4840*4:])
+                y_pred_SVM = clf_SVM.predict(X_reduced_1[4840*4:])
 
-        ##### Second Pipeline #####
-        pipe = make_pipeline(SimpleImputer(strategy="mean"), QuantileTransformer(n_quantiles=lab.shape[0]))
-        X = pipe.fit_transform(data[0].copy())
+                print(f'Action Unit {au}:')
+                print(f'LDA n:{numn}, c:{ncomp}, AU{au}\n{classification_report(lab[4840*4:], y_pred_LDA)}')
+                print(f'SVM n:{numn}, c:{ncomp}, AU{au}\n{classification_report(lab[4840*4:], y_pred_SVM)}')
 
-        # Fit UMAP to processed data
-        manifold = umap.UMAP().fit(X, lab)
-        X_reduced_2 = manifold.transform(X)
+                """
+                ##### Second Pipeline #####
+                pipe = make_pipeline(SimpleImputer(strategy="mean"), QuantileTransformer())
+                X = pipe.fit_transform(data[0].copy())
 
-        # Plot and save fig
-        plt.style.use('fivethirtyeight')
-        fig1, ax1 = plt.subplots(figsize=(10,12))
-        ax1.scatter(X_reduced_2[:, 0], X_reduced_2[:, 1], c=lab, s=1)
-        fig1.savefig(f"UMAP/test_UMAP_2_AU{au}.png", dpi=128, bbox_inches='tight')
+                # Fit UMAP to processed data
+                manifold = umap.UMAP().fit(X, lab)
+                #X_reduced_2 = manifold.transform(X)
+
+                # Plot and save fig
+                umap.plot.points(manifold, labels = lab, theme="fire")
+                plt.savefig(f"UMAP/test_UMAP_2_n:{numn}_AU{au}.png", dpi=128, bbox_inches='tight')
+                """
