@@ -12,7 +12,7 @@ def compute_kernel(X, settings: dict):
     if settings['kernel'] == 'linear':
         K = np.dot(X,X.T) # linear kernel
     elif settings['kernel'] == 'rbf':
-        K = rbf_kernel(X, gamma=settings['gamma']) # gamma defaults to 1/n_features
+        K = rbf_kernel(X, gamma=None) # gamma defaults to 1/n_features
     else:
         print('Invalid kernel option, terminating')
         exit()
@@ -23,7 +23,7 @@ def load_data_for_kernel(subset = None):
     if subset:
         if sys.platform == "linux":
             # Big dataload on hpc
-            dataset = np.load('/work3/s164272/data/Features/face_space_dict_disfa_large_subset.npy', allow_pickle=True)
+            dataset = np.load('/work3/s164272/data/Features/shape_space_dict_disfa_large_subset_300.npy', allow_pickle=True)
             labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels_large1.pbz2")
             misses = np.load('/work3/s164272/data/Features/misses_disfa_large_subset.npy', allow_pickle=True)
             # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
@@ -95,7 +95,7 @@ def main():
     print(f"Data loaded in {TT.tock()} seconds")
 
     # Define settings for kernel
-    settings = {'kernel': 'linear'}
+    settings = {'kernel': 'rbf'}
 
     # Compute kernel
     print("Computing kernel")

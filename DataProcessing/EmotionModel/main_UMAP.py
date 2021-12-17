@@ -46,8 +46,8 @@ aus = [1,2,4,5,6,9,12,15,17,20,25,26]
 
 # Subject split
 user_train = np.array([1,2,4,6,8,9,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
-user_test = np.array([3,7,12,13])
-user_val = np.array([5])
+user_test = np.array([6, 12, 13, 17, 25, 27, 30, 31])#,11,16,18])
+user_val = np.array([2,4])
 
 # Data loading
 print("Loading Dataset")
@@ -56,9 +56,9 @@ data_test, data_val, data_train, labels_test, labels_val, labels_train = load_da
 permutation_list = [[data_test,labels_test]]
 
 for i, data in enumerate(permutation_list):
-    for i, au in enumerate([1]):
-        for numn in [100]:
-            for ncomp in [2]:
+    for i, au in enumerate([12]):
+        for numn in [4000]:
+            for ncomp in [500]:
                 # Convert labels to binary
                 lab = data[1].iloc[:,i]
                 lab[lab > 0] = 1
@@ -70,21 +70,17 @@ for i, data in enumerate(permutation_list):
                 #X = pipe.fit_transform(data[0].copy())
 
                 # Fit UMAP to processed data
-                mapper = umap.UMAP(n_components=ncomp, n_neighbors=numn, random_state=42).fit(data[0])
-                svc = SVC().fit(mapper.embedding_, lab)
-                knn = KNeighborsClassifier().fit(mapper.embedding_, lab)
+                mapper = umap.UMAP(n_components=ncomp, n_neighbors=numn).fit(data[0], lab)
 
+                # Create train and test embeddings and calculte f1 scores
+                train_embedding = mapper.transform(data[0])
                 test_embedding = mapper.transform(data_val)
-                svc.score(mapper.transform(data_val), lab_val), knn.score(mapper.transform(data_val), lab_val)
                 
-                mapper = umap.UMAP(n_components=ncomp, n_neighbors=numn, random_state=42).fit(data[0])
-                svc = SVC().fit(mapper.embedding_, lab)
-                knn = KNeighborsClassifier().fit(mapper.embedding_, lab)
+                svc = SVC().fit(train_embedding, lab)
+                knn = KNeighborsClassifier().fit(train_embedding, lab)
 
-                test_embedding = mapper.transform(data_val)
-
-                pred_svc = svc.predict(mapper.transform(data_val))
-                pred_knn = knn.predict(mapper.transform(data_val))
+                pred_svc = svc.predict(test_embedding)
+                pred_knn = knn.predict(test_embedding)
 
                 f1_svc = f1_score(lab_val, pred_svc, zero_division=1)
                 f1_knn = f1_score(lab_val, pred_knn, zero_division=1)
@@ -101,10 +97,19 @@ for i, data in enumerate(permutation_list):
                 print(cm_knn)
 
                 if ncomp == 2:
+                    # Create color lists
+                    clab = lab.astype(str)
+                    clab[clab=='0'] = 'b'
+                    clab[clab=='1'] = 'r'
+                    
+                    vlab = lab_val.astype(str)
+                    vlab[vlab=='0'] = 'k'
+                    vlab[vlab=='1'] = 'g'
+
                     # Plot and save fig
                     fig, ax = plt.subplots(1, figsize=(14, 10))
-                    plt.scatter(*mapper.embedding_.T, s=0.5, cmap="Dark2")
-                    plt.scatter(*test_embedding.T, s=0.5, cmap="Pastel1")
+                    plt.scatter(*mapper.embedding_.T, s=0.5, c=clab)
+                    plt.scatter(*test_embedding.T, s=0.5, c=vlab)
                     plt.title(f'Test and Train embeddings; SVM:{round(f1_svc, 2)}, KNN:{round(f1_knn, 2)} ');
                     plt.savefig(f"UMAP/testset_AU{au}_nneig:{numn}_ncmop:{ncomp}.png", dpi=128, bbox_inches='tight')
 

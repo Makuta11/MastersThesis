@@ -32,6 +32,9 @@ df.set_index([users], inplace=True)
 # Display
 print(df)
 
+# Save df
+pickle.dump(df, open("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/label_overview", 'wb'))
+
 # Return max 10 to train each AU on
 subsets = dict()
 for col in df:

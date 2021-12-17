@@ -22,8 +22,9 @@ from src.utils import decompress_pickle, compress_pickle
 aus = [1,2,4,5,6,9,12,15,17,20,25,26]
 
 # Subject split
-user_train = np.array([1,2,4,6,8,9,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
-user_test = np.array([3,5,7,12,13])
+#user_train = np.array([1,2,4,6,8,9,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
+user_train = np.array([4, 11, 16, 18, 25, 26, 29, 30])
+user_test = np.array([5, 28])
 user_val = np.array([5])
 
 # Data loading with test-train splits 
@@ -32,15 +33,17 @@ TT.tick()
 gamma = "scale"
 type_kern = "rbf"
 settings = {'kernel': 'rbf', 'gamma': 'scale'}
-kernel, test_idx, val_idx, train_idx, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True, kernel=type_kern, settings=settings)
+kernel, test_idx, val_idx, train_idx, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True, kernel=type_kern)
 labels_test, labels_train, labels_val = labels_test.drop(columns="ID"), labels_train.drop(columns="ID"), labels_val.drop(columns="ID")
 print(f"It took {TT.tock()} seconds to load the data")
 
-for i, au in enumerate(aus):
+au = 15
+for i, c in enumerate([1]):
+    i = aus.index(au)
     #print(f'Fitting SVC for: {au}')
 
     # Initialize SVC from sklearn library
-    clf = make_pipeline(StandardScaler(), SVC(kernel='precomputed', class_weight="balanced"))
+    clf = SVC(C=c, kernel='precomputed')
 
     # Redefine labels to classify single AU at a time
     trainlab = labels_train.iloc[:,i]
@@ -67,7 +70,7 @@ for i, au in enumerate(aus):
     # Calculate f1_scores
     print("Starting f1-score calculation")
     #print(f'\nTest scores on AU{au} identification:\n{val_scores(y_pred, testlab)}')
-    print(f'\nTest scores on AU{au} identification:\n{classification_report(testlab, y_pred, target_names=["not active", "active"])}')
+    print(f'\nTest scores on AU{au} C:{c} identification:\n{classification_report(testlab, y_pred, target_names=["not active", "active"])}')
 
     # Save the SVC model for specific AU
     if sys.platform == 'linux':

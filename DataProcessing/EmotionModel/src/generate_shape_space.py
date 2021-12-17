@@ -164,7 +164,7 @@ def main(i, img_dir, subset=None):
         return 
     
     # Extract key - different for emotionet and disfa -
-    main_key = i #int(img_dir[-9:-4])
+    main_key = int(img_dir[-9:-4])
 
     try:
         # Generate Shape Vector
@@ -196,7 +196,7 @@ def main(i, img_dir, subset=None):
 if __name__ == "__main__":
     os.environ["GLOG_minloglevel"] ="2"
     if sys.platform == "linux":
-        dir_path = "/work3/s164272/data/ImgDISFA/"
+        dir_path = "/work3/s164272/data/ImgEMOTIOLINE/"
         pickles_path = "/work3/s164272/data/Features"
     else:
         dir_path = "/Users/DG/Documents/PasswordProtected/TestImg/"#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
@@ -220,8 +220,8 @@ if __name__ == "__main__":
     print("Compressin bz2 pickle files...")
     print(face_space)
     #face_space = face_space.astype(np.float32)
-    np.save(f"{pickles_path}/shape_space_dict_disfa_large_subset_300.npy", face_space)
-    np.save(f"{pickles_path}/misses_shape_disfa_large_subset_300.npy", misses)
+    np.save(f"{pickles_path}/shape_space_emotioline_subset_300.npy", face_space)
+    np.save(f"{pickles_path}/misses_shape_emotioline_subset_300.npy", misses)
     #compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
     #compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
     print("All done!...")

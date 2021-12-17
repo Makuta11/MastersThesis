@@ -52,7 +52,7 @@ plt.style.use('fivethirtyeight')
 fig_tot, ax_tot = plt.subplots(figsize=(10,12))
 
 # CV test on bactch size
-for k, BATCH_SIZE in enumerate([256]):
+for k, BATCH_SIZE in enumerate([64]):
 
     # Place in dataloaders for ease of retrieval
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -68,10 +68,10 @@ for k, BATCH_SIZE in enumerate([256]):
 
     # Network Parameters (subject to change)
     FC_HIDDEN_DIM_1 = 2**8
-    FC_HIDDEN_DIM_2 = 2**10
-    FC_HIDDEN_DIM_3 = 2**8
+    FC_HIDDEN_DIM_2 = 2**6
+    FC_HIDDEN_DIM_3 = 2**5
     FC_HIDDEN_DIM_4 = 2**9 # currently not used
-    FC_HIDDEN_DIM_5 = 2**6 # dimension in final fc_layers for classification
+    FC_HIDDEN_DIM_5 = 2**4 # dimension in final fc_layers for classification
 
     #FC_HIDDEN_DIM_1 = 2**9
     #FC_HIDDEN_DIM_2 = 2**12
@@ -99,9 +99,9 @@ for k, BATCH_SIZE in enumerate([256]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
-    for i, LEARNING_RATE in enumerate([5e-6]):
-        for j, DROPOUT_RATE in enumerate([0.45]):
-            for k, WEIGHT_DECAY in enumerate([0.01]):
+    for i, LEARNING_RATE in enumerate([1e-5]):
+        for j, DROPOUT_RATE in enumerate([0.5]):
+            for k, WEIGHT_DECAY in enumerate([0.001]):
                 
                 # Name for saving the model
                 name = f'B:{BATCH_SIZE}_DR:{DROPOUT_RATE}_LR:{LEARNING_RATE}_WD:{WEIGHT_DECAY}'

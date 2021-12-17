@@ -42,6 +42,7 @@ def main(urlDir, dataDir, pickleDir):
     else:    
         df = pd.read_excel(urlDir)
     t = time.time()
+    """
     if not os.listdir(dataDir):
         print(f'Downloading {df.shape[0]}Images...')
         for i, file in enumerate(df.iloc[:,0]):
@@ -55,13 +56,14 @@ def main(urlDir, dataDir, pickleDir):
                     print("e")
             if (i+1)%1001 == 0:
                 print(f'{i} of {df.shape[0]} images downloaded at {round(i/(time.time() - t), 2)} images per second')
+    """
     return df
 
 if __name__ == "__main__":
     ssl._create_default_https_context = ssl._create_unverified_context
     urlDir = "/Users/DG/Documents/School/00. MASTER_THESIS/Data/EmotioNet/EmotioNet_FACS_aws_2020_24600.xlsx"
     dataDir = "/Users/DG/Documents/PasswordProtected/EmotioNetData/"
-    pickleDir = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/Data Processing/pickles/"
-    df = main(urlDir, dataDir,pickleDir)
+    pickleDir = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/DataProcessing/pickles/"
+    df = main(urlDir, dataDir, pickleDir)
     path = f'{pickleDir}labels'
     pickle.dump(df, open(path, 'wb'))
