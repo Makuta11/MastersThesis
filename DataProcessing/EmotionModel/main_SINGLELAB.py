@@ -46,10 +46,10 @@ class Objective(object):
 
         # Subject split
         #user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
-        user_train = np.array([2, 3, 5, 12, 16, 23, 31, 32])
+        user_train = np.array([10, 18])
         #user_val = np.array([3,5,7,9,12,13])
-        user_val = np.array([25, 28])
-        user_test = np.array([25, 28])
+        user_val = np.array([16])
+        user_test = np.array([16])
 
         # Data loading
         print("Loading Dataset")
@@ -61,7 +61,7 @@ class Objective(object):
         test_dataset = ImageTensorDatasetMultiLabel(data_test, labels_test)
 
         # Action Unit to investigate
-        au = 20
+        au = 5
         au_idx = aus.index(au)
 
         # CV test on bactch size
@@ -88,7 +88,7 @@ class Objective(object):
 
             # Training Parameters
             if sys.platform == "linux":
-                EPOCHS = 200
+                EPOCHS = 250
             else:
                 EPOCHS = 5
             SAVE_FREQ = 10
@@ -100,7 +100,7 @@ class Objective(object):
                     for k, WEIGHT_DECAY in enumerate([params['weight_decay']]):
                         
                         # Name for saving the model
-                        name = f'AU{au}_B:{BATCH_SIZE}_DR:{round(DROPOUT_RATE,2)}_LR:{LEARNING_RATE}_WD:{round(WEIGHT_DECAY,4)}  Net{FC_HIDDEN_DIM_1}x{FC_HIDDEN_DIM_2}x{FC_HIDDEN_DIM_3}x{FC_HIDDEN_DIM_4}'
+                        name = f'AU{au}_B:{BATCH_SIZE}_DR:{round(DROPOUT_RATE,2)}_LR:{LEARNING_RATE:.3e}_WD:{WEIGHT_DECAY:.1e}  Net{FC_HIDDEN_DIM_1}x{FC_HIDDEN_DIM_2}x{FC_HIDDEN_DIM_3}x{FC_HIDDEN_DIM_4}'
 
                         # Device determination - allows for same code with and without access to CUDA (GPU)
                         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -147,9 +147,9 @@ class Objective(object):
                             
                             # Create output directory for images
                             if sys.platform == 'linux':
-                                fig.savefig(f"logs/{self.today[:19]}/TrVal_fig_{name}_f1:{round(f1_score(AU_scores[1], AU_scores[0]),2)}.png", dpi=128, bbox_inches='tight')
+                                fig.savefig(f"logs/{self.today[:19]}/{name}_f1:{round(f1_score(AU_scores[1], AU_scores[0]),2)}.png", dpi=128, bbox_inches='tight')
                             else:
-                                fig.savefig(f"{save_path}/{self.today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+                                fig.savefig(f"{save_path}/{self.today[:19]}/{name}.png", dpi=128, bbox_inches='tight')
                             
                         
                         # Clear up memory and reset individual figures
@@ -177,11 +177,19 @@ for key, value in best_trial.params.items():
     print(f"{key}: {value}")
 
 # plot
-optuna.visualization.matplotlib.plot_intermediate_values(study)
-plt.savefig(f"logs/{today[:19]}/optuna1.png", dpi=128, bbox_inches='tight')
+#optuna.visualization.matplotlib.plot_intermediate_values(study)
+#plt.savefig(f"logs/{today[:19]}/optuna1.png", dpi=128, bbox_inches='tight')
 optuna.visualization.matplotlib.plot_optimization_history(study)
 plt.savefig(f"logs/{today[:19]}/optuna2.png", dpi=128, bbox_inches='tight')
-optuna.visualization.matplotlib.plot_parallel_coordinate(study)
-plt.savefig(f"logs/{today[:19]}/optuna3.png", dpi=128, bbox_inches='tight')
-optuna.visualization.matplotlib.plot_param_importances(study)
-plt.savefig(f"logs/{today[:19]}/optuna4.png", dpi=128, bbox_inches='tight')
+
+try:
+    optuna.visualization.matplotlib.plot_parallel_coordinate(study)
+    plt.savefig(f"logs/{today[:19]}/optuna3.png", dpi=128, bbox_inches='tight')
+except:
+    print("Could not parallel coordinate")
+
+try:
+    optuna.visualization.matplotlib.plot_param_importances(study)
+    plt.savefig(f"logs/{today[:19]}/optuna4.png", dpi=128, bbox_inches='tight')
+except:
+    print("Could not plot parameter importances")
