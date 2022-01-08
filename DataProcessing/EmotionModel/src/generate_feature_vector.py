@@ -221,11 +221,7 @@ if __name__ == "__main__":
 
     print("Generation started....")
     # Parallel generation of face_space vectors
-<<<<<<< HEAD
-    dictionary_list = Parallel(n_jobs=1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
-=======
     dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
->>>>>>> dc9aefc95dc9ef7cf3670267ec658c13b565d10d
     print("Generation done!!!")
 
     print("Dictionary combination started....")
