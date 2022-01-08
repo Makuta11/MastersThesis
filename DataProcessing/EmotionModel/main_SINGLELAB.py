@@ -14,6 +14,7 @@ from src.utils import decompress_pickle, compress_pickle
 from src.utils import get_class_weights_AU, get_class_weights_AU_int
 
 from matplotlib import pyplot as plt
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, f1_score
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.datasets import make_multilabel_classification
@@ -40,17 +41,19 @@ class Objective(object):
         evaluate = True
         model_path = "/work3/s164272/2021-12-15_17:21:19/checkpoint_test-100-B:64_DR:0.5_LR:1e-06_WD:0.001Net256x64x32x16.pt" # for loading in pre-trained models
 
-        # Data parameters
-        aus = [1,2,4,5,6,9,12,15,17,20,25,26]
+        # Action Unit to investigate
         num_intensities = 2
+        aus = [1,2,4,5,6,9,12,15,17,20,25,26]
+        au = 26
+        au_idx = aus.index(au)
 
         # Subject split
         #user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
-        user_train = np.array([2, 3, 5, 12, 16, 23, 31, 32])
-        #user_val = np.array([3,5,7,9,12,13])
-        user_val = np.array([25, 28])
-        user_test = np.array([25, 28])
-
+        users_list = pickle.load(open("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subsets", 'rb'))
+        users = users_list[f'AU{au}']
+        user_train, user_val = train_test_split(users, test_size=0.2, random_state=42) 
+        user_test = user_val
+        
         # Data loading
         print("Loading Dataset")
         data_test, data_val, data_train, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True)
@@ -59,10 +62,6 @@ class Objective(object):
         train_dataset = ImageTensorDatasetMultiLabel(data_train, labels_train)
         val_dataset = ImageTensorDatasetMultiLabel(data_val, labels_val)
         test_dataset = ImageTensorDatasetMultiLabel(data_test, labels_test)
-
-        # Action Unit to investigate
-        au = 20
-        au_idx = aus.index(au)
 
         # CV test on bactch size
         for k, BATCH_SIZE in enumerate([64]):#[params['batch_size']]):
@@ -88,7 +87,7 @@ class Objective(object):
 
             # Training Parameters
             if sys.platform == "linux":
-                EPOCHS = 200
+                EPOCHS = 250
             else:
                 EPOCHS = 5
             SAVE_FREQ = 10
@@ -100,7 +99,7 @@ class Objective(object):
                     for k, WEIGHT_DECAY in enumerate([params['weight_decay']]):
                         
                         # Name for saving the model
-                        name = f'AU{au}_B:{BATCH_SIZE}_DR:{round(DROPOUT_RATE,2)}_LR:{LEARNING_RATE}_WD:{round(WEIGHT_DECAY,4)}  Net{FC_HIDDEN_DIM_1}x{FC_HIDDEN_DIM_2}x{FC_HIDDEN_DIM_3}x{FC_HIDDEN_DIM_4}'
+                        name = f'AU{au}_B:{BATCH_SIZE}_DR:{round(DROPOUT_RATE,2)}_LR:{LEARNING_RATE:.3e}_WD:{WEIGHT_DECAY:.1e}  Net{FC_HIDDEN_DIM_1}x{FC_HIDDEN_DIM_2}x{FC_HIDDEN_DIM_3}x{FC_HIDDEN_DIM_4}'
 
                         # Device determination - allows for same code with and without access to CUDA (GPU)
                         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -147,9 +146,9 @@ class Objective(object):
                             
                             # Create output directory for images
                             if sys.platform == 'linux':
-                                fig.savefig(f"logs/{self.today[:19]}/TrVal_fig_{name}_f1:{round(f1_score(AU_scores[1], AU_scores[0]),2)}.png", dpi=128, bbox_inches='tight')
+                                fig.savefig(f"logs/{self.today[:19]}/{name}_f1:{round(f1_score(AU_scores[1], AU_scores[0]),2)}.png", dpi=128, bbox_inches='tight')
                             else:
-                                fig.savefig(f"{save_path}/{self.today[:19]}/TrVal_fig_{name}.png", dpi=128, bbox_inches='tight')
+                                fig.savefig(f"{save_path}/{self.today[:19]}/{name}.png", dpi=128, bbox_inches='tight')
                             
                         
                         # Clear up memory and reset individual figures
@@ -177,11 +176,19 @@ for key, value in best_trial.params.items():
     print(f"{key}: {value}")
 
 # plot
-optuna.visualization.matplotlib.plot_intermediate_values(study)
-plt.savefig(f"logs/{today[:19]}/optuna1.png", dpi=128, bbox_inches='tight')
+#optuna.visualization.matplotlib.plot_intermediate_values(study)
+#plt.savefig(f"logs/{today[:19]}/optuna1.png", dpi=128, bbox_inches='tight')
 optuna.visualization.matplotlib.plot_optimization_history(study)
 plt.savefig(f"logs/{today[:19]}/optuna2.png", dpi=128, bbox_inches='tight')
-optuna.visualization.matplotlib.plot_parallel_coordinate(study)
-plt.savefig(f"logs/{today[:19]}/optuna3.png", dpi=128, bbox_inches='tight')
-optuna.visualization.matplotlib.plot_param_importances(study)
-plt.savefig(f"logs/{today[:19]}/optuna4.png", dpi=128, bbox_inches='tight')
+
+try:
+    optuna.visualization.matplotlib.plot_parallel_coordinate(study)
+    plt.savefig(f"logs/{today[:19]}/optuna3.png", dpi=128, bbox_inches='tight')
+except:
+    print("Could not parallel coordinate")
+
+try:
+    optuna.visualization.matplotlib.plot_param_importances(study)
+    plt.savefig(f"logs/{today[:19]}/optuna4.png", dpi=128, bbox_inches='tight')
+except:
+    print("Could not plot parameter importances")

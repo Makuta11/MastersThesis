@@ -196,7 +196,7 @@ def main(i, img_dir, subset=None):
 if __name__ == "__main__":
     os.environ["GLOG_minloglevel"] ="2"
     if sys.platform == "linux":
-        dir_path = "/work3/s164272/data/ImgEMOTIOLINE/"
+        dir_path = "/work3/s164272/data/EmotioNetData/"
         pickles_path = "/work3/s164272/data/Features"
     else:
         dir_path = "/Users/DG/Documents/PasswordProtected/TestImg/"#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"

@@ -66,8 +66,8 @@ def train_single_model(model, au, optimizer, criterion, num_epochs, train_datalo
 
         val_loss_collect = np.append(val_loss_collect, val_loss/(i+1))
 
-        print(str(epoch + 1) + ' out of ' + str(num_epochs))
-        print(f'train loss: {loss_collect[epoch]}')
+        #print(str(epoch + 1) + ' out of ' + str(num_epochs))
+        #print(f'train loss: {loss_collect[epoch]}')
         print(f'val loss  : {val_loss_collect[epoch]}')
 
         # Save checkpoint at pre-determined intervals

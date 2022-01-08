@@ -1,5 +1,5 @@
 #!/bin/sh
-#BSUB -q gpuv100
+#BSUB -q gpua100
 #BSUB -J SINGLE
 ### number of core
 #BSUB -n 1
@@ -15,6 +15,6 @@
 
 echo "Runnin script..."
 
-module load cuda/10.2
+module load cuda/11.3
 module load python3/3.8.11
 python3 main_SINGLELAB.py > performance/SINGLAB$(date +"%d-%m-%y")_$(date +'%H:%M:%S')

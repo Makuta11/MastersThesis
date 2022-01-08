@@ -11,16 +11,22 @@ from src.utils import decompress_pickle
 from src.generate_kernel import compute_kernel
 from sklearn.metrics.pairwise import rbf_kernel
 
-def load_data(user_train, user_val, user_test, subset = None, kernel = None, settings = None):
+def load_data(user_train, user_val, user_test, data_set = "DISFA", subset = None, kernel = None, settings = None):
     if subset:
         if sys.platform == "linux":
-            # Big dataload on hpc
-            print("loading here")
-            dataset = np.load('/work3/s164272/data/Features/shape_space_dict_disfa_large_subset_300.npy', allow_pickle=True)
-            labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels_large1.pbz2")
-            misses = np.load('/work3/s164272/data/Features/misses_disfa_large_subset_300.npy', allow_pickle=True)
-            # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
-            dataset = dataset.tolist()
+            if data_set == "DISFA":
+                # Big dataload on hpc
+                dataset = np.load('/work3/s164272/data/Features/face_space_dict_disfa_large_subset_300.npy', allow_pickle=True)
+                labels = decompress_pickle("/work3/s164272/data/Features/disfa_labels_large1.pbz2")
+                misses = np.load('/work3/s164272/data/Features/misses_disfa_large_subset_300.npy', allow_pickle=True)
+                # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
+                dataset = dataset.tolist()
+            else:
+                dataset = np.load('/work3/s164272/data/Features/shape_space_emotioline_subset_300.npy', allow_pickle=True)
+                labels = pickle.load(open("/work3/s164272/data/Features/emotionet_labels", 'rb'))
+                misses = np.load('/work3/s164272/data/Features/misses_shape_emotioline_subset_300.npy', allow_pickle=True)
+                # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
+                dataset = dataset.tolist()
         else:
             # Small testing dataload for local machine
             #dataset = decompress_pickle(f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/face_space_dict_disfa_test_subset.npy')
@@ -47,7 +53,11 @@ def load_data(user_train, user_val, user_test, subset = None, kernel = None, set
         pass
 
     # Initialize parameters
+    if data_set == "EMO":
+        labels = labels.drop([6204, 6363, 8590, 10183, 19144]).reset_index(drop=True)
+    
     bad_idx = []
+
     if type(dataset) == dict:
         data_list = list(dataset.items())
         data_arr = np.array(data_list)
@@ -73,14 +83,19 @@ def load_data(user_train, user_val, user_test, subset = None, kernel = None, set
 
     # Check for small dataload on local system
     if sys.platform == "linux":
-        labels_test = pd.concat([labels[(labels.ID==te)] for te in user_test])
-        labels_train = pd.concat([labels[(labels.ID==tr)] for tr in user_train])
-        
-        # Test if validation set is given
-        if len(user_val) == 0:
-            labels_val = np.array([])
+        if data_set == "DISFA":
+            labels_test = pd.concat([labels[(labels.ID==te)] for te in user_test])
+            labels_train = pd.concat([labels[(labels.ID==tr)] for tr in user_train])
+            
+            # Test if validation set is given
+            if len(user_val) == 0:
+                labels_val = np.array([])
+            else:
+                labels_val = pd.concat([labels[(labels.ID==va)] for va in user_val])
         else:
-            labels_val = pd.concat([labels[(labels.ID==va)] for va in user_val])
+            labels_test = labels.iloc[:1]
+            labels_val = labels.iloc[:5000]
+            labels_train = labels.iloc[5000:]
     else:
         labels_test = labels.iloc[:1]
         labels_val = labels.iloc[0:4840*2]
@@ -120,7 +135,6 @@ class ImageTensorDatasetMultitask(data.Dataset):
     
     def __init__(self, data, labels):
         self.data = data
-        self.user_id = labels["ID"]
         self.labels = labels.drop(columns = "ID")
         
     def __len__(self):
@@ -148,8 +162,11 @@ class ImageTensorDatasetMultiLabel(data.Dataset):
     
     def __init__(self, data, labels):
         self.data = data
-        self.user_id = labels["ID"]
-        self.labels = labels.drop(columns = "ID")
+        try:
+            self.user_id = labels["ID"]
+            self.labels = labels.drop(columns = "ID")
+        except:
+            self.labels = labels
         
     def __len__(self):
         return len(self.labels)

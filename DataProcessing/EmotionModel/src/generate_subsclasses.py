@@ -42,9 +42,14 @@ for col in df:
     top = np.inf
     for i in range(10):
         mask = df[col] < top
-        tmp.append(df[col][mask].idxmax())
         top = df[col][mask].max()
-    subsets[col] = sorted(tmp)
+        if top >= 374:
+            tmp.append(df[col][mask].idxmax())
+        else:
+            break
+    subsets[col] = tmp
 
 print(subsets)
+for key in subsets:
+    print(key, len(subsets[key]))
 pickle.dump(subsets, open("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subsets", "wb"))

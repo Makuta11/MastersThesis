@@ -1,4 +1,3 @@
-#%%
 import os, sys, bz2, cv2, math, time, pickle, itertools
 
 import numpy as np
@@ -145,7 +144,14 @@ def self_gabor(sigma, theta, Lambda, psi, gamma):
 
 def get_gb_fb():
     gb_fb = dict()
-   
+    Lambda = [4, 4*sqrt(2) ,8 ,8*sqrt(2) ,16]                       # wavelength                        
+    alpha = [0, pi/8, pi/4, 3*pi/8, pi/2, 5*pi/8, 3*pi/4, 7*pi/8]   # orientation
+    phi = [0, pi/4]                                                 # Phase shift
+    for l in Lambda:
+        for s in [l]:                                               # scaling of filter
+            for a in alpha:
+                for p in phi:
+                    gb_fb[f'\u03BB:{round(l,2)},  \u03C3:{s},  \u0398:{round(a,2)}'] = self_gabor(sigma=s, theta=a, Lambda=l, psi=p, gamma=1)
     return gb_fb
 
 def get_plot_range(landmarks_norm):
@@ -176,7 +182,7 @@ def main(i, img_dir, subset=None):
         # Generate Shading Vector
         img = reshape_img(img_dir, c, show=False)
         gb_fb = get_gb_fb()
-        
+
         feat_g =[]
         if subset:
             landmarks_norm = landmarks_norm[landmark_idx]
@@ -215,7 +221,11 @@ if __name__ == "__main__":
 
     print("Generation started....")
     # Parallel generation of face_space vectors
+<<<<<<< HEAD
     dictionary_list = Parallel(n_jobs=1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
+=======
+    dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
+>>>>>>> dc9aefc95dc9ef7cf3670267ec658c13b565d10d
     print("Generation done!!!")
 
     print("Dictionary combination started....")
