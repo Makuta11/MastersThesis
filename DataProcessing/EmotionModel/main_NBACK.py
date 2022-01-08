@@ -190,7 +190,7 @@ def gen_nback_frame(dataDir):
     
     return pd.concat(frames).reset_index(drop=True, inplace=False)
 
-def avg_perf_score_change(df, stim, nback, session = None, IDprint = None):
+def df_to_R(df, stim, nback, session = None, IDprint = None):
     mask = (df.Stim == stim) & (df.Nback == nback)
     
     if session:
@@ -211,6 +211,79 @@ def avg_perf_score_change(df, stim, nback, session = None, IDprint = None):
         print(f'    {ID_list}')
 
     return scores_list, round(np.mean(scores_list),2)
+
+def avg_perf_score_change(df, stim, nback, session = None, IDprint = None):
+    # Define dictionary for later statistical analysis in R
+    stat_dict = {"ID": [], "Stim": [], "Period": [], "Score": [], "Nback": []}
+    
+    mask = (df.Stim == stim) & (df.Nback == nback)
+    
+    if session:
+        mask = (mask) & (df.Session == session)
+    
+    if IDprint:
+        ID_list = []
+
+    scores_list = []
+    for IDs in df[mask].ID.unique():
+        tmp1 = df[(mask) & (df.Task == 1) & (df.ID == IDs)]["Scores"].sum()
+        tmp2 = df[(mask) & (df.Task == 2) & (df.ID == IDs)]["Scores"].sum()
+        scores_list.append(round(((tmp2 - tmp1)/tmp1)*100,2))
+        
+        # append to dictionary
+        stat_dict["ID"].append(IDs)
+        stat_dict["Stim"].append(stim)
+        stat_dict["Period"].append(session - 1)
+        stat_dict["Score"].append(round(((tmp2 - tmp1)/tmp1)*100,2))
+        stat_dict["Nback"].append(nback)
+
+        if IDprint:
+            ID_list.append(IDs)
+
+    if IDprint:
+        print(f'    {ID_list}')
+
+    return scores_list, round(np.mean(scores_list),2), stat_dict
+
+def avg_perf_scores(df, stim, nback, session = None, IDprint = None):
+    # Define dictionary for later statistical analysis in R
+    stat_dict = {"ID": [], "Stim": [], "Period": [],"Task": [], "Score": [], "Nback": []}
+    
+    mask = (df.Stim == stim) & (df.Nback == nback)
+    
+    if session:
+        mask = (mask) & (df.Session == session)
+    
+    if IDprint:
+        ID_list = []
+
+    scores_list = []
+    for IDs in df[mask].ID.unique():
+        tmp1 = df[(mask) & (df.Task == 1) & (df.ID == IDs)]["Scores"].sum()
+        tmp2 = df[(mask) & (df.Task == 2) & (df.ID == IDs)]["Scores"].sum()
+        scores_list.append(round(((tmp2 - tmp1)/tmp1)*100,2))
+        
+        # append to dictionary
+        stat_dict["ID"].append(IDs)
+        stat_dict["ID"].append(IDs)
+        stat_dict["Stim"].append(stim)
+        stat_dict["Stim"].append(stim)
+        stat_dict["Period"].append(session - 1)
+        stat_dict["Period"].append(session - 1)
+        stat_dict["Task"].append(1)
+        stat_dict["Task"].append(2)
+        stat_dict["Score"].append(round((tmp1/30)*100,2))
+        stat_dict["Score"].append(round((tmp2/30)*100,2))
+        stat_dict["Nback"].append(nback)
+        stat_dict["Nback"].append(nback)
+
+        if IDprint:
+            ID_list.append(IDs)
+
+    if IDprint:
+        print(f'    {ID_list}')
+
+    return scores_list, round(np.mean(scores_list),2), stat_dict
 
 def avg_perf_score(df, nback, task=None, stim=None, session=None):
     mask = (df.Nback == nback)
@@ -308,6 +381,8 @@ def collective_performace_change(df, full = None):
     print(f'        3-Back: \n'+
           f'            sham change: {round(np.mean([perf_list[4], perf_list[10]]), 2)}% \n'+
           f'            stim change: {round(np.mean([perf_list[5], perf_list[11]]), 2)}%')
+        
+    return perf_list
 
 if __name__ == "__main__":
     dataDir = "/Users/DG/Documents/PasswordProtected/Speciale Outputs/"
@@ -317,6 +392,31 @@ if __name__ == "__main__":
     df = gen_nback_frame(dataDir)
     df_timestamps = gen_timestamp_frame(dataDir)
 
-    collective_performace_change(df,full=True)
 
+    performace_collection = collective_performace_change(df,full=True)
+
+#%%
+    df_stat = pd.DataFrame()
+    # Create df for statistical analysis in R
+    for session in range(1,3):
+        for nback in range(1,4):
+            for stim in range(2):
+                df_tmp = pd.DataFrame(avg_perf_score_change(df, stim=stim, nback=nback, session=session)[2])
+                df_stat = df_stat.append(df_tmp, ignore_index=True)
+    df_stat = df_stat.sort_values(by=["Period","Nback","ID"], ascending=True).reset_index(drop=True)
+    df_stat
+#%%
+    df_stat2 = pd.DataFrame()
+    # Create df for statistical analysis in R
+    for session in range(1,3):
+        for nback in range(1,4):
+            for stim in range(2):
+                df_tmp = pd.DataFrame(avg_perf_scores(df, nback=nback, stim=stim, session=session)[2])
+                df_stat2 = df_stat2.append(df_tmp, ignore_index=True)
+    df_stat2 = df_stat2.sort_values(by=["Period","Nback","ID"], ascending=True).reset_index(drop=True)
+    df_stat2
+
+# %%
+    df_stat.to_csv("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/df_big")
+    df_stat2.to_csv("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/df_scores")
 # %%

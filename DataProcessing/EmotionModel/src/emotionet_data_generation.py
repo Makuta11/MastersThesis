@@ -63,7 +63,7 @@ if __name__ == "__main__":
     ssl._create_default_https_context = ssl._create_unverified_context
     urlDir = "/Users/DG/Documents/School/00. MASTER_THESIS/Data/EmotioNet/EmotioNet_FACS_aws_2020_24600.xlsx"
     dataDir = "/Users/DG/Documents/PasswordProtected/EmotioNetData/"
-    pickleDir = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/DataProcessing/pickles/"
+    pickleDir = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/"
     df = main(urlDir, dataDir, pickleDir)
-    path = f'{pickleDir}labels'
+    path = f'{pickleDir}emotionet_labels'
     pickle.dump(df, open(path, 'wb'))
