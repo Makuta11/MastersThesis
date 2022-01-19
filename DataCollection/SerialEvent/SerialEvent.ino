@@ -1,4 +1,4 @@
-
+// This script runs on the arduino nano and provides a bridge between the computer and the ZIB-2 converting a digitial signal to TTL signal for placing annotations
 const int triggerPin = 3;
 int incomingByte;
 const int triggerTime = 30; //in ms
