@@ -6,7 +6,6 @@ __pycache__/
 # C extensions
 *.so
 *.dat
-*.R
 *.pbz2
 *.jpg
 
