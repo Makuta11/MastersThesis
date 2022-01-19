@@ -27,7 +27,7 @@ library(multcomp)
 library(gridExtra)
 library(nlme)
 
-# clear shit
+# clear enviornment of variables
 rm(list=ls())
 
 # load data

@@ -27,13 +27,13 @@ library(multcomp)
 library(gridExtra)
 library(nlme)
 
-# clear shit
+# clear enviornment of variables
 rm(list=ls())
 
 # load data
 mydata = read.csv("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/df_huge.csv")
 
-#group <- rep(rep(c("A", "A", "B", "A", "A", "B", "B", "B", "A", "B"),each=2), 3)
+#group <- rep(rep(c("A", "A", "B", "A", "A", "B", "B", "B", "A", "B"), each=2), 3)
 #mydata["group"] = group
 head(mydata)
 
