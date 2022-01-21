@@ -27,7 +27,7 @@ class Objective(object):
     def __call__(self, trial):
 
         params = {
-                'learning_rate': trial.suggest_loguniform('learning_rate', 1e-7, 1e-5),
+                'learning_rate': trial.suggest_loguniform('learning_rate', 1e-7, 1e-6),
                 #'optimizer': trial.suggest_categorical("optimizer", ["Adam", "RMSprop", "SGD"]),
                 #'batch_size': trial.suggest_int('batch_size', 16, 256),
                 'dropout_rate': trial.suggest_uniform("dropout_rate", 0.42, 0.5),
@@ -46,7 +46,7 @@ class Objective(object):
         aus = [1,2,4,5,6,9,12,15,17,20,25,26]
         au = 26
         au_idx = aus.index(au)
-
+        
         # Subject split
         #user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
         users_list = pickle.load(open("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subsets", 'rb'))
@@ -87,16 +87,16 @@ class Objective(object):
 
             # Training Parameters
             if sys.platform == "linux":
-                EPOCHS = 250
+                EPOCHS = 400
             else:
                 EPOCHS = 5
             SAVE_FREQ = 10
             DATA_SHAPE = train_dataset.__nf__()
 
             # CV testing for LR, DR, and WD
-            for i, LEARNING_RATE in enumerate([params['learning_rate']]):
-                for j, DROPOUT_RATE in enumerate([params['dropout_rate']]):
-                    for k, WEIGHT_DECAY in enumerate([params['weight_decay']]):
+            for i, LEARNING_RATE in enumerate([7e-7]): #params['learning_rate']]):
+                for j, DROPOUT_RATE in enumerate([0.49]): #params['dropout_rate']]):
+                    for k, WEIGHT_DECAY in enumerate([1.5e-4]): #params['weight_decay']]):
                         
                         # Name for saving the model
                         name = f'AU{au}_B:{BATCH_SIZE}_DR:{round(DROPOUT_RATE,2)}_LR:{LEARNING_RATE:.3e}_WD:{WEIGHT_DECAY:.1e}  Net{FC_HIDDEN_DIM_1}x{FC_HIDDEN_DIM_2}x{FC_HIDDEN_DIM_3}x{FC_HIDDEN_DIM_4}'
@@ -127,12 +127,15 @@ class Objective(object):
                         
                         if evaluate:
                             # Test model performance on given dataloaders
-                            for dataloaders in [train_dataloader, val_dataloader]:
+                            for i, dataloaders in enumerate([train_dataloader, val_dataloader]):
                                 AU_scores = get_single_predictions(model, au_idx, dataloaders, device)
-
+                                
                                 # Print scores
                                 print(f'{name}:')
-                                print(f'\nTest scores on AU{au} identification:\n{classification_report(AU_scores[1], AU_scores[0], target_names=["not active", "active"])}')
+                                if i == 0:
+                                    print(f'\nTest scores on AU{au} identification:\n{classification_report(AU_scores[1], AU_scores[0], target_names=["not active", "active"])}')
+                                else:
+                                    print(f'\nValidation scores on AU{au} identification:\n{classification_report(AU_scores[1], AU_scores[0], target_names=["not active", "active"])}')
                                 print(f'F1_score{f1_score(AU_scores[1], AU_scores[0])}')
 
                             # Plot each individual figure
@@ -169,7 +172,7 @@ else:
 
 # Hyperparameter tuning with optuna
 study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler())
-study.optimize(Objective(today), n_trials=30)
+study.optimize(Objective(today), n_trials=5)
 
 best_trial = study.best_trial
 for key, value in best_trial.params.items():
