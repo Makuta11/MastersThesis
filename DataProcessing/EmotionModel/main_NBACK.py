@@ -49,7 +49,10 @@ def single_rest_frame(file1, file2, file3, file4):
     """
     tmp1 = pd.read_csv(file1, usecols=["globalTimeStart","session","participant"])
     tmp2 = pickle.load(open(file2,'rb'))
-    tmp3 = pd.read_csv(file3, usecols=["NbackStart1","Nback2start","NbackStart3"])
+    try:
+        tmp3 = pd.read_csv(file3, usecols=["NbackStart1","Nback2start","NbackStart3"])
+    except:
+        tmp3 = pd.read_csv(file3, delimiter=";", usecols=["NbackStart1","Nback2start","NbackStart3"])
     tmp4 = pickle.load(open(file4, 'rb'))
 
     if "RS1" in file2:
@@ -111,8 +114,12 @@ def single_subj_frame(file):
     """
     
     stimKey = [1,1,0,0,1,1,1,0,1,1,0,1,0,0,0,0,0,1,0,0]
-    
     tmp = pd.read_csv(file).fillna(int(0))
+    try:
+        tmp["session"]
+    except:
+        tmp = pd.read_csv(file, delimiter=";").fillna(int(0))
+
     tmp = tmp.mask(tmp == "space", 1)
 
     if tmp["session"][0] == 1 and stimKey[tmp["participant"][0] - 1] == 1:
@@ -385,7 +392,7 @@ def collective_performace_change(df, full = None):
     return perf_list
 
 if __name__ == "__main__":
-    dataDir = "/Users/DG/Documents/PasswordProtected/Speciale Outputs/"
+    dataDir = "/Users/DG/Documents/PasswordProtected/speciale_outputs/"
     rest_list_csv = fetch_rest_csv(dataDir)
     rest_list_npy = fetch_rest_npy(dataDir)
     

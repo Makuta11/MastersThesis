@@ -20,12 +20,14 @@ from utils import compress_pickle, decompress_pickle
 subject = "13"
 session = "01"
 
-data = np.load(f"/Users/DG/Documents/PasswordProtected/speciale_outputs/{subject}_{session}/{subject}_ses:{session}_N-Back-1_video_0.0.npy", allow_pickle=True)
+data = np.load(f"/Users/DG/Documents/PasswordProtected/speciale_outputs/{subject}_{session}/{subject}_ses:{session}_N-Back-2_video_0.0.npy", allow_pickle=True)
 
 #%%
-
-
-plt.imshow(data[100], cmap="gray")
+for i in range(60):
+    plt.imshow(data[i*100], cmap="gray")
+    plt.show()
 
 np.save("/Users/DG/Documents/PasswordProtected/speciale_outputs/mikkel.npy", data[10])
+# %%
+
 # %%

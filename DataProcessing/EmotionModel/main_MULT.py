@@ -83,7 +83,7 @@ for k, BATCH_SIZE in enumerate([64]):
     if sys.platform == "linux":
         EPOCHS = 600
     else:
-        EPOCHS = 20
+        EPOCHS = 30
     SAVE_FREQ = 10
     DATA_SHAPE = train_dataset.__nf__()
 
@@ -99,9 +99,9 @@ for k, BATCH_SIZE in enumerate([64]):
         os.makedirs(f'{save_path}/{today[:19]}')
 
     # CV testing for LR, DR, and WD
-    for i, LEARNING_RATE in enumerate([1e-5]):
-        for j, DROPOUT_RATE in enumerate([0.5]):
-            for k, WEIGHT_DECAY in enumerate([0.001]):
+    for i, LEARNING_RATE in enumerate([5e-4]):
+        for j, DROPOUT_RATE in enumerate([0.45]):
+            for k, WEIGHT_DECAY in enumerate([1e-2]):
                 
                 # Name for saving the model
                 name = f'B:{BATCH_SIZE}_DR:{DROPOUT_RATE}_LR:{LEARNING_RATE}_WD:{WEIGHT_DECAY}'
