@@ -49,7 +49,7 @@ def calc_angle(A, B, C):
     mag_c = np.linalg.norm(c)
     return np.arccos(cross/(mag_a*mag_c))*180/pi
 
-def get_angles_mp(cont_list,landmarks):
+def get_angles_mp(cont_list, landmarks):
     """ Calculate all angles within the triangles formed from the given contors
 
     Args:

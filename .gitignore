@@ -8,6 +8,7 @@ __pycache__/
 *.dat
 *.pbz2
 *.jpg
+*.png
 
 # Folders
 localOnly
@@ -20,6 +21,7 @@ performance
 
 # Distribution / packaging
 local_fun.py
+local_fun2.py
 scratch.code-workspace
 .Python
 .DS_Store

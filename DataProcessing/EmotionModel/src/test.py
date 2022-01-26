@@ -1,3 +1,4 @@
+#%%
 """
     Testing Kristoffers Kernel Indexing Method
 
@@ -24,3 +25,8 @@ test_kernel = np.dot(X[test_idx],X[train_idx].T)
 # Assert that test_kernel is the same as slicing technique given by Kristoffer
 print(f'Computed test kernel: \n{test_kernel} n\Precomputed kernel indexed: \n{precomputed_kernel[test_idx][:,test_idx]}')
 print(f'These matrices are the same: {np.all(test_kernel == precomputed_kernel[test_idx][:,train_idx])}')
+
+# %%
+df = np.load("/Users/DG/Documents/PasswordProtected/speciale_outputs/03_01/03_ses:01_RS1_time_stamps_0.0.npy", allow_pickle=True)
+
+# %%
