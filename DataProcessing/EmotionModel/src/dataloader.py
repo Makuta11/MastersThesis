@@ -11,6 +11,26 @@ from src.utils import decompress_pickle
 from src.generate_kernel import compute_kernel
 from sklearn.metrics.pairwise import rbf_kernel
 
+def load_data_for_eval(data_dir):
+    dataset = np.load(data_dir, allow_pickle=True)
+    dataset = dataset.tolist()
+
+    # convert dict to array
+    data_list = list(dataset.items())
+    data_arr = np.array(data_list)
+
+    # Convert bad inputs to zero array
+    ln = 6211
+    for i, arr in enumerate(data_arr[:,1]):
+        if len(arr) != ln:
+            data_arr[:,i] = np.zeros([1,6211])
+    
+    # Construct final data arrays
+    data_arr = np.vstack(data_arr[:,1])
+    data_arr = np.nan_to_num(data_arr)
+
+    return 
+
 def load_data(user_train, user_val, user_test, data_set = "DISFA", subset = None, kernel = None, settings = None):
     if subset:
         if sys.platform == "linux":

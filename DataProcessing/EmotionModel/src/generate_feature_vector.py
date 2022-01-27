@@ -160,7 +160,7 @@ def get_gb_fb():
         for s in [l]:                                               # scaling of filter
             for a in alpha:
                 for p in phi:
-                    gb_fb[f'\u03BB:{round(l,2)},  \u03C3:{s},  \u0398:{round(a,2)}'] = self_gabor(sigma=s, theta=a, Lambda=l, psi=p, gamma=1)
+                    gb_fb[f'\u03BB:{round(l,2)},  \u03C3:{p},  \u0398:{round(a,2)}'] = self_gabor(sigma=s, theta=a, Lambda=l, psi=p, gamma=1)
     return gb_fb
 
 def get_plot_range(landmarks_norm):
@@ -172,7 +172,7 @@ def main(i, img_dir, subset=None):
     #    return 
     
     # Extract key - different for emotionet and disfa -
-    main_key = i*10 #int(img_dir[-9:-4])
+    main_key = i*6 #int(img_dir[-9:-4])
 
     try:
         # Generate Shape Vector
@@ -223,7 +223,8 @@ if __name__ == "__main__":
         dir_path = "/work3/s164272/data/ImgDISFA/"
         pickles_path = "/work3/s164272/data/Features"
     else:
-        dir_path = "/Users/DG/Documents/PasswordProtected/speciale_outputs/"#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
+        #dir_path_og = "/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
+        dir_path = "/Users/DG/Documents/PasswordProtected/speciale_outputs/"
         video_list = sorted(fetch_video_npy(dir_path))
         pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/video_features"
     
@@ -241,10 +242,10 @@ if __name__ == "__main__":
         # Parallel generation of face_space vectors
         
         # for generation of RGB images
-        #dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
+        #dictionary_list = Parallel(n_jobs=1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path_og))))
         
         # for generation of 3D matrix images
-        dictionary_list = Parallel(n_jobs=-1,verbose=1)(delayed(main)(i,file, subset=True) for i, file in enumerate(video))
+        dictionary_list = Parallel(n_jobs=-1,verbose=7)(delayed(main)(i,file, subset=True) for i, file in enumerate(video))
         print("Generation done!!!")
 
         print("Dictionary combination started....")
