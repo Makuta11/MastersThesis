@@ -14,8 +14,7 @@ from joblib import Parallel, delayed
 from sklearn.decomposition import PCA
 from math import pi, cos, sin, exp, sqrt
 from sklearn.preprocessing import StandardScaler
-from utils import decompress_pickle, compress_pickle
-
+from utils import decompress_pickle, compress_pickle, fetch_video_npy
 
 def get_landmarks_mp(img_dir):
     mp_face_mesh = mp.solutions.face_mesh
@@ -224,73 +223,82 @@ if __name__ == "__main__":
         dir_path = "/work3/s164272/data/ImgDISFA/"
         pickles_path = "/work3/s164272/data/Features"
     else:
-        dir_path = np.load("/Users/DG/Documents/PasswordProtected/speciale_outputs/01_01/01_ses:01_N-Back-1_video_0.0.npy", allow_pickle=True)#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
-        dir_path = dir_path[::10]
+        dir_path = "/Users/DG/Documents/PasswordProtected/speciale_outputs/"#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
+        video_list = sorted(fetch_video_npy(dir_path))
+        pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/video_features"
+    
+    for file in video_list:
+
+        video = np.load(file, allow_pickle=True)
+        video = video[::6]
+
+        name = f'{file[55:60]}{file[70:79]}'
+
+        face_space = dict()
+        misses = []
+
+        print("Generation started....")
+        # Parallel generation of face_space vectors
         
-        pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles"
-    face_space = dict()
-    misses = []
+        # for generation of RGB images
+        #dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
+        
+        # for generation of 3D matrix images
+        dictionary_list = Parallel(n_jobs=-1,verbose=1)(delayed(main)(i,file, subset=True) for i, file in enumerate(video))
+        print("Generation done!!!")
 
-    print("Generation started....")
-    # Parallel generation of face_space vectors
-    
-    # for generation of RGB images
-    #dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
-    
-    # for generation of 3D matrix images
-    dictionary_list = Parallel(n_jobs=-1,verbose=5)(delayed(main)(i,file, subset=True) for i, file in enumerate(dir_path))
-    print("Generation done!!!")
-
-    print("Dictionary combination started....")
-    for d in dictionary_list:
-        try:
-            face_space.update(d)
-        except:
-            misses.append(d)
-
-    do_pca = False
-    if do_pca:
-        # Initialize parameters
-        bad_idx = []
-        data_list = list(face_space.items())
-        data_arr = np.array(data_list)
-
-        # Collect bad inputs
-        ln = data_arr[0,1].shape[0]
-        for i, arr in enumerate(data_arr[:,1]):
+        print("Dictionary combination started....")
+        for d in dictionary_list:
             try:
-                if len(arr) != ln:
-                    bad_idx.append(i)
+                face_space.update(d)
             except:
-                bad_idx.append(i)
+                misses.append(d)
 
-        # Delete bad inputs from array
-        data_arr = np.delete(data_arr, bad_idx, axis=0)
+        do_pca = False
+        if do_pca:
+            # Initialize parameters
+            bad_idx = []
+            data_list = list(face_space.items())
+            data_arr = np.array(data_list)
 
-        # Construct final data arrays
-        data_arr = np.vstack(data_arr[:,1])
-        data_arr = np.nan_to_num(data_arr)
+            # Collect bad inputs
+            ln = data_arr[0,1].shape[0]
+            for i, arr in enumerate(data_arr[:,1]):
+                try:
+                    if len(arr) != ln:
+                        bad_idx.append(i)
+                except:
+                    bad_idx.append(i)
 
-        pca = PCA(0.95)
-        print("Applying PCA...")
-        face_space = StandardScaler().fit_transform(data_arr)
-        pca.fit(face_space)
-        face_space = pca.transform(face_space)
-        print("Compressin bz2 pickle files...")
-        compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1_PCA95", face_space)
-        compress_pickle(f"{pickles_path}/misses_disfa_large1_PCA95", misses)
-        print("All done!...")
-        time.sleep(1)
-        print("Well done")
+            # Delete bad inputs from array
+            data_arr = np.delete(data_arr, bad_idx, axis=0)
 
-    else:
-        print("Compressin bz2 pickle files...")
-        #print(face_space)
-        #face_space = face_space.astype(np.float32)
-        np.save(f"{pickles_path}/test.npy", face_space)
-        np.save(f"{pickles_path}/test.npy", misses)
-        #compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
-        #compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
+            # Construct final data arrays
+            data_arr = np.vstack(data_arr[:,1])
+            data_arr = np.nan_to_num(data_arr)
+
+            pca = PCA(0.95)
+            print("Applying PCA...")
+            face_space = StandardScaler().fit_transform(data_arr)
+            pca.fit(face_space)
+            face_space = pca.transform(face_space)
+            print("Compressin bz2 pickle files...")
+            compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1_PCA95", face_space)
+            compress_pickle(f"{pickles_path}/misses_disfa_large1_PCA95", misses)
+            print("All done!...")
+            time.sleep(1)
+            print("Well done")
+
+        else:
+            print(f"Compressin {name} to file...")
+            #print(face_space)
+            #face_space = face_space.astype(np.float32)
+            np.save(f"{pickles_path}/{name}.npy", face_space)
+            np.save(f"{pickles_path}/{name}_misses.npy", misses)
+            #compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
+            #compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
+            del face_space
+        
         print("All done!...")
         time.sleep(1)
         print("Well done")

@@ -1,10 +1,11 @@
-import pickle, bz2, os, torch
+import pickle, bz2, os, torch, fnmatch
 
 import numpy as np
 import pandas as pd
 
-from sklearn.utils.class_weight import compute_class_weight
+from glob import glob
 from sklearn.metrics.pairwise import rbf_kernel
+from sklearn.utils.class_weight import compute_class_weight
 
 def decompress_pickle(file: str):
     data = bz2.BZ2File(file, 'rb')
@@ -40,5 +41,22 @@ def get_class_weights_AU_int(labels_train):
     class_weights_int  = torch.tensor(class_weights_int, dtype=torch.float)
 
     return class_weights_int
+
+def fetch_video_npy(dataDir):
+    """
+    Takes a directory continaing data files and returns a list of all .csv files in the directory and sub-directories
+
+    Args:
+        dataDir (str): root directory containing outputs from the experiments
+
+    Returns:
+        list: a list containing the filenames of all experiment files saved as a .csv
+    """
+    all_rest_files = [file
+                    for path, subdir, files in os.walk(dataDir)
+                    for file in glob(os.path.join(path, "*.npy"))
+                    if "video" in file]
+
+    return all_rest_files
 
 
