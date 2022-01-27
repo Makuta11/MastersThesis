@@ -19,22 +19,6 @@ from sklearn.metrics import classification_report, f1_score
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.datasets import make_multilabel_classification
 
-# Define search space for hyperparameter tuning
-class Objective(object):
-    def __init__(self, today):
-        self.today = today
-
-    def __call__(self, trial):
-
-        params = {
-                'learning_rate': trial.suggest_loguniform('learning_rate', 1e-7, 1e-6),
-                #'optimizer': trial.suggest_categorical("optimizer", ["Adam", "RMSprop", "SGD"]),
-                #'batch_size': trial.suggest_int('batch_size', 16, 256),
-                'dropout_rate': trial.suggest_uniform("dropout_rate", 0.42, 0.5),
-                'weight_decay': trial.suggest_loguniform("weight_decay", 1e-4, 1e-2)
-                }
-        
-        # users = np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
 
         # Debugging/model test parameter
         train = True
