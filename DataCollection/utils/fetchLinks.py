@@ -6,7 +6,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 def fetchLinks():
     options = webdriver.ChromeOptions()
     #options.add_argument('profile-directory=Private')
-    options.add_argument('--headless')
+    #options.add_argument('--headless')
     #driver = webdriver.Chrome(options=options)
     driver = webdriver.Chrome(ChromeDriverManager().install(), options = options)
 

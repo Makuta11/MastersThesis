@@ -249,7 +249,7 @@ class MultiTaskLossWrapper(nn.Module):
     def forward(self, data, AUs, AU_intensities, device):
         
         # Compute loss constant
-        num_labs = np.count_nonzero(AUs.sum(axis=0))
+        num_labs = np.count_nonzero(AUs.detach().cpu().sum(axis=0))
 
         # Retrieve output from the forward pass of the model
         out_AU, out_AU_intensities = self.model(data)
