@@ -16,12 +16,17 @@ from math import pi, cos, sin, exp, sqrt
 from sklearn.preprocessing import StandardScaler
 from utils import decompress_pickle, compress_pickle
 
+
 def get_landmarks_mp(img_dir):
     mp_face_mesh = mp.solutions.face_mesh
     landmarks = []
     with mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5) as face_mesh:
-        image = cv2.imread(img_dir)
-        y,x,_ = image.shape
+        try: #this works for RGB images
+            image = cv2.imread(img_dir)
+            y,x,_ = image.shape
+        except: #This works for matrices
+            image = img_dir
+            y,x = image.shape
         results = face_mesh.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
         contors = mp_face_mesh.FACEMESH_TESSELATION
         contors = [sorted(x) for x in contors]
@@ -109,9 +114,14 @@ def get_norm_landmarks(img_dir, landmarks):
     return np.array(landmarks)*c, c
 
 def reshape_img(img_dir, c, show=False):
-    img = Image.open(img_dir).convert('L')
-    y,x = np.shape(img)
-    img_resize = img.resize((int(x*c),int(y*c)))
+    try:
+        img = Image.open(img_dir).convert('L')
+        y,x = np.shape(img)
+        img_resize = img.resize((int(x*c),int(y*c)))
+    except:
+        img = img_dir
+        y,x = np.shape(img)
+        img_resize = cv2.resize(img, dsize=(int(x*c),int(y*c)))
     
     if show:
         plt.figure(figsize=(12,15))
@@ -159,11 +169,11 @@ def get_plot_range(landmarks_norm):
 
 def main(i, img_dir, subset=None):
     
-    if "DS" in img_dir:
-        return 
+    #if "DS" in img_dir:
+    #    return 
     
     # Extract key - different for emotionet and disfa -
-    main_key = i #int(img_dir[-9:-4])
+    main_key = i*10 #int(img_dir[-9:-4])
 
     try:
         # Generate Shape Vector
@@ -214,14 +224,21 @@ if __name__ == "__main__":
         dir_path = "/work3/s164272/data/ImgDISFA/"
         pickles_path = "/work3/s164272/data/Features"
     else:
-        dir_path = "/Users/DG/Documents/PasswordProtected/TestImg/"#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
-        pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles"
+        dir_path = np.load("/Users/DG/Documents/PasswordProtected/speciale_outputs/01_01/01_ses:01_N-Back-1_video_0.0.npy", allow_pickle=True)#"/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
+        dir_path = dir_path[::10]
+        
+        pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles"
     face_space = dict()
     misses = []
 
     print("Generation started....")
     # Parallel generation of face_space vectors
-    dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
+    
+    # for generation of RGB images
+    #dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
+    
+    # for generation of 3D matrix images
+    dictionary_list = Parallel(n_jobs=-1,verbose=5)(delayed(main)(i,file, subset=True) for i, file in enumerate(dir_path))
     print("Generation done!!!")
 
     print("Dictionary combination started....")
@@ -268,10 +285,10 @@ if __name__ == "__main__":
 
     else:
         print("Compressin bz2 pickle files...")
-        print(face_space)
+        #print(face_space)
         #face_space = face_space.astype(np.float32)
-        np.save(f"{pickles_path}/face_space_dict_disfa_large_subset_300.npy", face_space)
-        np.save(f"{pickles_path}/misses_disfa_large_subset_300.npy", misses)
+        np.save(f"{pickles_path}/test.npy", face_space)
+        np.save(f"{pickles_path}/test.npy", misses)
         #compress_pickle(f"{pickles_path}/face_space_dict_disfa_large1", face_space)
         #compress_pickle(f"{pickles_path}/misses_disfa_large1", misses)
         print("All done!...")
