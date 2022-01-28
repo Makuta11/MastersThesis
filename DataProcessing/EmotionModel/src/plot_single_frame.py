@@ -50,15 +50,26 @@ subject = "01"
 session = "01"
 task = "1"
 data = np.load(f"/Users/DG/Documents/PasswordProtected/speciale_outputs/{subject}_{session}/{subject}_ses:{session}_N-Back-{task}_video_0.0.npy", allow_pickle=True)
+df = pd.read_csv("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/df_collective")
 
 #%%
 # Determine frames
-frames = [1126*6]
+mask = (df.Session == int(session)) & (df.Task == int(task)) & (df.ID == int(subject))
+happiness = (df.AU12 == 1) & (df.AU6 == 1)
+
+frames = df[(mask) & (happiness)]["Vid_idx"]
+frames = [x*6 for x in frames]
 
 plt.figure(figsize=(15,12))
+marks = False
+
 
 for i in frames:
-    plot_img_w_landmarks(data[i])
+    plt.figure(figsize=(10,8))
+    if marks: 
+        plot_img_w_landmarks(data[i])
+    else:
+        plt.imshow(data[i], cmap="gray")
     plt.show()
 
 # %%
