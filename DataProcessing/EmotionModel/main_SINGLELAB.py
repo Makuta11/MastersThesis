@@ -44,7 +44,7 @@ class Objective(object):
         # Action Unit to investigate
         num_intensities = 2
         aus = [1,2,4,5,6,9,12,15,17,20,25,26]
-        au = 26
+        au = 1
         au_idx = aus.index(au)
         
         # Subject split
@@ -94,9 +94,9 @@ class Objective(object):
             DATA_SHAPE = train_dataset.__nf__()
 
             # CV testing for LR, DR, and WD
-            for i, LEARNING_RATE in enumerate([7e-7]): #params['learning_rate']]):
-                for j, DROPOUT_RATE in enumerate([0.49]): #params['dropout_rate']]):
-                    for k, WEIGHT_DECAY in enumerate([1.5e-4]): #params['weight_decay']]):
+            for i, LEARNING_RATE in enumerate([params['learning_rate']]):
+                for j, DROPOUT_RATE in enumerate([params['dropout_rate']]):
+                    for k, WEIGHT_DECAY in enumerate([params['weight_decay']]):
                         
                         # Name for saving the model
                         name = f'AU{au}_B:{BATCH_SIZE}_DR:{round(DROPOUT_RATE,2)}_LR:{LEARNING_RATE:.3e}_WD:{WEIGHT_DECAY:.1e}  Net{FC_HIDDEN_DIM_1}x{FC_HIDDEN_DIM_2}x{FC_HIDDEN_DIM_3}x{FC_HIDDEN_DIM_4}'
