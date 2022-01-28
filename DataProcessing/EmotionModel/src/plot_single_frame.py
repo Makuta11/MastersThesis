@@ -55,14 +55,25 @@ df = pd.read_csv("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp
 #%%
 # Determine frames
 mask = (df.Session == int(session)) & (df.Task == int(task)) & (df.ID == int(subject))
-happiness = (df.AU12 == 1) & (df.AU6 == 1)
 
-frames = df[(mask) & (happiness)]["Vid_idx"]
+# Emotion codings
+happiness = (df.AU12 == 1) & (df.AU6 == 1)
+sadness = (df.AU4 == 1) & (df.AU15 == 1)
+disgust = (df.AU9 == 1) & (df.AU15 == 1) & (df.AU17 == 1)
+surprise = (df.AU2 == 1) & (df.AU5 == 1) & (df.AU26 == 1)
+anger = (df.AU4 == 1) & (df.AU5 == 1) # There are the only ones we have labeled
+fear = (df.AU2 == 1) & (df.AU4 == 1) & (df.AU5 == 1) & (df.AU20 == 1) & (df.AU26 == 1)
+
+# Choose emotions to look for
+emotions = (happiness) | (sad) | (surprise)
+
+# Find and frames
+frames = df[(mask) & (emotions)]["Vid_idx"]
 frames = [x*6 for x in frames]
 
+# Plot frames
 plt.figure(figsize=(15,12))
 marks = False
-
 
 for i in frames:
     plt.figure(figsize=(10,8))
@@ -73,6 +84,6 @@ for i in frames:
     plt.show()
 
 # %%
-np.save("/Users/DG/Documents/PasswordProtected/speciale_outputs/mikkel.npy", data[10])
+#np.save("/Users/DG/Documents/PasswordProtected/speciale_outputs/mikkel.npy", data[10])
 
 # %%
