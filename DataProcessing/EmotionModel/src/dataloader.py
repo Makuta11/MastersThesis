@@ -20,16 +20,19 @@ def load_data_for_eval(data_dir):
     data_arr = np.array(data_list)
 
     # Convert bad inputs to zero array
-    ln = 6211
+    ln = 3571
     for i, arr in enumerate(data_arr[:,1]):
-        if len(arr) != ln:
-            data_arr[:,i] = np.zeros([1,6211])
+        try:
+            if len(arr) != ln:
+                data_arr[:,1][i] = np.zeros([1,ln])
+        except:
+            data_arr[:,1][i] = np.zeros([1,ln])
     
     # Construct final data arrays
     data_arr = np.vstack(data_arr[:,1])
     data_arr = np.nan_to_num(data_arr)
 
-    return 
+    return data_arr
 
 def load_data(user_train, user_val, user_test, data_set = "DISFA", subset = None, kernel = None, settings = None):
     if subset:

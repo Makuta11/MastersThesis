@@ -160,7 +160,7 @@ def get_gb_fb():
         for s in [l]:                                               # scaling of filter
             for a in alpha:
                 for p in phi:
-                    gb_fb[f'\u03BB:{round(l,2)},  \u03C3:{p},  \u0398:{round(a,2)}'] = self_gabor(sigma=s, theta=a, Lambda=l, psi=p, gamma=1)
+                    gb_fb[f'\u03BB:{round(l,2)},  \u03C3:{s},  \u0398:{round(a,2)}'] = self_gabor(sigma=s, theta=a, Lambda=l, psi=p, gamma=1)
     return gb_fb
 
 def get_plot_range(landmarks_norm):
@@ -226,7 +226,7 @@ if __name__ == "__main__":
         #dir_path_og = "/Users/DG/Documents/PasswordProtected/EmotioNetTest/"
         dir_path = "/Users/DG/Documents/PasswordProtected/speciale_outputs/"
         video_list = sorted(fetch_video_npy(dir_path))
-        pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/video_features"
+        pickles_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/video_features_real"
     
     for file in video_list:
 

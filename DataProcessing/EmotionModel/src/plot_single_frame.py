@@ -16,18 +16,52 @@ from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Pool, cpu_count, Process
 from utils import compress_pickle, decompress_pickle
 
+from local_fun import get_landmarks_mp
 
-subject = "13"
-session = "01"
+def plot_mp_landmarks(landmarks, contors = None, annotate=False, img_dir=None):
+    _, ax = plt.subplots(figsize=(15,18))
+    if type(img_dir) == str:
+        img = Image.open(img_dir)
+        ax.imshow(img)
+    elif img_dir is not None:   
+        img = img_dir
+        ax.imshow(img, cmap="gray")
+    else:
+        ax.invert_yaxis()
+    if annotate == True:
+        for i, landmark in enumerate(landmarks):
+            ax.scatter(landmark[0],landmark[1],color='#39ff14', s =0.5)
+            if i%409 == 0 or i%185 == 0:
+                ax.annotate(str(i), (landmark[0], landmark[1]), fontsize=5)
+    if contors:
+        landmarks = np.array(landmarks)
+        for i, contor in enumerate(contors):
+            x, y, _ = zip(*landmarks[np.array(contor)])
+            ax.scatter(np.array(x), np.array(y),color="#39ff14", s = 0.5)
 
-data = np.load(f"/Users/DG/Documents/PasswordProtected/speciale_outputs/{subject}_{session}/{subject}_ses:{session}_N-Back-2_video_0.0.npy", allow_pickle=True)
+def plot_img_w_landmarks(image):
+    landmarks, _ = get_landmarks_mp(image)
+    subset_contours = list(np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy", allow_pickle=True))
+    plot_mp_landmarks(landmarks, contors = subset_contours, annotate= False, img_dir=image)
 
 #%%
-for i in range(60):
-    plt.imshow(data[i*100], cmap="gray")
+# Load data
+subject = "01"
+session = "01"
+task = "1"
+data = np.load(f"/Users/DG/Documents/PasswordProtected/speciale_outputs/{subject}_{session}/{subject}_ses:{session}_N-Back-{task}_video_0.0.npy", allow_pickle=True)
+
+#%%
+# Determine frames
+frames = [1126*6]
+
+plt.figure(figsize=(15,12))
+
+for i in frames:
+    plot_img_w_landmarks(data[i])
     plt.show()
 
-np.save("/Users/DG/Documents/PasswordProtected/speciale_outputs/mikkel.npy", data[10])
 # %%
+np.save("/Users/DG/Documents/PasswordProtected/speciale_outputs/mikkel.npy", data[10])
 
 # %%
