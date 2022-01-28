@@ -124,4 +124,5 @@ for file in os.listdir(data_dir):
 
     df_collective = pd.concat([df_collective, df_tmp], ignore_index=True)
 
+df_collective.to_csv("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/df_collective")
 print("Done!!!")
