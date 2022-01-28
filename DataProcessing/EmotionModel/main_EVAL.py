@@ -19,44 +19,109 @@ from sklearn.metrics import classification_report, f1_score
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.datasets import make_multilabel_classification
 
-# Model path
-model_path = "DataProcessing/EmotionModel/src/assets/models/" # for loading in pre-trained models
+def single_subj_frame(ID, session, task, idx):
+    """
+        This fuction generates a DataFrame for a single ID, session and task
+    """
+    
+    stimKey = [1,1,0,0,1,1,1,0,1,1,0,1,0,0,0,0,0,1,0,0]
+
+    if session == 1 and stimKey[ID - 1] == 1:
+        stim = [1]*900
+    elif session == 2 and stimKey[ID - 1] == 0:
+        stim = [1]*900
+    else:
+        stim = [0]*900
+
+    Nback = np.append([[1]*300, [2]*300], [3]*300)
+
+    data = {
+        'Vid_idx': np.array([np.arange(idx[0],idx[0]+300),np.arange(idx[1],idx[1]+300),np.arange(idx[2],idx[2]+300)]).ravel(),
+        'ID': [ID]*900,
+        'Session': [session]*900,
+        'Task': [task]*900,
+        'Stim': stim, 
+        'Nback': Nback
+    }
+
+    return pd.DataFrame(data)
+
+# Video parameters
+frame_rate = 5  #1/s
+test_duration = 60 #s
+
+# Models dir
+model_dir = "DataProcessing/EmotionModel/src/assets/models/" # for loading in pre-trained models
+
+# Import timestamps for n-back tests
+df_timestamps = pd.read_csv("DataProcessing/EmotionModel/src/assets/df_timestamps")
+
+# Network Parameters for model reinitialization
+FC_HIDDEN_DIM_1 = 2**8
+FC_HIDDEN_DIM_2 = 2**6
+FC_HIDDEN_DIM_3 = 2**5
+FC_HIDDEN_DIM_4 = 2**4
+DROPOUT_RATE = 0.5
+DATA_SHAPE = 3571
 
 # Action Unit to investigate
 num_intensities = 2
 aus = [1,2,4,5,6,9,12,15,17,20,25,26]
 
 # Load data
-data_dir = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/video_features/01_01_N-Back-1.npy"
-data = load_data_for_eval(data_dir)
+data_dir = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/video_features_real/"
 
-# Network Parameters
-FC_HIDDEN_DIM_1 = 2**8
-FC_HIDDEN_DIM_2 = 2**6
-FC_HIDDEN_DIM_3 = 2**5
-FC_HIDDEN_DIM_4 = 2**4
-DROPOUT_RATE = 0.5
-DATA_SHAPE = 6211
+# Create collective DataFrame
+df_collective = pd.DataFrame()
 
-# Device determination - allows for same code with and without access to CUDA (GPU)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+for file in os.listdir(data_dir):
 
-# Model initialization
-model = SingleClassNetwork(DATA_SHAPE, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, FC_HIDDEN_DIM_4, DROPOUT_RATE).to(device)
+    if "misses" in file:
+        continue
 
-# Load model if script is run for evaluating trained model
-if not train:
-    if torch.cuda.is_available():
-        model.load_state_dict(torch.load(model_path), strict = False)
-    else:
-        model.load_state_dict(torch.load(model_path, map_location=device))
+    # load data
+    data = load_data_for_eval(f'{data_dir}{file}')
 
-if evaluate:
-    # Test model performance on given dataloaders
-    for i, dataloaders in enumerate([train_dataloader, val_dataloader]):
-        AU_scores = get_single_predictions(model, au_idx, dataloaders, device)
+    # Extract tracability features from data
+    ID = int(file[-18:-16])
+    session = int(file[-15:-13])
+    task = int(file[-5])
 
+    # Compute starting index of 1- 2- and 3- backs
+    mask = (df_timestamps.ID == ID) & (df_timestamps.Session == session) & (df_timestamps.Task == task) 
+    idx_1back = int((df_timestamps[(mask)]["1NbackOffset"] / 1000) * frame_rate)
+    idx_2back = int((df_timestamps[(mask)]["2NbackOffset"] / 1000) * frame_rate)
+    idx_3back = int((df_timestamps[(mask)]["3NbackOffset"] / 1000) * frame_rate)
 
+    # Extract only data which was recorded during the n-back test
+    data_nbacks = np.vstack([data[idx_1back:idx_1back + frame_rate * test_duration], data[idx_2back:idx_2back + frame_rate * test_duration], data[idx_3back:idx_3back + frame_rate * test_duration]]) 
 
+    # Device determination - allows for same code with and without access to CUDA (GPU)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    # Model initialization
+    model = SingleClassNetwork(DATA_SHAPE, num_intensities, FC_HIDDEN_DIM_1, FC_HIDDEN_DIM_2, FC_HIDDEN_DIM_3, FC_HIDDEN_DIM_4, DROPOUT_RATE).to(device)
 
+    # Generate frame for placing AU Responses
+    df_tmp = single_subj_frame(ID, session, task, [idx_1back, idx_2back, idx_3back])
+
+    # Perform classifications for one AU at a time
+    for AU_model in os.listdir(model_dir):
+        
+        # AU key for dataframe head
+        key = AU_model[:-3]
+
+        # Load model if script is run for evaluating trained model
+        if torch.cuda.is_available():
+            model.load_state_dict(torch.load(f'{model_dir}{AU_model}'), strict = False)
+        else:
+            model.load_state_dict(torch.load(f'{model_dir}{AU_model}', map_location=device))
+
+        model.eval()
+        out = model(torch.tensor(data_nbacks).float().to(device)).argmax(axis=1).numpy()
+
+        df_tmp[key] = out
+
+    df_collective = pd.concat([df_collective, df_tmp], ignore_index=True)
+
+print("Done!!!")
