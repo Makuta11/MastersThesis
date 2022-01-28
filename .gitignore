@@ -19,6 +19,8 @@ outputs
 logs
 pickles
 performance
+Sub*
+Clean
 
 # Distribution / packaging
 local_fun.py
