@@ -12,12 +12,12 @@ import warnings
 # Use to make set_annotation() to break the script
 
 #%%
-EEG_files = glob.glob('**\*.edf')
-# for file in EEG_files:
-#     print(file)
+EEG_files = glob.glob('/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EEG/**/**/**.edf')
+for file in EEG_files:
+    print(file)
 # print()
 
-df_WM_Triggers = pd.read_csv('df_timestamps', index_col = 0)
+df_WM_Triggers = pd.read_csv('/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EEG/df_timestamps', index_col = 0)
 
 condition_dict = {'01': 'RS','02': 'WM','03': 'Stim','04': 'RS','05': 'WM',
                   '06': 'RS','07': 'WM','08': 'Stim','09': 'RS','10': 'WM',}
@@ -80,8 +80,8 @@ def get_annotations(raw, file):
 
 #%%  Load data
 for file in EEG_files:
-    sub = file.split('\\')[-1].split('.edf')[0]
-    output_path = 'Clean\\'+ sub +'_raw.fif'
+    sub = file.split('/')[-1].split('.edf')[0]
+    output_path = 'clean_2/'+ sub +'_raw.fif'
 
     if not exists(output_path) and '17_01' not in file:
         check_data = False
@@ -120,15 +120,15 @@ for file in EEG_files:
             check_data = True
         
         #% Filter, mark bad channels, and manually edit annotations.
-        raw_filt = general.filter(raw,low_pass = 100, plot = False)
+        raw_filt = general.filter(raw,low_pass = 100)
 
         #% Interpolate
-        # raw_filt.interpolate_bads(reset_bads=True, verbose = False)
+        raw_filt.interpolate_bads(reset_bads=True, verbose = False)
 
         #% Rereference (w. projection)
         raw_filt.set_eeg_reference(ref_channels='average', projection=True, verbose = False)
          
-        ##%  Auto set annotations based o n recording and/or trigger files
+        ##%  Auto set annotations based on recording and/or trigger files
         onset, duration, description = get_annotations(raw_filt,file)
 
         experiment_annotations = mne.Annotations(onset = onset, 
@@ -145,21 +145,21 @@ for file in EEG_files:
             raw_filt.set_annotations(annotations = original_annotations + experiment_annotations)
 
         #% Mark bads segments: 
-        # anno_path = 'bad_annotations\\' + raw_filt.info['subject_info']['his_id']+'.csv'
-        # try:
-        #     print('Loading extra annotations...', anno_path)
-        #     annotations = mne.read_annotations(anno_path)
-        #     raw_filt.set_annotations(annotations) 
-        #     print('Done!')
-        # except:
-        #     print('No extra annotation is available')
-        #     raw_filt = general.mark_bad_segments(raw_filt)
+        anno_path = 'bad_annotations' + raw_filt.info['subject_info']['his_id']+'.csv'
+        try:
+            print('Loading extra annotations...', anno_path)
+            annotations = mne.read_annotations(anno_path)
+            raw_filt.set_annotations(annotations) 
+            print('Done!')
+        except:
+            print('No extra annotation is available')
+            raw_filt = general.mark_bad_segments(raw_filt)
 
-        # if input('Save BAD annotations? (y) ').lower() == 'y':
-        #     raw_filt.annotations.save(anno_path, overwrite=True)
+        if input('Save BAD annotations? (y) ').lower() == 'y':
+            raw_filt.annotations.save(anno_path, overwrite=True)
 
         #% Re-set original annotations on top of bad annotations
-        # raw_filt.set_annotations(annotations=raw_filt.annotations + original_annotations, verbose = False)
+        raw_filt.set_annotations(annotations=raw_filt.annotations + original_annotations, verbose = False)
 
         #% Check data
         if check_data:
@@ -168,3 +168,5 @@ for file in EEG_files:
 
         #% Save annotated data
         raw_filt.save(output_path, overwrite=True)
+
+# %%

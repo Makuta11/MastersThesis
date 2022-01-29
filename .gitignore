@@ -21,6 +21,9 @@ pickles
 performance
 Sub*
 Clean
+libEEG
+DataProcessing/EEG/assets
+
 
 # Distribution / packaging
 local_fun.py
