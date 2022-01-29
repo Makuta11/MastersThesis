@@ -172,7 +172,7 @@ else:
 
 # Hyperparameter tuning with optuna
 study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler())
-study.optimize(Objective(today), n_trials=5)
+study.optimize(Objective(today), n_trials=30)
 
 best_trial = study.best_trial
 for key, value in best_trial.params.items():
