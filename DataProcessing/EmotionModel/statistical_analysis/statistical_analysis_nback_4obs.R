@@ -39,7 +39,7 @@ head(mydata)
 
 # make columns factors
 mydata$Stim <- as.factor(mydata$Stim)
-#mydata$Period <- as.factor(mydata$Period)
+mydata$Period <- as.factor(mydata$Period)
 mydata$Task <- factor(ifelse(mydata$Task == 1,"Pre","Post"), levels = c("Pre", "Post"))
 mydata$ID <- as.factor(mydata$ID)
 str(mydata)
@@ -82,8 +82,8 @@ p <- plot_model(m)
 p + theme_sjplot()
 
 #
-d3_stim0 = d3 %>% filter(d3$Stim == 0)
-d3_stim1 = d3 %>% filter(d3$Stim == 1)
+d3_stim0 = d1 %>% filter(d3$Stim == 0)
+d3_stim1 = d1 %>% filter(d3$Stim == 1)
 
 # Make theme
 mytheme <- theme(text = element_text(size=20), 

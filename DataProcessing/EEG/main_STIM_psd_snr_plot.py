@@ -20,7 +20,7 @@ for file in EEG_files:
     if ("_03" in file) | ("_08" in file):# | ("_06" in file) | ("_09" in file):
             
         if "17" in file:
-            continue
+            $ontinue
         
         print(file)
         raw_filt = mne.io.read_raw_fif(f'{dir_path}/{file}', preload = True, verbose = False)       
@@ -59,7 +59,7 @@ mask_psd = (df_psd.Stimulus == "Continuous") | (df_psd.Stimulus == "ISF")
 mask_snr = (df_snr.Stimulus == "Continuous") | (df_snr.Stimulus == "ISF")
 
 #
-save_path = "assets/psd_snr.png"
-plots.plot_general_df(df_psd[mask_psd],df_snr[mask_snr], palette = "tab10", ymin=-20, save_path = save_path)
+#save_path = "assets/psd_snr.png"
+#plots.plot_general_df(df_psd[mask_psd],df_snr[mask_snr], palette = "tab10", ymin=-20, save_path = save_path)
 
 # %%
