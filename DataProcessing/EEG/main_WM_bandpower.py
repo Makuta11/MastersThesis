@@ -16,10 +16,12 @@ EEG_files = os.listdir(dir_path)
 EEG_files
 
 raw_list = []
-for file in EEG_files:
+id_list = []
+for file in sorted(EEG_files):
     if ("_02" in file) | ("_05" in file) | ("_07" in file) | ("_10" in file):
         
         print(file)
+        id_list.append(file[:5])
         raw_filt = mne.io.read_raw_fif(f'{dir_path}/{file}', preload = True, verbose = False)       
 
         # Delete the on annotations
@@ -28,14 +30,14 @@ for file in EEG_files:
 
         raw_list.append(raw_filt.copy())
 
-#Get PSD and SNR
-df_psd, _ = features.PSD_SNR_df(raw_list).df_all_subjects(method='Welch',
-                                                                win_size=20,
-                                                                all_channels=True,
-                                                                peak=40,
-                                                                tmin =1,
-                                                                tmax= 59
-                                                                )
+# #Get PSD and SNR
+# df_psd, _ = features.PSD_SNR_df(raw_list).df_all_subjects(method='Welch',
+#                                                                 win_size=20,
+#                                                                 all_channels=True,
+#                                                                 peak=40,
+#                                                                 tmin =1,
+#                                                                 tmax= 59
+#                                                                 )
 
 #%%
 bands = {
@@ -46,14 +48,36 @@ bands = {
     'beta2': [20, 30],
     'gamma': [30, 50]
 }
-
 df_bandpowers = pd.DataFrame()
 
-for key in bands:
-    df_tmp = features.BandPower(raw_list[0], tmin=1, tmax=29).bandpower_df(bands[key], window_sec=10)
-    df_tmp = df_tmp.mean().to_frame().T
-    df_tmp["band"] = key
-    df_bandpowers = pd.concat([df_bandpowers, df_tmp], ignore_index=True)
+for i, file in enumerate(raw_list):
+    
+    ID = int(file.filenames[0][-13:-11])
+
+    if ("_02" in id_list[i]):
+        task = 1
+        session = 1
+    elif ("_05" in id_list[i]):
+        task = 2
+        session = 1
+    elif ("_07" in id_list[i]):
+        task = 1
+        session = 2
+    elif ("_10" in id_list[i]):
+        task = 2
+        session = 2
+
+    for key in bands:
+        df_tmp = features.BandPower(file, tmin=1, tmax=29).bandpower_df(bands[key], window_sec=10)
+        df_tmp = df_tmp.mean().to_frame().T
+        df_tmp["Band"] = key
+        df_tmp["Task"] = task
+        df_tmp["Session"] = session
+        df_tmp["ID"] = ID
+
+        df_bandpowers = pd.concat([df_bandpowers, df_tmp], ignore_index=True)
+
+    df_tmp.head()
 
 #%%#create masks
 group_a = ["01","02","09","10","18"]

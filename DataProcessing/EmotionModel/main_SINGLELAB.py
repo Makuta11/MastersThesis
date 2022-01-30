@@ -80,14 +80,14 @@ class Objective(object):
             del data_test, data_train, data_val
 
             # Network Parameters (subject to change)
-            FC_HIDDEN_DIM_1 = 2**8
-            FC_HIDDEN_DIM_2 = 2**6
-            FC_HIDDEN_DIM_3 = 2**5
-            FC_HIDDEN_DIM_4 = 2**4
+            FC_HIDDEN_DIM_1 = 2**10
+            FC_HIDDEN_DIM_2 = 2**8
+            FC_HIDDEN_DIM_3 = 2**7
+            FC_HIDDEN_DIM_4 = 2**5
 
             # Training Parameters
             if sys.platform == "linux":
-                EPOCHS = 400
+                EPOCHS = 250
             else:
                 EPOCHS = 5
             SAVE_FREQ = 10
