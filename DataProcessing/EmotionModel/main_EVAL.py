@@ -135,4 +135,8 @@ df_collective["fear"] = df_collective.AU2 * df_collective.AU4 * df_collective.AU
 
 df_collective.to_csv("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/df_collective")
 
+# Produce specific dataframes from df_collective to be statistically analyzed in Rstudio
+
+
+
 print("Done!!!")

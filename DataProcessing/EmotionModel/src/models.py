@@ -116,10 +116,10 @@ class Multitask(nn.Module):
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_2, out_features = fc_hidden_dim_3),
-            nn.BatchNorm1d(fc_hidden_dim_3),
-            nn.ReLU(),
-            nn.Dropout(p = dropout_prop),
-            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_5),
+            #nn.BatchNorm1d(fc_hidden_dim_3),
+            #nn.ReLU(),
+            #nn.Dropout(p = dropout_prop),
+            #nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_5),
             #nn.BatchNorm1d(fc_hidden_dim_4),
             # nn.ReLU(),
             # nn.Dropout(p = dropout_prop),
@@ -128,6 +128,14 @@ class Multitask(nn.Module):
         
         # Fully conencted layer for multi-label classification of AU being present in each image
         self.fc_layer_AU = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
@@ -136,72 +144,167 @@ class Multitask(nn.Module):
 
         # Fully connected layers for each AU Intensity determining network
         self.fc_layer_AU1 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
         )
         self.fc_layer_AU2 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
         )
         self.fc_layer_AU4 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
         )
         self.fc_layer_AU5 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
         )
         self.fc_layer_AU6 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
         )
         self.fc_layer_AU9 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
         )
         self.fc_layer_AU12 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
         )
         self.fc_layer_AU15 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
         )
         self.fc_layer_AU17 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
-        )
         self.fc_layer_AU20 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
         )
         self.fc_layer_AU25 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
         )
         self.fc_layer_AU26 = nn.Sequential(
+            nn.BatchNorm1d(fc_hidden_dim_3),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_3, out_features = fc_hidden_dim_4),
+            nn.BatchNorm1d(fc_hidden_dim_4),
+            nn.ReLU(),
+            nn.Dropout(p = dropout_prop),
+            nn.Linear(in_features = fc_hidden_dim_4, out_features = fc_hidden_dim_5),
             nn.BatchNorm1d(fc_hidden_dim_5),
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),

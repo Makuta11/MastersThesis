@@ -221,7 +221,7 @@ def df_to_R(df, stim, nback, session = None, IDprint = None):
 
 def avg_perf_score_change(df, stim, nback, session = None, IDprint = None):
     # Define dictionary for later statistical analysis in R
-    stat_dict = {"ID": [], "Stim": [], "Period": [], "Score": [], "Nback": []}
+    stat_dict = {"ID": [], "Stim": [], "Period": [], "Score": [], "Nback": [], "ResponsTime": []}
     
     mask = (df.Stim == stim) & (df.Nback == nback)
     
@@ -235,6 +235,8 @@ def avg_perf_score_change(df, stim, nback, session = None, IDprint = None):
     for IDs in df[mask].ID.unique():
         tmp1 = df[(mask) & (df.Task == 1) & (df.ID == IDs)]["Scores"].sum()
         tmp2 = df[(mask) & (df.Task == 2) & (df.ID == IDs)]["Scores"].sum()
+        tmp3 = df[(mask) & (df.KeyRespons == 1) & (df.Task == 1) & (df.ID == IDs)]["ResponsTime"].mean()
+        tmp4 = df[(mask) & (df.KeyRespons == 1) & (df.Task == 2) & (df.ID == IDs)]["ResponsTime"].mean()
         scores_list.append(round(((tmp2 - tmp1)/tmp1)*100,2))
         
         # append to dictionary
@@ -242,6 +244,7 @@ def avg_perf_score_change(df, stim, nback, session = None, IDprint = None):
         stat_dict["Stim"].append(stim)
         stat_dict["Period"].append(session - 1)
         stat_dict["Score"].append(round(((tmp2 - tmp1)/tmp1)*100,2))
+        stat_dict["ResponsTime"].append(int((tmp4 - tmp3)*1000))
         stat_dict["Nback"].append(nback)
 
         if IDprint:
@@ -398,7 +401,6 @@ if __name__ == "__main__":
     
     df = gen_nback_frame(dataDir)
     df_timestamps = gen_timestamp_frame(dataDir)
-
 
     performace_collection = collective_performace_change(df,full=True)
 

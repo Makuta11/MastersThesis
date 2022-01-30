@@ -67,17 +67,17 @@ for k, BATCH_SIZE in enumerate([64]):
     del data_test, data_train, data_val
 
     # Network Parameters (subject to change)
-    FC_HIDDEN_DIM_1 = 2**8
-    FC_HIDDEN_DIM_2 = 2**6
-    FC_HIDDEN_DIM_3 = 2**5
-    FC_HIDDEN_DIM_4 = 2**9 # currently not used
-    FC_HIDDEN_DIM_5 = 2**4 # dimension in final fc_layers for classification
+    #FC_HIDDEN_DIM_1 = 2**8
+    #FC_HIDDEN_DIM_2 = 2**6
+    #FC_HIDDEN_DIM_3 = 2**5
+    #FC_HIDDEN_DIM_4 = 2**9 # currently not used
+    #FC_HIDDEN_DIM_5 = 2**4 # dimension in final fc_layers for classification
 
-    #FC_HIDDEN_DIM_1 = 2**9
-    #FC_HIDDEN_DIM_2 = 2**12
-    #FC_HIDDEN_DIM_3 = 2**10
-    #FC_HIDDEN_DIM_4 = 2**12
-    #FC_HIDDEN_DIM_5 = 2**9
+    FC_HIDDEN_DIM_1 = 2**10
+    FC_HIDDEN_DIM_2 = 2**8
+    FC_HIDDEN_DIM_3 = 2**6
+    FC_HIDDEN_DIM_4 = 2**5
+    FC_HIDDEN_DIM_5 = 2**4
 
     # Training Parameters
     if sys.platform == "linux":
