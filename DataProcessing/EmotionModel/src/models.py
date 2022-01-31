@@ -268,6 +268,7 @@ class Multitask(nn.Module):
             nn.ReLU(),
             nn.Dropout(p = dropout_prop),
             nn.Linear(in_features = fc_hidden_dim_5, out_features = num_intensities)
+        )
         self.fc_layer_AU20 = nn.Sequential(
             nn.BatchNorm1d(fc_hidden_dim_3),
             nn.ReLU(),
