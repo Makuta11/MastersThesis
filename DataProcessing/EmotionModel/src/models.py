@@ -365,10 +365,10 @@ class MultiTaskLossWrapper(nn.Module):
 
         # Calculate loss for the multi-label classification of identifying if AU is present in image
         AU_loss = bce(out_AU, AUs)
-        #loss_collect = 0.5 * torch.exp(-2*self.log_sigmas[0]) * AU_loss + (self.log_sigmas[0])
+        loss_collect = 0.5 * torch.exp(-2*self.log_sigmas[0]) * AU_loss + (self.log_sigmas[0])
         #loss_collect = torch.exp(-self.log_sigmas[0]) * AU_loss + (self.log_sigmas[0])
         #loss_collect = (1/(num_labs * self.log_sigmas[0]**2)) * AU_loss + (self.log_sigmas[0])
-        loss_collect = (1/num_labs) * torch.exp(-2*self.log_sigmas[0]) * AU_loss + (self.log_sigmas[0])  
+        #loss_collect = (1/num_labs) * torch.exp(-2*self.log_sigmas[0]) * AU_loss + (self.log_sigmas[0])  
 
         # Calculate loss for the intensity of the AUs present in the image
         for i, lab in enumerate(AU_intensities.permute(1,0)):
