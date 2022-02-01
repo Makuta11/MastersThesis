@@ -29,7 +29,7 @@ model_path = ""
 # Data parameters
 aus = [1,2,4,5,6,9,12,15,17,20,25,26]
 num_AU = 12
-num_intensities = 5 # 5 different intensity levels (when active)
+num_intensities = 6 # 5 different intensity levels (when active)
 
 # Subject split
 user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])

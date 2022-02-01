@@ -375,13 +375,18 @@ class MultiTaskLossWrapper(nn.Module):
         for i, lab in enumerate(AU_intensities.permute(1,0)):
             
             # Find indexes that contain the AU so each intensity determining network is trained only on images containing containing each specific AU
-            AU_idx = (lab >= 1).nonzero(as_tuple=True)[0]
-            if len(AU_idx) > 0:
-                au_tmp_loss = F.cross_entropy(out_AU_intensities[i][AU_idx], lab[AU_idx] - 1, weight = self.cw_int[i]) #Subtract one from label to end up with 5 classes [0,1,2,3,4]
-                loss_collect += 0.5 * torch.exp(-2*self.log_sigmas[i]) * au_tmp_loss + (self.log_sigmas[i])
+            #AU_idx = (lab >= 1).nonzero(as_tuple=True)[0]
+            #if len(AU_idx) > 0:
+                #au_tmp_loss = F.cross_entropy(out_AU_intensities[i][AU_idx], lab[AU_idx] - 1, weight = self.cw_int[i]) #Subtract one from label to end up with 5 classes [0,1,2,3,4]
+                #loss_collect += 0.5 * torch.exp(-2*self.log_sigmas[i]) * au_tmp_loss + (self.log_sigmas[i])
                 #loss_collect += torch.exp(-self.log_sigmas[i]) * au_tmp_loss + (self.log_sigmas[i])
                 #loss_collect += (1/(num_labs * self.log_sigmas[i+1]**2)) * au_tmp_loss + (self.log_sigmas[i+1])  
                 #loss_collect += (1/num_labs) * torch.exp(-2*self.log_sigmas[i+1]) * au_tmp_loss + (self.log_sigmas[i+1])
+            
+            # Tmp for testing
+            au_tmp_loss = F.cross_entropy(out_AU_intensities[i], lab, weight = self.cw_int[i]) #Subtract one from label to end up with 5 classes [0,1,2,3,4]
+            loss_collect += 0.5 * torch.exp(-2*self.log_sigmas[i]) * au_tmp_loss + (self.log_sigmas[i])
+
 
         # The loss of the entire network is collected in loss_collect, while the learnable weights for each individual loss is stored in log_sigmas for plotting
         return loss_collect, self.log_sigmas.data.tolist()
