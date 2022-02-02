@@ -257,7 +257,7 @@ def avg_perf_score_change(df, stim, nback, session = None, IDprint = None):
 
 def avg_perf_scores(df, stim, nback, session = None, IDprint = None):
     # Define dictionary for later statistical analysis in R
-    stat_dict = {"ID": [], "Stim": [], "Period": [],"Task": [], "Score": [], "Nback": []}
+    stat_dict = {"ID": [], "Stim": [], "Period": [],"Task": [], "Score": [], "Nback": [], "ResponsTime": []}
     
     mask = (df.Stim == stim) & (df.Nback == nback)
     
@@ -271,6 +271,8 @@ def avg_perf_scores(df, stim, nback, session = None, IDprint = None):
     for IDs in df[mask].ID.unique():
         tmp1 = df[(mask) & (df.Task == 1) & (df.ID == IDs)]["Scores"].sum()
         tmp2 = df[(mask) & (df.Task == 2) & (df.ID == IDs)]["Scores"].sum()
+        tmp3 = df[(mask) & (df.KeyRespons == 1) & (df.Task == 1) & (df.ID == IDs)]["ResponsTime"].mean()
+        tmp4 = df[(mask) & (df.KeyRespons == 1) & (df.Task == 2) & (df.ID == IDs)]["ResponsTime"].mean()
         scores_list.append(round(((tmp2 - tmp1)/tmp1)*100,2))
         
         # append to dictionary
@@ -280,6 +282,8 @@ def avg_perf_scores(df, stim, nback, session = None, IDprint = None):
         stat_dict["Stim"].append(stim)
         stat_dict["Period"].append(session - 1)
         stat_dict["Period"].append(session - 1)
+        stat_dict["ResponsTime"].append(tmp3)
+        stat_dict["ResponsTime"].append(tmp4)
         stat_dict["Task"].append(1)
         stat_dict["Task"].append(2)
         stat_dict["Score"].append(round((tmp1/30)*100,2))

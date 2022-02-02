@@ -65,10 +65,10 @@ anger = (df.AU4 == 1) & (df.AU5 == 1) # There are the only ones we have labeled
 fear = (df.AU2 == 1) & (df.AU4 == 1) & (df.AU5 == 1) & (df.AU20 == 1) & (df.AU26 == 1)
 
 # Choose emotions to look for
-emotions = (happiness) | (sad) | (surprise)
+emotions = (happiness) | (sadness) | (surprise)
 
 # Find and frames
-frames = df[(mask) & (emotions)]["Vid_idx"]
+frames = df[(mask) & (happiness)]["Vid_idx"]
 frames = [x*6 for x in frames]
 
 # Plot frames

@@ -2,7 +2,11 @@
 import mne, glob, os 
 
 import pandas as pd
+import seaborn as sns 
+from matplotlib import rcParams
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import matplotlib.gridspec as gridspec
 
 from libEEG import general, features, plots
 
@@ -30,14 +34,17 @@ for file in sorted(EEG_files):
 
         raw_list.append(raw_filt.copy())
 
-# #Get PSD and SNR
-# df_psd, _ = features.PSD_SNR_df(raw_list).df_all_subjects(method='Welch',
-#                                                                 win_size=20,
-#                                                                 all_channels=True,
-#                                                                 peak=40,
-#                                                                 tmin =1,
-#                                                                 tmax= 59
-#                                                                 )
+#%%
+#Get PSD and SNR
+df_psd, df_snr = features.PSD_SNR_df(raw_list).df_all_subjects(method='Welch',
+                                                                 win_size=20,
+                                                                 all_channels=True,
+                                                                 p_overlap=0.8,
+                                                                 peak=40,
+                                                                 tmin =1,
+                                                                 tmax= 59
+                                                                 )
+df_psd["Nback"] = df_psd["Stimulus"]
 
 #%%
 bands = {
@@ -74,10 +81,21 @@ for i, file in enumerate(raw_list):
         df_tmp["Task"] = task
         df_tmp["Session"] = session
         df_tmp["ID"] = ID
+        
+        if (session == 1) & (str(ID) in ["1","2","9","10","18"]):
+            df_tmp["Stimulus"] = "ISF"
+        elif (session == 1) & (str(ID) in ["3","13","15","17","20"]):
+            df_tmp["Stimulus"] = "Continuous"
+        elif (session == 2) & (str(ID) in ["3","13","15","17","20"]):
+            df_tmp["Stimulus"] = "ISF"
+        else:
+            df_tmp["Stimulus"] = "Continuous"
 
         df_bandpowers = pd.concat([df_bandpowers, df_tmp], ignore_index=True)
 
     df_tmp.head()
+
+df_bandpowers = df_bandpowers.drop(["Fail"], axis=1)
 
 #%%#create masks
 group_a = ["01","02","09","10","18"]
@@ -94,14 +112,123 @@ for id in group_a:
     df_psd.loc[(df_psd.Subject == f'{id}_10'), 'Task'] = 2
 
 for id in group_b:
-    df_psd.loc[(df_psd.Subject == f'{id}_08'), 'Stimulus'] = "ISF"
-    df_psd.loc[(df_psd.Subject == f'{id}_03'), 'Stimulus'] = "Continuous"
+    df_psd.loc[(df_psd.Subject == f'{id}_02'), 'Stimulus'] = "Continuous"
+    df_psd.loc[(df_psd.Subject == f'{id}_02'), 'Task'] = 1
+    df_psd.loc[(df_psd.Subject == f'{id}_05'), 'Stimulus'] = "Continuous"
+    df_psd.loc[(df_psd.Subject == f'{id}_05'), 'Task'] = 2
+    df_psd.loc[(df_psd.Subject == f'{id}_07'), 'Stimulus'] = "ISF"
+    df_psd.loc[(df_psd.Subject == f'{id}_07'), 'Task'] = 1
+    df_psd.loc[(df_psd.Subject == f'{id}_10'), 'Stimulus'] = "ISF"
+    df_psd.loc[(df_psd.Subject == f'{id}_10'), 'Task'] = 2
 
-mask_psd = (df_psd.Stimulus == "Continuous") | (df_psd.Stimulus == "ISF")
-mask_snr = (df_snr.Stimulus == "Continuous") | (df_snr.Stimulus == "ISF")
+# Generate SNR power band differences matrix
+df_bp_diff = pd.DataFrame()
+df_bp_diff["1-back-diff"] = df_bandpowers[(df_bandpowers.Task == 2)]["1-back"].values - df_bandpowers[(df_bandpowers.Task == 1)]["1-back"].values
+df_bp_diff["2-back-diff"] = df_bandpowers[(df_bandpowers.Task == 2)]["2-back"].values - df_bandpowers[(df_bandpowers.Task == 1)]["2-back"].values
+df_bp_diff["3-back-diff"] = df_bandpowers[(df_bandpowers.Task == 2)]["3-back"].values - df_bandpowers[(df_bandpowers.Task == 1)]["3-back"].values
+df_bp_diff["Band"] = df_bandpowers[(df_bandpowers.Task == 2)]["Band"].values
+df_bp_diff["ID"] = df_bandpowers[(df_bandpowers.Task == 2)]["ID"].values
+df_bp_diff["Session"] = df_bandpowers[(df_bandpowers.Task == 2)]["Session"].values
+df_bp_diff["Stimulus"] = df_bandpowers[(df_bandpowers.Task == 2)]["Stimulus"].values
 
-#
-save_path = "assets/psd_snr.png"
-plots.plot_general_df(df_psd[mask_psd],df_snr[mask_snr], palette = "tab10", ymin=-20, save_path = save_path)
+# %%
+
+def big_powerband_plot(nback):
+
+    mask_psd_ISF = (df_psd.Nback == f"{nback}-back") & (df_psd.Stimulus == "ISF") 
+    mask_psd_CON = (df_psd.Nback == f"{nback}-back") & (df_psd.Stimulus == "Continuous") 
+
+    fig_factor = 2
+    fig = plt.figure(tight_layout=True,figsize=[fig_factor*8.4,fig_factor*6.8])
+    gs = gridspec.GridSpec(4, 6)
+
+    df_plot_1 = pd.DataFrame(df_psd[mask_psd_ISF].groupby(['Task','Freq','Subject']).mean().mean(axis = 1).reset_index())
+    df_plot_1.rename(columns = {0: 'psd'}, inplace = True)
+    df_plot_2 = pd.DataFrame(df_psd[mask_psd_CON].groupby(['Task','Freq','Subject']).mean().mean(axis = 1).reset_index())
+    df_plot_2.rename(columns = {0: 'psd'}, inplace = True)
+
+    ax1 = fig.add_subplot(gs[0:2,0:3])
+    sns.lineplot(data=df_plot_1, x="Freq", y="psd",hue='Task',ax = ax1,ci='sd',palette="tab10",legend=True)
+    ax1.set_xlim([0,45])
+    ax1.xaxis.set_major_locator(ticker.IndexLocator(base=10, offset=0))
+    ax1.set_ylim([-20,25])
+    ax1.set_xlabel('Frequency [Hz]',fontsize=20)
+    ax1.set_ylabel("PSD [dB]",fontsize=20)
+    ax1.tick_params(labelsize=20)
+    ax1.text(1, -19, "delta", rotation = 90)
+    ax1.text(4.2, -19, "theta", rotation = 90)
+    ax1.text(8, -19, "alpha", rotation = 90)
+    ax1.text(12.2, -19, "beta1")
+    ax1.text(20.2, -19, "beta2")
+    ax1.text(30.2, -19, "gamma")
+    for line in [1,4,8,12,20,30,50]:
+        ax1.axvline(x=line, color = "k", linewidth=0.8, alpha=0.6)
+    ax1.set_title('Before and After ISF')
+    ax1.legend(title="Task", labels=["Pre","Post"])
+
+    ax2 = fig.add_subplot(gs[0:2,3:6])
+    sns.lineplot(data=df_plot_2, x="Freq", y="psd",hue='Task',ax = ax2,ci='sd',palette="tab10",legend=True)
+    ax2.set_xlim([0,45])
+    ax2.xaxis.set_major_locator(ticker.IndexLocator(base=10, offset=0))
+    ax2.set_ylim([-20,25])
+    ax2.set_xlabel('Frequency [Hz]',fontsize=20)
+    ax2.set_ylabel("PSD [dB]",fontsize=20)
+    ax2.tick_params(labelsize=20)
+    ax2.text(1, -19, "delta", rotation = 90)
+    ax2.text(4.2, -19, "theta", rotation = 90)
+    ax2.text(8, -19, "alpha", rotation = 90)
+    ax2.text(12.2, -19, "beta1")
+    ax2.text(20.2, -19, "beta2")
+    ax2.text(30.2, -19, "gamma")
+    for line in [1,4,8,12,20,30,50]:
+        ax2.axvline(x=line, color = "k", linewidth=0.8, alpha=0.6)
+    ax2.set_title('Before and After Continuous')
+    ax2.legend(title="Task", labels=["Pre","Post"])
+
+
+    ax3 = fig.add_subplot(gs[2, 0:2])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax3,data = df_bp_diff[df_bp_diff.Band == "delta"],palette="rainbow", showfliers = False)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax3,data = df_bp_diff[df_bp_diff.Band == "delta"],palette="rainbow")
+    ax3.set_ylim([-350,500])
+    ax3.set_title('Delta Power Change')
+
+    ax4 = fig.add_subplot(gs[2, 2:4])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax4,data = df_bp_diff[df_bp_diff.Band == "theta"], palette="rainbow", showfliers = False)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax4,data =df_bp_diff[df_bp_diff.Band == "theta"],palette="rainbow")
+    ax4.set_ylim([-50,120])
+    ax4.set_title('Theta Power Change')
+
+    ax5 = fig.add_subplot(gs[2, 4:6])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax5,data = df_bp_diff[df_bp_diff.Band == "alpha"], palette="rainbow", showfliers = False)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax5,data = df_bp_diff[df_bp_diff.Band == "alpha"],palette="rainbow")
+    ax5.set_ylim([-10,30])
+    ax5.set_title('Alpha Power Change')
+
+    ax6 = fig.add_subplot(gs[3, 0:2])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax6,data = df_bp_diff[df_bp_diff.Band == "beta1"], palette="rainbow", showfliers = False)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax6,data = df_bp_diff[df_bp_diff.Band == "beta1"],palette="rainbow")
+    ax6.set_ylim([-5,10])
+    ax6.set_title('Beta 1 Power Change')
+
+    ax7 = fig.add_subplot(gs[3, 2:4])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax7,data = df_bp_diff[df_bp_diff.Band == "beta2"], palette="rainbow", showfliers = False)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax7,data = df_bp_diff[df_bp_diff.Band == "beta2"],palette="rainbow")
+    ax7.set_ylim([-5,10])
+    ax7.set_title('Beta 2 Power Change')
+
+    ax8 = fig.add_subplot(gs[3, 4:6])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax8,data = df_bp_diff[df_bp_diff.Band == "gamma"], palette="rainbow", showfliers = False)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax8,data = df_bp_diff[df_bp_diff.Band == "gamma"],palette="rainbow")
+    ax8.set_ylim([-20,30])
+    ax8.set_title('Gamma Power Change')
+
+    for ax in [ax3,ax4,ax5,ax6,ax7,ax8]:
+        ax.yaxis.label.set_visible(False)
+
+    plt.show()
+
+# %%
+big_powerband_plot(1)
+
 
 # %%
