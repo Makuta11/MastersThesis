@@ -27,11 +27,11 @@ def single_subj_frame(ID, session, task, idx):
     stimKey = [1,1,0,0,1,1,1,0,1,1,0,1,0,0,0,0,0,1,0,0]
 
     if session == 1 and stimKey[ID - 1] == 1:
-        stim = [1]*900
+        stim = [2]*900
     elif session == 2 and stimKey[ID - 1] == 0:
-        stim = [1]*900
+        stim = [2]*900
     else:
-        stim = [0]*900
+        stim = [1]*900
 
     Nback = np.append([[1]*300, [2]*300], [3]*300)
 
@@ -126,11 +126,11 @@ for file in os.listdir(data_dir):
 
 # Generate Emotion Columns TODO add AU1 sadness, surprise, and Fear
 df_collective["happiness"] = df_collective.AU12 * df_collective.AU6
-df_collective["sadness"] = df_collective.AU4 * df_collective.AU15
-df_collective["disgust"] = df_collective.AU9 * df_collective.AU15 * df_collective.AU17
-df_collective["surprise"] = df_collective.AU2 * df_collective.AU5 * df_collective.AU26
-df_collective["anger"] = df_collective.AU4 * df_collective.AU5 # Missing some labels
-df_collective["fear"] = df_collective.AU2 * df_collective.AU4 * df_collective.AU5 * df_collective.AU20 * df_collective.AU26 
+df_collective["sadness"] = df_collective.AU1 * df_collective.AU4 * df_collective.AU15 * df_collective.AU17
+df_collective["disgust"] = df_collective.AU4 * df_collective.AU9 * df_collective.AU15 * df_collective.AU17
+df_collective["surprise"] = df_collective.AU1 * df_collective.AU2 * df_collective.AU5 * df_collective.AU26
+df_collective["anger"] = df_collective.AU4 * df_collective.AU5 * df_collective.AU17 # Missing some labels
+df_collective["fear"] = df_collective.AU1 * df_collective.AU2 * df_collective.AU4 * df_collective.AU5 * df_collective.AU20 * df_collective.AU26 
 
 
 df_collective.to_csv("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/df_collective")

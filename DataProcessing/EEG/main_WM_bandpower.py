@@ -142,14 +142,14 @@ def big_powerband_plot(nback):
     fig = plt.figure(tight_layout=True,figsize=[fig_factor*8.4,fig_factor*6.8])
     gs = gridspec.GridSpec(4, 6)
 
-    df_plot_1 = pd.DataFrame(df_psd[mask_psd_ISF].groupby(['Task','Freq','Subject']).mean().mean(axis = 1).reset_index())
+    df_plot_1 = pd.DataFrame(df_psd[mask_psd_CON].groupby(['Task','Freq','Subject']).mean().mean(axis = 1).reset_index())
     df_plot_1.rename(columns = {0: 'psd'}, inplace = True)
-    df_plot_2 = pd.DataFrame(df_psd[mask_psd_CON].groupby(['Task','Freq','Subject']).mean().mean(axis = 1).reset_index())
+    df_plot_2 = pd.DataFrame(df_psd[mask_psd_ISF].groupby(['Task','Freq','Subject']).mean().mean(axis = 1).reset_index())
     df_plot_2.rename(columns = {0: 'psd'}, inplace = True)
 
     ax1 = fig.add_subplot(gs[0:2,0:3])
     sns.lineplot(data=df_plot_1, x="Freq", y="psd",hue='Task',ax = ax1,ci='sd',palette="tab10",legend=True)
-    ax1.set_xlim([0,45])
+    ax1.set_xlim([0,50])
     ax1.xaxis.set_major_locator(ticker.IndexLocator(base=10, offset=0))
     ax1.set_ylim([-20,25])
     ax1.set_xlabel('Frequency [Hz]',fontsize=20)
@@ -163,12 +163,12 @@ def big_powerband_plot(nback):
     ax1.text(30.2, -19, "gamma")
     for line in [1,4,8,12,20,30,50]:
         ax1.axvline(x=line, color = "k", linewidth=0.8, alpha=0.6)
-    ax1.set_title('Before and After ISF')
+    ax1.set_title('Continuous')
     ax1.legend(title="Task", labels=["Pre","Post"])
 
     ax2 = fig.add_subplot(gs[0:2,3:6])
     sns.lineplot(data=df_plot_2, x="Freq", y="psd",hue='Task',ax = ax2,ci='sd',palette="tab10",legend=True)
-    ax2.set_xlim([0,45])
+    ax2.set_xlim([0,50])
     ax2.xaxis.set_major_locator(ticker.IndexLocator(base=10, offset=0))
     ax2.set_ylim([-20,25])
     ax2.set_xlabel('Frequency [Hz]',fontsize=20)
@@ -182,53 +182,54 @@ def big_powerband_plot(nback):
     ax2.text(30.2, -19, "gamma")
     for line in [1,4,8,12,20,30,50]:
         ax2.axvline(x=line, color = "k", linewidth=0.8, alpha=0.6)
-    ax2.set_title('Before and After Continuous')
+    ax2.set_title('ISF')
     ax2.legend(title="Task", labels=["Pre","Post"])
 
+    order = ["Continuous", "ISF"]
+    pallete = ["#398BED", "#F3B532"]
 
     ax3 = fig.add_subplot(gs[2, 0:2])
-    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax3,data = df_bp_diff[df_bp_diff.Band == "delta"],palette="rainbow", showfliers = False)
-    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax3,data = df_bp_diff[df_bp_diff.Band == "delta"],palette="rainbow")
-    ax3.set_ylim([-350,500])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax3,data = df_bp_diff[df_bp_diff.Band == "delta"],palette=pallete, showfliers = False,order=order)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax3,data = df_bp_diff[df_bp_diff.Band == "delta"],color="k",order=order)
+    ax3.set_ylim([-800,500])
     ax3.set_title('Delta Power Change')
 
     ax4 = fig.add_subplot(gs[2, 2:4])
-    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax4,data = df_bp_diff[df_bp_diff.Band == "theta"], palette="rainbow", showfliers = False)
-    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax4,data =df_bp_diff[df_bp_diff.Band == "theta"],palette="rainbow")
-    ax4.set_ylim([-50,120])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax4,data = df_bp_diff[df_bp_diff.Band == "theta"], palette=pallete, showfliers = False,order=order)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax4,data =df_bp_diff[df_bp_diff.Band == "theta"],color="k",order=order)
+    ax4.set_ylim([-300,35])
     ax4.set_title('Theta Power Change')
 
     ax5 = fig.add_subplot(gs[2, 4:6])
-    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax5,data = df_bp_diff[df_bp_diff.Band == "alpha"], palette="rainbow", showfliers = False)
-    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax5,data = df_bp_diff[df_bp_diff.Band == "alpha"],palette="rainbow")
-    ax5.set_ylim([-10,30])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax5,data = df_bp_diff[df_bp_diff.Band == "alpha"], palette=pallete, showfliers = False,order=order)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax5,data = df_bp_diff[df_bp_diff.Band == "alpha"],color="k",order=order)
+    ax5.set_ylim([-60,8])
     ax5.set_title('Alpha Power Change')
 
     ax6 = fig.add_subplot(gs[3, 0:2])
-    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax6,data = df_bp_diff[df_bp_diff.Band == "beta1"], palette="rainbow", showfliers = False)
-    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax6,data = df_bp_diff[df_bp_diff.Band == "beta1"],palette="rainbow")
-    ax6.set_ylim([-5,10])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax6,data = df_bp_diff[df_bp_diff.Band == "beta1"], palette=pallete, showfliers = False,order=order)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax6,data = df_bp_diff[df_bp_diff.Band == "beta1"],color="k",order=order)
+    ax6.set_ylim([-30,20])
     ax6.set_title('Beta 1 Power Change')
 
     ax7 = fig.add_subplot(gs[3, 2:4])
-    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax7,data = df_bp_diff[df_bp_diff.Band == "beta2"], palette="rainbow", showfliers = False)
-    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax7,data = df_bp_diff[df_bp_diff.Band == "beta2"],palette="rainbow")
-    ax7.set_ylim([-5,10])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax7,data = df_bp_diff[df_bp_diff.Band == "beta2"], palette=pallete, showfliers = False,order=order)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax7,data = df_bp_diff[df_bp_diff.Band == "beta2"],color="k",order=order)
+    ax7.set_ylim([-10,6])
     ax7.set_title('Beta 2 Power Change')
 
     ax8 = fig.add_subplot(gs[3, 4:6])
-    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax8,data = df_bp_diff[df_bp_diff.Band == "gamma"], palette="rainbow", showfliers = False)
-    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax8,data = df_bp_diff[df_bp_diff.Band == "gamma"],palette="rainbow")
-    ax8.set_ylim([-20,30])
+    sns.boxplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax8,data = df_bp_diff[df_bp_diff.Band == "gamma"], palette=pallete, showfliers = False,order=order)
+    sns.swarmplot(x = 'Stimulus', y = f'{nback}-back-diff', ax=ax8,data = df_bp_diff[df_bp_diff.Band == "gamma"],color="k",order=order)
+    ax8.set_ylim([-25,7])
     ax8.set_title('Gamma Power Change')
 
     for ax in [ax3,ax4,ax5,ax6,ax7,ax8]:
-        ax.yaxis.label.set_visible(False)
+        ax.set_ylabel('PSD*Freq [DB*Hz]')
 
     plt.show()
 
-# %%
-big_powerband_plot(1)
+big_powerband_plot(3)
 
 
 # %%
