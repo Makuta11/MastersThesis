@@ -45,7 +45,7 @@ def plot_img_w_landmarks(image):
 
 #%%
 # Load data
-subject = "01"
+subject = "13"
 session = "02"
 task = "1"
 try:
@@ -73,34 +73,34 @@ surprise = (df.AU2 == 1) & (df.AU1 == 1) & (df.AU26 == 1) & (df.AU5 == 1)
 anger = (df.AU4 == 1) & (df.AU17== 1) & (df.AU5 == 1) #Missing 7 and 23
 fear = (df.AU2 == 1) & (df.AU4 == 1) & (df.AU1 == 1) & (df.AU5 == 1) & (df.AU20 == 1) & (df.AU26 == 1)
 
-# # Find and frames
-# frames = []
-# for em_mask in [happiness, sadness, disgust, surprise, anger, fear]:
-#     frame = df[(mask) & (em_mask)]["Vid_idx"]
-#     frame = [x*6 for x in frame]
-#     if len(frame) > 3:
-#         frames.append(frame[:3])
-#     else:
-#         frames.append(frame)
+# Find and frames
+frames = []
+for em_mask in [happiness, sadness, disgust, surprise, anger, fear]:
+    frame = df[(mask) & (em_mask)]["Vid_idx"]
+    frame = [x*6 for x in frame]
+    if len(frame) > 3:
+        frames.append(frame[:3])
+    else:
+        frames.append(frame)
 
-# frames = np.array(frames).ravel()
+frames = np.array(frames).ravel()
 
-# # Plot frames
-# plt.figure(figsize=(15,12))
-# marks = False
+# Plot frames
+plt.figure(figsize=(15,12))
+marks = False
 
-# ems = ["happiness", "sadness", "disgust", "surprise", "anger", "fear", "AU12"]
-# for l, ls in enumerate(frames):
-#     print(f"Images for {ems[l]}")
-#     for frame in ls:
-#         plt.figure(figsize=(10,8))
-#         if l == 6:
-#             break
-#         if marks: 
-#             plot_img_w_landmarks(data[frame])
-#         else:
-#             plt.imshow(data[frame], cmap="gray")
-#         plt.show()
+ems = ["happiness", "sadness", "disgust", "surprise", "anger", "fear", "AU12"]
+for l, ls in enumerate(frames):
+    print(f"Images for {ems[l]}")
+    for frame in ls:
+        plt.figure(figsize=(10,8))
+        if l == 6:
+            break
+        if marks: 
+            plot_img_w_landmarks(data[frame])
+        else:
+            plt.imshow(data[frame], cmap="gray")
+        plt.show()
 
 # %%
 

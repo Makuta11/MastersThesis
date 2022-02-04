@@ -10,6 +10,7 @@ from torch.utils import data
 from src.utils import decompress_pickle
 from src.generate_kernel import compute_kernel
 from sklearn.metrics.pairwise import rbf_kernel
+from sklearn.model_selection import train_test_split
 
 def load_data_for_eval(data_dir):
     dataset = np.load(data_dir, allow_pickle=True)
@@ -34,7 +35,7 @@ def load_data_for_eval(data_dir):
 
     return data_arr
 
-def load_data(user_train, user_val, user_test, data_set = "DISFA", subset = None, kernel = None, settings = None):
+def load_data(user_train, user_val, user_test, data_set = "DISFA", subset = None, kernel = None, settings = None, random_state = None):
     if subset:
         if sys.platform == "linux":
             if data_set == "DISFA":
@@ -52,12 +53,12 @@ def load_data(user_train, user_val, user_test, data_set = "DISFA", subset = None
                 dataset = dataset.tolist()
         else:
             # Small testing dataload for local machine
-            #dataset = decompress_pickle(f'/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/face_space_dict_disfa_test_subset.npy')
-            dataset = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/face_space_dict_disfa_large_subset_300_test.npy", allow_pickle=True)
+            #dataset = decompress_pickle(f"/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/face_space_dict_disfa_large_subset.npy")
+            dataset = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/face_space_dict_disfa_test.pbz2", allow_pickle=True)
             labels = decompress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/disfa_labels_large1.pbz2")
             misses = np.load('/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/misses_disfa_large_subset.npy', allow_pickle=True)
             # Unfold dict inside 0-dimensional array (caused by np.save/np.load)
-            labels = labels[:4840*6]
+            #labels = labels[:4840*6]
             dataset = dataset.tolist()
     else:
         if sys.platform == "linux":
@@ -128,6 +129,9 @@ def load_data(user_train, user_val, user_test, data_set = "DISFA", subset = None
     test_idx = list(labels_test.index)
     val_idx = list(labels_val.index)
     train_idx = list(labels_train.index)
+
+    if random_shuffle == True:
+        train_idx, test_idx = train_test_split(np.append(test_idx, train_idx), test_size = 0.2, shuffle=True)
 
     # Slice data
     data_test = data_arr[test_idx, :]

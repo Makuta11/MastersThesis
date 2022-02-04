@@ -64,9 +64,6 @@ for i, file in enumerate(raw_list):
     
     ID = int(file.filenames[0][-13:-11])
 
-    if ID == 13:
-        continue
-
     if ("_02" in id_list[i]):
         task = 1
         session = 1
@@ -79,6 +76,9 @@ for i, file in enumerate(raw_list):
     elif ("_10" in id_list[i]):
         task = 2
         session = 2
+    
+    if (ID == 13) & (session == 2):
+        continue
 
     for key in bands:
         df_tmp = features.BandPower(file, tmin=1, tmax=29).bandpower_df(bands[key], window_sec=10)
@@ -136,7 +136,6 @@ df_bp_diff["Band"] = df_bandpowers[(df_bandpowers.Task == 2)]["Band"].values
 df_bp_diff["ID"] = df_bandpowers[(df_bandpowers.Task == 2)]["ID"].values
 df_bp_diff["Session"] = df_bandpowers[(df_bandpowers.Task == 2)]["Session"].values
 df_bp_diff["Stimulus"] = df_bandpowers[(df_bandpowers.Task == 2)]["Stimulus"].values
-
 
 # %% 
 def big_powerband_plot(nback):
@@ -236,7 +235,6 @@ def big_powerband_plot(nback):
     plt.show()
 
 big_powerband_plot(3)
-
 
 # %% Instpect data for 40Hz peak
 for sub in df_psd[(df_psd.Stimulus == "ISF")].Subject.unique():

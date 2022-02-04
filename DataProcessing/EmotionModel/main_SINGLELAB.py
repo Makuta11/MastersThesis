@@ -49,7 +49,8 @@ class Objective(object):
         
         # Subject split
         #user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
-        users_list = pickle.load(open("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subsets", 'rb'))
+        #users_list = pickle.load(open("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subsets", 'rb'))
+        users_list = pickle.load(open("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/subsets", 'rb'))
         users = users_list[f'AU{au}']
         user_train, user_val = train_test_split(users, test_size=0.2, random_state=42) 
         user_test = user_val
