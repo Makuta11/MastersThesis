@@ -11,8 +11,8 @@ import matplotlib.gridspec as gridspec
 from libEEG import general, features, plots
 
 #%%
-#%matplotlib inline
-#%gui qt
+%matplotlib inline
+%gui qt
 
 # Get list of files:
 dir_path = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EEG/data/Clean"
@@ -23,6 +23,9 @@ raw_list = []
 id_list = []
 for file in sorted(EEG_files):
     if ("_02" in file) | ("_05" in file) | ("_07" in file) | ("_10" in file):
+
+        if ("13_07" in file) | ("13_10" in file):
+            continue
         
         print(file)
         id_list.append(file[:5])
@@ -61,6 +64,9 @@ for i, file in enumerate(raw_list):
     
     ID = int(file.filenames[0][-13:-11])
 
+    if ID == 13:
+        continue
+
     if ("_02" in id_list[i]):
         task = 1
         session = 1
@@ -81,7 +87,7 @@ for i, file in enumerate(raw_list):
         df_tmp["Task"] = task
         df_tmp["Session"] = session
         df_tmp["ID"] = ID
-        
+
         if (session == 1) & (str(ID) in ["1","2","9","10","18"]):
             df_tmp["Stimulus"] = "ISF"
         elif (session == 1) & (str(ID) in ["3","13","15","17","20"]):
@@ -131,8 +137,8 @@ df_bp_diff["ID"] = df_bandpowers[(df_bandpowers.Task == 2)]["ID"].values
 df_bp_diff["Session"] = df_bandpowers[(df_bandpowers.Task == 2)]["Session"].values
 df_bp_diff["Stimulus"] = df_bandpowers[(df_bandpowers.Task == 2)]["Stimulus"].values
 
-# %%
 
+# %% 
 def big_powerband_plot(nback):
 
     mask_psd_ISF = (df_psd.Nback == f"{nback}-back") & (df_psd.Stimulus == "ISF") 
@@ -232,4 +238,15 @@ def big_powerband_plot(nback):
 big_powerband_plot(3)
 
 
-# %%
+# %% Instpect data for 40Hz peak
+for sub in df_psd[(df_psd.Stimulus == "ISF")].Subject.unique():
+    df_psd_mask = (df_psd.Subject == sub)
+
+    fig_factor = 1
+    fig = plt.figure(tight_layout=True,figsize=[fig_factor*8.4,fig_factor*6.8])
+    ax = fig.add_subplot()
+    df_plot_1 = pd.DataFrame(df_psd[df_psd_mask].groupby(['Stimulus','Freq','Subject']).mean().mean(axis = 1).reset_index())
+    df_plot_1.rename(columns = {0: 'psd'}, inplace = True)
+    sns.lineplot(data=df_plot_1, x="Freq", y="psd",ax = ax,ci='sd',palette="tab10",legend=True)
+    ax.set_title(str(sub))
+
