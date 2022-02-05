@@ -20,7 +20,7 @@ def load_data_for_eval(data_dir):
     data_list = list(dataset.items())
     data_arr = np.array(data_list)
 
-    # Convert bad inputs to zero array
+    # Convert bad inputs to zero array 
     ln = 3571
     for i, arr in enumerate(data_arr[:,1]):
         try:
@@ -35,7 +35,7 @@ def load_data_for_eval(data_dir):
 
     return data_arr
 
-def load_data(user_train, user_val, user_test, data_set = "DISFA", subset = None, kernel = None, settings = None, random_state = None):
+def load_data(user_train, user_val, user_test, data_set = "DISFA", subset = None, kernel = None, settings = None, random_shuffle = None):
     if subset:
         if sys.platform == "linux":
             if data_set == "DISFA":
