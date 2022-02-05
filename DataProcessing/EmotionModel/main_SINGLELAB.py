@@ -57,7 +57,7 @@ class Objective(object):
         
         # Data loading
         print("Loading Dataset")
-        data_test, data_val, data_train, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset=True)
+        data_test, data_val, data_train, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset = True, unstratify = True)
 
         # Generate Train, Val, Test datasets
         train_dataset = ImageTensorDatasetMultiLabel(data_train, labels_train)
