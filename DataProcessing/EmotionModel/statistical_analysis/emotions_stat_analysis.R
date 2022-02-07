@@ -86,7 +86,7 @@ p1 <- ggplot(data = mydata_4obs_stim0, aes_string(x = "Task", y = emotion, group
   geom_line(size=1.5) + 
   ggtitle("Continuous") +
   scale_color_manual(values=c("#2a9df4", "#1167b1","#003d80")) +
-  labs(y = "Reaction Time [ms]", x = emotion) + 
+  labs(y = paste("frames with ",emotion), x = emotion) + 
   scale_x_discrete(limits = c("Pre","Post"), expand = c(0.1, 0.1))
 
 p2 <- ggplot(data = mydata_4obs_stim1, aes_string(x = "Task", y = emotion, group = "comb", colour="Nback")) +
@@ -96,7 +96,7 @@ p2 <- ggplot(data = mydata_4obs_stim1, aes_string(x = "Task", y = emotion, group
   ggtitle("ISF") +
   labs(x = emotion) + 
   scale_color_manual(values=c("#2a9df4", "#1167b1","#003d80")) +
-  labs(y = "Reaction Time [ms]", x = "Stimulation") + 
+  labs(y = paste("frames with ",emotion), x = "Stimulation") + 
   scale_x_discrete(limits = c("Pre","Post"), expand = c(0.1, 0.1))
 
 grid.arrange(p1,p2, ncol=2)
@@ -110,14 +110,14 @@ mytheme <- theme(text = element_text(size=20),
 
 for (emotion in emotion_list){
 # spagetti plot
-p3 <- ggplot(data = d3_2obs, aes_string(x = "Stim", y = emotion, fill="Stim")) +
+p3 <- ggplot(data = mydata_2obs, aes_string(x = "Stim", y = emotion, fill="Stim")) +
   mytheme + 
   geom_boxplot(width=0.7, alpha=0.6) +
   geom_dotplot(binaxis='y', stackdir='center', dotsize=0.8, alpha=0.7) +
-  ggtitle(paste("Average Change in", str_to_title(emotion)," Before and After Stimulation")) +
+  ggtitle(paste("Average Change in", toupper(emotion)," Before and After Stimulation")) +
   guides(fill= guide_legend(reverse = FALSE)) +
   scale_fill_manual(values=c("#398BED", "#F3B532")) +
-  labs(y = "Time [ms]", x = "Stimulation")
+  labs(y = "counts", x = "Stimulation")
 
 grid.arrange(p3)
 }

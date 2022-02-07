@@ -78,6 +78,7 @@ p <- ggplot(data = mydata, aes(x = Stimulus, y = SNR, fill=Stimulus)) +
   labs(y = "Percent Accuracy [%]", x = "Stimulation") 
 #scale_x_discrete(limits = c("Pre","Post"), expand = c(0.1, 0.1))
 
+
 p
 
 

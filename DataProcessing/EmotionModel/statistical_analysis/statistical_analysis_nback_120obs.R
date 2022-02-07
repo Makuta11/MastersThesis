@@ -71,6 +71,7 @@ stim0_pre <- d3_stim0$Scores[d3_stim0$Task == "Pre"]
 stim0_post <- d3_stim0$Scores[d3_stim0$Task == "Post"]
 stim1_pre <- d3_stim1$Scores[d3_stim1$Task == "Pre"]
 stim1_post <- d3_stim1$Scores[d3_stim1$Task == "Post"]
+str(d3_stim0)
 
 # Make theme
 mytheme <- theme(text = element_text(size=20), 
