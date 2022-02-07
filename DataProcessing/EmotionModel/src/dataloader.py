@@ -20,7 +20,7 @@ def load_data_for_eval(data_dir):
     data_list = list(dataset.items())
     data_arr = np.array(data_list)
 
-    # Convert bad inputs to zero array
+    # Convert bad inputs to zero array 
     ln = 3571
     for i, arr in enumerate(data_arr[:,1]):
         try:
