@@ -27,7 +27,7 @@ class Objective(object):
     def __call__(self, trial):
 
         params = {
-                'learning_rate': trial.suggest_loguniform('learning_rate', 1e-7, 1e-6),
+                'learning_rate': trial.suggest_loguniform('learning_rate', 1e-7, 5e-5),
                 #'optimizer': trial.suggest_categorical("optimizer", ["Adam", "RMSprop", "SGD"]),
                 #'batch_size': trial.suggest_int('batch_size', 16, 256),
                 'dropout_rate': trial.suggest_uniform("dropout_rate", 0.42, 0.5),
@@ -44,7 +44,7 @@ class Objective(object):
         # Action Unit to investigate
         num_intensities = 2
         aus = [1,2,4,5,6,9,12,15,17,20,25,26]
-        au = 20
+        au = 2
         au_idx = aus.index(au)
         
         # Subject split
@@ -56,7 +56,7 @@ class Objective(object):
         
         # Data loading
         print("Loading Dataset")
-        data_test, data_val, data_train, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset = True, unstratify = True)
+        data_test, data_val, data_train, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset = True)
 
         # Generate Train, Val, Test datasets
         train_dataset = ImageTensorDatasetMultiLabel(data_train, labels_train)
@@ -65,7 +65,7 @@ class Objective(object):
 
         # CV test on bactch size
         for k, BATCH_SIZE in enumerate([64]):#[params['batch_size']]):
-
+            
             # Place in dataloaders for ease of retrieval
             train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
             val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -87,7 +87,7 @@ class Objective(object):
 
             # Training Parameters
             if sys.platform == "linux":
-                EPOCHS = 250
+                EPOCHS = 400
             else:
                 EPOCHS = 5
             SAVE_FREQ = 10
@@ -172,7 +172,7 @@ else:
 
 # Hyperparameter tuning with optuna
 study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler())
-study.optimize(Objective(today), n_trials=30)
+study.optimize(Objective(today), n_trials=12)
 
 best_trial = study.best_trial
 for key, value in best_trial.params.items():
