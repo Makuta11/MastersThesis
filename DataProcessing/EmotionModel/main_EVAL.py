@@ -126,17 +126,15 @@ for file in os.listdir(data_dir):
 
 # Generate Emotion Columns TODO add AU1 sadness, surprise, and Fear
 df_collective["happiness"] = df_collective.AU12 * df_collective.AU6
-df_collective["sadness"] = df_collective.AU1 * df_collective.AU4 * df_collective.AU15 * df_collective.AU17
-df_collective["disgust"] = df_collective.AU4 * df_collective.AU9 * df_collective.AU15 * df_collective.AU17
-df_collective["surprise"] = df_collective.AU1 * df_collective.AU2 * df_collective.AU5 * df_collective.AU26
-df_collective["anger"] = df_collective.AU4 * df_collective.AU5 * df_collective.AU17 # Missing some labels
-df_collective["fear"] = df_collective.AU1 * df_collective.AU2 * df_collective.AU4 * df_collective.AU5 * df_collective.AU20 * df_collective.AU26 
+df_collective["sadness"] = df_collective.AU1 * df_collective.AU4 * df_collective.AU6 * df_collective.AU15 * df_collective.AU17
+df_collective["disgust"] = df_collective.AU4 * df_collective.AU9 * df_collective.AU17
+df_collective["surprise"] = df_collective.AU1 * df_collective.AU2 * df_collective.AU5 * df_collective.AU25 * df_collective.AU26
+df_collective["anger"] = df_collective.AU4 * df_collective.AU17 # Missing some labels
+df_collective["fear"] = df_collective.AU1 * df_collective.AU2 * df_collective.AU4 * df_collective.AU5 * df_collective.AU20 * df_collective.AU25 * df_collective.AU26 
 
 
 df_collective.to_csv("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/df_collective")
 
 # Produce specific dataframes from df_collective to be statistically analyzed in Rstudio
-
-
 
 print("Done!!!")

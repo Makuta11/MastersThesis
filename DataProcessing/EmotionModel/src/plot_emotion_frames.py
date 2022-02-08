@@ -45,9 +45,9 @@ def plot_img_w_landmarks(image):
 
 #%%
 # Load data
-subject = "13"
-session = "02"
-task = "1"
+subject = "02"
+session = "01"
+task = "2"
 try:
     data = np.load(f"/Users/DG/Documents/PasswordProtected/speciale_outputs/{subject}_{session}/{subject}_ses:{session}_N-Back-{task}_video_0.0.npy", allow_pickle=True)
 except:
@@ -78,8 +78,8 @@ frames = []
 for em_mask in [happiness, sadness, disgust, surprise, anger, fear]:
     frame = df[(mask) & (em_mask)]["Vid_idx"]
     frame = [x*6 for x in frame]
-    if len(frame) > 3:
-        frames.append(frame[:3])
+    if len(frame) > 6:
+        frames.append(frame[:6])
     else:
         frames.append(frame)
 
@@ -104,17 +104,14 @@ for l, ls in enumerate(frames):
 
 # %%
 
-
-#def avg_perf_scores(df, stim, nback, session = None, IDprint = None):
-
 stat_dict = {"ID": [], "Stim": [], "Period": [],"Task": [], "Nback": [], "happiness": [], "sadness": [], "disgust": [], "surprise": [], "anger": [], "fear": [], "AU12": []}
 
 for stim in [1,2]:
     for nback in range(1,4):
         for session in [1,2]:
-            mask = (df.Stim == stim) & (df.Nback == nback)
+            mask = (df.Stim == stim) & (df.Nback == nback) & (df.Session == session)
 
-            for ID in df.ID.unique():
+            for ID in df[mask].ID.unique():
                 for em in ems:
                     stat_dict[em].append(df[(mask) & (df.Task == 1) & (df.ID == ID)][em].sum())
                     stat_dict[em].append(df[(mask) & (df.Task == 2) & (df.ID == ID)][em].sum())
@@ -136,9 +133,9 @@ stat_dict_2 = {"ID": [], "Stim": [], "Period": [], "Nback": [], "happiness": [],
 for stim in [1,2]:
     for nback in range(1,4):
         for session in [1,2]:
-            mask = (df.Stim == stim) & (df.Nback == nback)
+            mask = (df.Stim == stim) & (df.Nback == nback) & (df.Session == session)
 
-            for ID in df.ID.unique():
+            for ID in df[mask].ID.unique():
                 for em in ems:
                     t1 = df[(mask) & (df.Task == 1) & (df.ID == ID)][em].sum()
                     t2 = df[(mask) & (df.Task == 2) & (df.ID == ID)][em].sum()

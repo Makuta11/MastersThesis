@@ -29,8 +29,8 @@ def get_slice(land):
 #%%
 # Load data
 for subject in ["01", "02", "03", "09", "10", "13", "15", "17", "18", "20"]:
-    for session in ["01"]:
-        for task in ["1"]:
+    for session in ["01","02"]:
+        for task in ["1","2"]:
             try: # loads from file where no mistakes were made
                 data = np.load(f"/Users/DG/Documents/PasswordProtected/speciale_outputs/{subject}_{session}/{subject}_ses:{session}_N-Back-{task}_video_0.0.npy", allow_pickle=True)
             except:# loads from file where recording had to be restarted
@@ -85,7 +85,7 @@ for subject in ["01", "02", "03", "09", "10", "13", "15", "17", "18", "20"]:
                         ax.set_title(ems[i])
                     fig.subplots_adjust(wspace=0)
 
-            fig.savefig(f"/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/emotion_grids/grid_{subject}_{session}_{task}")
+            fig.savefig(f"/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/pickles/emotion_grids_2/grid_{subject}_{session}_{task}")
 
             #%%
         def plot_mp_landmarks(landmarks, contors = None, annotate=False, img_dir=None):
