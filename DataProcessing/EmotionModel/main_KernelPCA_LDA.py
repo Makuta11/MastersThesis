@@ -36,6 +36,7 @@ transform = make_pipeline(StandardScaler(copy=False, with_mean=True, with_std=Fa
 print("Transforming kernelized data")
 TT.tick()
 data_transformed = transform.fit_transform(kernel)
+del kernel
 print(f'It took {TT.tock()} seconds to perform PCA on the kernel')
 
 # Loop through specified action units and use LDA for classification
@@ -56,11 +57,12 @@ for i, au in enumerate([1]):
     # Calculate f1_scores
     print("Starting f1-score calculation")
     print(f'\nTest scores on AU{au} identification:\n{classification_report(testlab, y_pred, target_names=["not active", "active"])}')
-
+    #roc_auc_score(testlab, clf.predict_proba(data_transformed[test_idx])[:, 1])
+    
     # Save the SVC model for specific AU
     if sys.platform == 'linux':
         compress_pickle(f"/work3/s164272/data/models/KLDA_{type_kern}_AU{au}", clf)
     else:
         compress_pickle("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/pickles", clf)
 
-
+    del clf
