@@ -32,7 +32,7 @@ rm(list=ls())
 
 # load data
 mydata = read.csv("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EEG/assets/df_snr_stim")
-
+write.csv(mydata, "/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EEG/assets/df_snr_stim.csv")
 #group <- rep(rep(c("A", "A", "B", "A", "A", "B", "B", "B", "A", "B"), each=2), 3)
 #mydata["group"] = group
 head(mydata)
@@ -44,7 +44,8 @@ mydata$ID <- as.factor(mydata$ID)
 str(mydata)
 
 # Set up 
-m <- lmer(SNR ~ Stimulus*session + (1 | ID) , data=mydata)
+m <- lme(SNR ~ Stimulus*session, random = ~1 | ID, data=mydata)
+aov(m)
 summary(m)
 anova(m)
 

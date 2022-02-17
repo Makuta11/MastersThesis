@@ -45,7 +45,7 @@ mydata_4obs$Nback <- as.factor(mydata_4obs$Nback)
 mydata_2obs$Period <- as.factor(mydata_2obs$Period)
 mydata_4obs$Period <- as.factor(mydata_4obs$Period)
 mydata_4obs$Task <- factor(ifelse(mydata_4obs$Task == 1,"Pre","Post"), levels = c("Pre", "Post"))
-mydata_2obs$Stim <- factor(ifelse(mydata_2obs$Stim == 1,"Continuous","ISF"), levels = c("Continuous", "ISF"))
+mydata_2obs$Stim <- factor(ifelse(mydata_2obs$Stim == 1,"ISF","Continuous"), levels = c("Continuous", "ISF"))
 mydata_4obs$comb <- paste(mydata_4obs[,"ID"],mydata_4obs[,"Nback"])
 mydata_2obs$comb <- paste(mydata_2obs[,"ID"],mydata_2obs[,"Nback"])
 str(mydata_2obs)
@@ -69,6 +69,12 @@ d1_4obs_stim0 = d1_4obs %>% filter(d1_4obs$Stim == 0)
 d1_4obs_stim1 = d1_4obs %>% filter(d1_4obs$Stim == 1)
 str(mydata_4obs_stim0)
 
+# evaluate performance change
+m1 <- lmer(AU12~ Stim + Task + Period + Stim:Period + Stim:Task + (1 | ID) , data=mydata_4obs, REML = FALSE)
+anova(m1)
+summary(m1)
+coef(m1)
+
 # Make theme
 mytheme <- theme(text = element_text(size=20), 
                  axis.title.y = element_text(angle=90),
@@ -76,7 +82,7 @@ mytheme <- theme(text = element_text(size=20),
                  legend.background = element_rect(size=0.5, linetype = "solid", colour = "black"),
                  plot.title = element_text(size=25, hjust=0.5, face="bold"))
 
-emotion_list <- list("happiness", "sadness", "disgust", "surprise", "anger", "fear")
+emotion_list <- list("happiness", "sadness", "disgust", "surprise", "anger", "fear", "AU12")
 
 for (emotion in emotion_list){
 # spagetti plot
@@ -114,7 +120,7 @@ p3 <- ggplot(data = mydata_2obs, aes_string(x = "Stim", y = emotion, fill="Stim"
   mytheme + 
   geom_boxplot(width=0.7, alpha=0.6) +
   geom_dotplot(binaxis='y', stackdir='center', dotsize=0.8, alpha=0.7) +
-  ggtitle(paste("Average Change in", toupper(emotion)," Before and After Stimulation")) +
+  ggtitle(paste("Change in", toupper(emotion))) +
   guides(fill= guide_legend(reverse = FALSE)) +
   scale_fill_manual(values=c("#398BED", "#F3B532")) +
   labs(y = "counts", x = "Stimulation")

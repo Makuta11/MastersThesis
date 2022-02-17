@@ -58,21 +58,21 @@ mytheme <- theme(text = element_text(size=20),
 # spagetti plot
 p1 <- ggplot(data = d1_4obs_stim0, aes(x = Task, y = ResponsTime, group = ID, colour=Period)) +
   mytheme + 
-  coord_trans(ylim = c(0.3,0.75))  + 
+  coord_trans(ylim = c(0.2,0.8))  + 
   geom_line(size=1.5) + 
   ggtitle("Continuous") +
   scale_color_manual(values=c("#007ea7", "#00a8e8")) +
-  labs(y = "Reaction Time [ms]", x = "Stimulation") + 
+  labs(y = "Reaction Time [s]", x = "Stimulation") + 
   scale_x_discrete(limits = c("Pre","Post"), expand = c(0.1, 0.1))
 
 p2 <- ggplot(data = d1_4obs_stim1, aes(x = Task, y = ResponsTime, group = ID, colour=Period)) +
   mytheme + 
-  coord_trans(ylim = c(0.3,0.75))  +  
+  coord_trans(ylim = c(0.2,0.8))  +  
   geom_line(size=1.5) + 
   ggtitle("ISF") +
   labs(x = "Stimulation") + 
   scale_color_manual(values=c("#007ea7", "#00a8e8")) +
-  labs(y = "Reaction Time [ms]", x = "Stimulation") + 
+  labs(y = "Reaction Time [s]", x = "Stimulation") + 
   scale_x_discrete(limits = c("Pre","Post"), expand = c(0.1, 0.1))
 
 grid.arrange(p1,p2, ncol=2)
