@@ -178,9 +178,12 @@ def main(i, img_dir, subset=None):
     try:
         # Generate Shape Vector
         if subset:
+            print("landmarks")
             landmarks, _ = get_landmarks_mp(img_dir)
-            contors = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
-            #contors = np.load("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
+            #contors = np.load("/Volumes/GoogleDrive/.shortcut-targets-by-id/1WuuFja-yoluAKvFp--yOQe7bKLg-JeA-/EMOTIONLINE/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
+            print("contors")
+            contors = np.load("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subset_contors.npy")
+            print("landmark_idx")
             landmark_idx = np.unique(contors).astype(int)
         else:
             landmarks, contors = get_landmarks_mp(img_dir)
@@ -245,7 +248,7 @@ if __name__ == "__main__":
     # Parallel generation of face_space vectors
     
     # for generation of RGB images
-    dictionary_list = Parallel(n_jobs=-1,verbose=10)(delayed(main)(i,f'{dir_path}/{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
+    dictionary_list = Parallel(n_jobs=24,verbose=10)(delayed(main)(i,f'{dir_path}/{file}', subset=True) for i, file in enumerate(sorted(os.listdir(dir_path))))
     
     # for generation of 3D matrix images
     #dictionary_list = Parallel(n_jobs=-1,verbose=7)(delayed(main)(i,file, subset=True) for i, file in enumerate(video))

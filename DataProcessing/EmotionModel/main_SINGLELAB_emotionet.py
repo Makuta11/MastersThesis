@@ -44,19 +44,16 @@ class Objective(object):
         # Action Unit to investigate
         num_intensities = 2
         aus = [1,2,4,5,6,9,12,15,17,20,25,26]
-        au = 2
+        au = 1
         au_idx = aus.index(au)
-        
-        # Subject split
-        #user_train = np.array([1,2,4,6,8,10,11,16,17,18,21,23,24,25,26,27,28,29,30,31,32])
-        users_list = pickle.load(open("/zhome/08/3/117881/MastersThesis/DataProcessing/EmotionModel/src/assets/subsets", 'rb'))
-        users = users_list[f'AU{au}']
-        user_train, user_val = train_test_split(users, test_size=0.2, random_state=42) 
-        user_test = user_val
         
         # Data loading
         print("Loading Dataset")
-        data_test, data_val, data_train, labels_test, labels_val, labels_train = load_data(user_train, user_val, user_test, subset = True)
+        dataset = np.load("/work3/s164272/data/Features/EmotioNet_data.npy", allow_pickle=True)
+        misses = np.load("/work3/s164272/data/Features/EmotioNet_data_misses.npy", allow_pickle=True)
+
+        # Split datasets
+        data_train, data_test, labels_train, labels_test = train_test_split(dataset, labels, test_size= 0.2, random_state = 42)
 
         # Generate Train, Val, Test datasets
         train_dataset = ImageTensorDatasetMultiLabel(data_train, labels_train)
@@ -84,7 +81,7 @@ class Objective(object):
             FC_HIDDEN_DIM_2 = 2**8
             FC_HIDDEN_DIM_3 = 2**7
             FC_HIDDEN_DIM_4 = 2**5
-
+    
             # Training Parameters
             if sys.platform == "linux":
                 EPOCHS = 400
